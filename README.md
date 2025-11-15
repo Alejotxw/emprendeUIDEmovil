@@ -1,4 +1,3 @@
-EmprendeUIDE
 EmprendeUIDE es una aplicación móvil desarrollada en Flutter para la comunidad de la Universidad Internacional del Ecuador (UIDE). Funciona como un marketplace interno donde estudiantes emprendedores pueden publicar y ofrecer servicios como diseño gráfico, tutorías, reparaciones, fotografía y más, mientras otros estudiantes y docentes los exploran, solicitan y contratan directamente.
 
 Características Principales
