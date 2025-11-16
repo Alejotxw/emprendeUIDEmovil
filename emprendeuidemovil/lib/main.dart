@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'providers/counter_provider.dart'; // Import del Provider
 import 'screens/home_screen.dart';
-import 'screens/profile_screen.dart';
+import 'screens/explore_screen.dart';
 import 'screens/services_screen.dart';
 import 'screens/chat_screen.dart';
-import 'screens/history_screen.dart';
+import 'screens/profile_screen.dart';
+import 'screens/auth_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(  // Ahora disponible con Provider instalado
+      create: (context) => CounterProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -22,12 +30,12 @@ class MyApp extends StatelessWidget {
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
           selectedItemColor: Colors.purple,
           unselectedItemColor: Colors.grey,
-          type: BottomNavigationBarType.fixed, // Para 5 items sin scroll
+          type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.white,
           elevation: 8,
         ),
       ),
-      home: const MainScreen(), // Nueva pantalla principal con navegación
+      home: const AuthScreen(),
     );
   }
 }
@@ -40,33 +48,33 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _currentIndex = 0; // Índice de la página actual (inicia en Inicio)
+  int _currentIndex = 0; // Indice de la pagina actual (inicia en Inicio)
 
-  // Lista de páginas (5 diferentes, mapeadas a las nuevas etiquetas)
-final List<Widget> _pages = [
-  const HomeScreen(),      // 0. Inicio
-  const HistoryScreen(),   // 1. Explorar (nueva pantalla)
-  const ServicesScreen(),   // 2. Servicios
-  const ChatScreen(),  // 3. Chat
-  const ProfileScreen(),   // 4. Perfil
-];
+  // Lista de paginas (5 diferentes)
+  final List<Widget> _pages = [
+    const HomeScreen(),      // 0. Inicio
+    const ExploreScreen(),   // 1. Explorar
+    const ServicesScreen(),  // 2. Servicios
+    const ChatScreen(),      // 3. Chat
+    const ProfileScreen(),   // 4. Perfil
+  ];
 
-  // Íconos y etiquetas actualizados según la imagen
+  // Iconos y etiquetas actualizados
   final List<BottomNavigationBarItem> _navItems = [
     const BottomNavigationBarItem(
       icon: Icon(Icons.home),
       label: 'Inicio',
     ),
     const BottomNavigationBarItem(
-      icon: Icon(Icons.search), // Lupa en cuadrado (search)
+      icon: Icon(Icons.search),
       label: 'Explorar',
     ),
     const BottomNavigationBarItem(
-      icon: Icon(Icons.work), // Maletín (briefcase) para servicios
+      icon: Icon(Icons.work),
       label: 'Servicios',
     ),
     const BottomNavigationBarItem(
-      icon: Icon(Icons.chat_bubble_outline), // Burbuja de chat
+      icon: Icon(Icons.chat_bubble_outline),
       label: 'Chat',
     ),
     const BottomNavigationBarItem(
@@ -78,7 +86,7 @@ final List<Widget> _pages = [
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack( // Mantiene el estado de cada página
+      body: IndexedStack(
         index: _currentIndex,
         children: _pages,
       ),
@@ -86,11 +94,11 @@ final List<Widget> _pages = [
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
-            _currentIndex = index; // Cambia página al tocar
+            _currentIndex = index;
           });
         },
         items: _navItems,
-        type: BottomNavigationBarType.fixed, // Fijo para 5 items
+        type: BottomNavigationBarType.fixed,
         showSelectedLabels: true,
         showUnselectedLabels: true,
         selectedFontSize: 12,

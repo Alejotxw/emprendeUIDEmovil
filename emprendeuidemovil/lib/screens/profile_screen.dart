@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../screens/auth_screen.dart'; // Import para AuthScreen
+import '../providers/counter_provider.dart'; // Import del Provider
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -71,11 +74,11 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
+                  Text(
                     'juan.perez@uide.edu.ec',
                     style: TextStyle(
                       fontSize: 16,
-                      color: Colors.grey,
+                      color: Colors.grey.shade600, // Fix: shade600 para compatibilidad
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -107,36 +110,51 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 32),
 
-                  // Menú de opciones
-                  _MenuItem(
-                    icon: Icons.history,
-                    title: 'Historial de pedidos',
-                    badge: '3',
-                    onTap: () => _showSnackBar(context, 'Abriendo historial de pedidos'),
-                  ),
-                  _MenuItem(
-                    icon: Icons.favorite_border,
-                    title: 'Favoritos',
-                    badge: '8',
-                    onTap: () => _showSnackBar(context, 'Abriendo favoritos'),
-                  ),
-                  _MenuItem(
-                    icon: Icons.rate_review,
-                    title: 'Mis reseñas',
-                    onTap: () => _showSnackBar(context, 'Abriendo mis reseñas'),
-                  ),
-                  _MenuItem(
-                    icon: Icons.settings,
-                    title: 'Configuración',
-                    onTap: () => _showSnackBar(context, 'Abriendo configuración'),
+                  // Menú de opciones (Consumer envuelve la columna de items)
+                  Consumer<CounterProvider>(
+                    builder: (context, counter, child) {
+                      return Column(
+                        children: [
+                          _MenuItem(
+                            icon: Icons.history,
+                            title: 'Historial de pedidos',
+                            badge: '${counter.pendingRequests}', // Badge dinámico
+                            onTap: () => _showSnackBar(context, 'Abriendo historial con ${counter.pendingRequests} pendientes'),
+                          ),
+                          _MenuItem(
+                            icon: Icons.favorite_border,
+                            title: 'Favoritos',
+                            badge: '8',
+                            onTap: () => _showSnackBar(context, 'Abriendo favoritos'),
+                          ),
+                          _MenuItem(
+                            icon: Icons.rate_review,
+                            title: 'Mis reseñas',
+                            onTap: () => _showSnackBar(context, 'Abriendo mis reseñas'),
+                          ),
+                          _MenuItem(
+                            icon: Icons.settings,
+                            title: 'Configuración',
+                            onTap: () => _showSnackBar(context, 'Abriendo configuración'),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: 24),
 
                   // Botón Cerrar sesión
+                  // Botón Cerrar sesión (actualizado)
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () => _showSnackBar(context, 'Cerrando sesión...'),
+                      onPressed: () {
+                        _showSnackBar(context, 'Cerrando sesión...');
+                        // Navega a AuthScreen (login)
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (context) => const AuthScreen()),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red[400],
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -221,7 +239,7 @@ class _StatCard extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey[600],
+            color: Colors.grey.shade600,
             fontWeight: FontWeight.w500,
           ),
         ),

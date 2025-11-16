@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/counter_provider.dart'; // Import del Provider
 
 class ServicesScreen extends StatefulWidget {
   const ServicesScreen({super.key});
@@ -42,7 +44,6 @@ class _ServicesScreenState extends State<ServicesScreen> with SingleTickerProvid
           IconButton(
             icon: const Icon(Icons.add, color: Colors.white),
             onPressed: () {
-              // Acción para crear nuevo servicio
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Abriendo formulario para crear servicio')),
               );
@@ -73,7 +74,7 @@ class _ServicesScreenState extends State<ServicesScreen> with SingleTickerProvid
   }
 }
 
-// Tab para Solicitudes
+// Tab para Solicitudes (con Provider en botones)
 class _SolicitudesTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -133,7 +134,6 @@ class _SolicitudesTab extends StatelessWidget {
                       ),
                       GestureDetector(
                         onTap: () {
-                          // Toggle estado visual
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('Cambiando estado de ${request['title']}')),
                           );
@@ -179,6 +179,7 @@ class _SolicitudesTab extends StatelessWidget {
                   const SizedBox(height: 12),
                   Text(
                     'Fecha: ${request['date']} - Cantidad: ${request['quantity']}',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600), // Fix: shade600
                   ),
                   if (isPending) ...[
                     const SizedBox(height: 16),
@@ -190,6 +191,8 @@ class _SolicitudesTab extends StatelessWidget {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Solicitud aceptada'), backgroundColor: Colors.green),
                               );
+                              // Decrementa el contador global
+                              Provider.of<CounterProvider>(context, listen: false).decrement();
                             },
                             style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
                             child: const Text('Aceptar', style: TextStyle(color: Colors.white)),
@@ -202,6 +205,8 @@ class _SolicitudesTab extends StatelessWidget {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Solicitud rechazada'), backgroundColor: Colors.red),
                               );
+                              // Decrementa si rechazas también
+                              Provider.of<CounterProvider>(context, listen: false).decrement();
                             },
                             style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
                             child: const Text('Rechazar'),
@@ -228,14 +233,14 @@ class _PublicadosTab extends StatelessWidget {
     final List<Map<String, dynamic>> _publishedServices = [
       {
         'title': 'Diseño de logos profesionales',
-        'price': '\$25',
+        'price': r'$25',
         'orders': '32 pedidos',
         'icon': Icons.design_services,
         'category': 'Diseño',
       },
       {
         'title': 'Edición de videos',
-        'price': '\$20',
+        'price': r'$20',
         'orders': '15 pedidos',
         'icon': Icons.video_library,
         'category': 'Tecnología',
