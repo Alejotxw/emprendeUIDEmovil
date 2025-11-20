@@ -11,6 +11,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _selectedFilter = 'Todos'; // Filtro por defecto
 
+  // Carrito de compras
+  Map<String, int> _cart = {}; // key: título del servicio, value: cantidad
+
   // Lista de filtros
   final List<String> _filters = ['Todos', 'Comida', 'Diseño', 'Tecnología', 'Foto'];
 
@@ -106,6 +109,29 @@ class _ExploreScreenState extends State<ExploreScreen> {
     return _services.where((service) => service['category'] == _selectedFilter).toList();
   }
 
+  // Función para obtener total de items en carrito
+  int get _totalCartItems {
+    return _cart.values.fold(0, (sum, qty) => sum + qty);
+  }
+
+  // Función para navegar al carrito
+  void _navigateToCart() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CartScreen(
+          cart: _cart,
+          services: _services,
+          onCartUpdated: (updatedCart) {
+            setState(() {
+              _cart = updatedCart;
+            });
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -179,6 +205,40 @@ class _ExploreScreenState extends State<ExploreScreen> {
             ),
           ),
         ),
+        actions: [
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.shopping_cart),
+                onPressed: _navigateToCart,
+              ),
+              if (_totalCartItems > 0)
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 16,
+                      minHeight: 16,
+                    ),
+                    child: Text(
+                      '$_totalCartItems',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -197,14 +257,33 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 itemCount: _filteredServices.length,
                 itemBuilder: (context, index) {
                   final service = _filteredServices[index];
+                  final String title = service['title'];
+                  final int currentQuantity = _cart[title] ?? 0;
                   return ServiceCard(
-                    title: service['title'],
+                    title: title,
                     price: service['price'],
                     description: service['description'],
                     rating: service['rating'],
                     reviews: service['reviews'],
                     user: service['user'],
                     imageUrl: service['imageUrl'],
+                    currentQuantity: currentQuantity,
+                    onAdd: () {
+                      setState(() {
+                        _cart[title] = (currentQuantity + 1);
+                      });
+                    },
+                    onRemove: currentQuantity > 0
+                        ? () {
+                            setState(() {
+                              if (currentQuantity > 1) {
+                                _cart[title] = currentQuantity - 1;
+                              } else {
+                                _cart.remove(title);
+                              }
+                            });
+                          }
+                        : null,
                   );
                 },
               ),
@@ -212,6 +291,14 @@ class _ExploreScreenState extends State<ExploreScreen> {
           ],
         ),
       ),
+      floatingActionButton: _totalCartItems > 0
+          ? FloatingActionButton.extended(
+              onPressed: _navigateToCart,
+              icon: const Icon(Icons.shopping_cart),
+              label: Text('Carrito ($_totalCartItems)'),
+              backgroundColor: Colors.purple,
+            )
+          : null,
     );
   }
 
@@ -219,6 +306,210 @@ class _ExploreScreenState extends State<ExploreScreen> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+}
+
+// Pantalla del carrito
+class CartScreen extends StatefulWidget {
+  final Map<String, int> cart;
+  final List<Map<String, dynamic>> services;
+  final Function(Map<String, int>) onCartUpdated;
+
+  const CartScreen({
+    super.key,
+    required this.cart,
+    required this.services,
+    required this.onCartUpdated,
+  });
+
+  @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
+  late Map<String, int> _localCart;
+  String? _selectedPaymentMethod = 'Tarjeta de Crédito';
+  final List<String> _paymentMethods = ['Tarjeta de Crédito', 'Tarjeta de Débito', 'Transferencia Bancaria', 'PayPal'];
+
+  @override
+  void initState() {
+    super.initState();
+    _localCart = Map.from(widget.cart);
+  }
+
+  // Función para calcular el total
+  double _calculateTotal() {
+    double total = 0.0;
+    _localCart.forEach((title, qty) {
+      final service = widget.services.firstWhere((s) => s['title'] == title);
+      final price = double.parse(service['price'].replaceAll(r'$', ''));
+      total += price * qty;
+    });
+    return total;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_localCart.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Carrito'),
+          backgroundColor: Colors.purple,
+        ),
+        body: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.grey),
+              SizedBox(height: 16),
+              Text('Tu carrito está vacío', style: TextStyle(fontSize: 18, color: Colors.grey)),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Carrito de Compras'),
+        backgroundColor: Colors.purple,
+        actions: [
+          TextButton(
+            onPressed: () {
+              widget.onCartUpdated(_localCart);
+              Navigator.pop(context);
+            },
+            child: const Text('Guardar', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView(
+              children: _localCart.entries.map((entry) {
+                final serviceTitle = entry.key;
+                final qty = entry.value;
+                final service = widget.services.firstWhere((s) => s['title'] == serviceTitle);
+                final price = double.parse(service['price'].replaceAll(r'$', ''));
+                final totalPrice = price * qty;
+                return Card(
+                  margin: const EdgeInsets.all(8.0),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundImage: NetworkImage(service['imageUrl']),
+                      onBackgroundImageError: (_, __) => const Icon(Icons.image_not_supported),
+                    ),
+                    title: Text(serviceTitle),
+                    subtitle: Text('Precio unitario: ${service['price']}'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.remove, color: Colors.red),
+                          onPressed: () {
+                            setState(() {
+                              if (qty > 1) {
+                                _localCart[serviceTitle] = qty - 1;
+                              } else {
+                                _localCart.remove(serviceTitle);
+                              }
+                            });
+                          },
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text('$qty', style: const TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.add, color: Colors.green),
+                          onPressed: () {
+                            setState(() {
+                              _localCart[serviceTitle] = qty + 1;
+                            });
+                          },
+                        ),
+                        Text('\$${totalPrice.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          // Sección de pago
+          Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, -2),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                // Método de pago
+                const Text('Método de Pago', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  value: _selectedPaymentMethod,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    filled: true,
+                  ),
+                  items: _paymentMethods.map((method) {
+                    return DropdownMenuItem(value: method, child: Text(method));
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedPaymentMethod = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                // Total y botón de pagar
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Total:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    Text('\$${_calculateTotal().toStringAsFixed(2)}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green)),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Procesando pago con $_selectedPaymentMethod por \$${_calculateTotal().toStringAsFixed(2)}...'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                      widget.onCartUpdated(_localCart);
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purple,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text('Pagar', style: TextStyle(fontSize: 18, color: Colors.white)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -231,6 +522,9 @@ class ServiceCard extends StatelessWidget {
   final int reviews;
   final String user;
   final String imageUrl;
+  final int currentQuantity;
+  final VoidCallback? onAdd;
+  final VoidCallback? onRemove;
 
   const ServiceCard({
     super.key,
@@ -241,6 +535,9 @@ class ServiceCard extends StatelessWidget {
     required this.reviews,
     required this.user,
     required this.imageUrl,
+    required this.currentQuantity,
+    required this.onAdd,
+    this.onRemove,
   });
 
   @override
@@ -343,6 +640,39 @@ class ServiceCard extends StatelessWidget {
                       Text('$rating ($reviews)'),
                       const SizedBox(width: 8),
                       Text(user, style: const TextStyle(fontWeight: FontWeight.w500)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  // Controles de carrito
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      if (currentQuantity > 0) ...[
+                        IconButton(
+                          icon: const Icon(Icons.remove, size: 20, color: Colors.red),
+                          onPressed: onRemove,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            '$currentQuantity',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.add, size: 20, color: Colors.green),
+                          onPressed: onAdd,
+                        ),
+                      ] else ...[
+                        IconButton(
+                          icon: const Icon(Icons.add_shopping_cart, size: 20, color: Colors.green),
+                          onPressed: onAdd,
+                        ),
+                      ],
                     ],
                   ),
                 ],
