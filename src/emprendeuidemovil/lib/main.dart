@@ -4,6 +4,7 @@ import 'screens/profile_screen.dart';
 import 'screens/services_screen.dart';
 import 'screens/chat_screen.dart';
 import 'screens/history_screen.dart';
+import 'screens/login_screen.dart'; // <-- IMPORTANTE
 
 void main() {
   runApp(const MyApp());
@@ -16,18 +17,26 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'EmprendeUIDE',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
         scaffoldBackgroundColor: Colors.grey[50],
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
           selectedItemColor: Colors.purple,
           unselectedItemColor: Colors.grey,
-          type: BottomNavigationBarType.fixed, // Para 5 items sin scroll
+          type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.white,
           elevation: 8,
         ),
       ),
-      home: const MainScreen(), // Nueva pantalla principal con navegación
+
+      // ⬇️ AHORA EL LOGIN ES LA PANTALLA INICIAL
+      home: const LoginScreen(),
+
+      // RUTAS (Para navegar fácilmente)
+      routes: {
+        '/main': (context) => const MainScreen(),
+      },
     );
   }
 }
@@ -40,45 +49,28 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _currentIndex = 0; // Índice de la página actual (inicia en Inicio)
+  int _currentIndex = 0;
 
-  // Lista de páginas (5 diferentes, mapeadas a las nuevas etiquetas)
-final List<Widget> _pages = [
-  const HomeScreen(),      // 0. Inicio
-  const HistoryScreen(),   // 1. Explorar (nueva pantalla)
-  const ServicesScreen(),   // 2. Servicios
-  const ChatScreen(),  // 3. Chat
-  const ProfileScreen(),   // 4. Perfil
-];
+  final List<Widget> _pages = [
+    const HomeScreen(),
+    const HistoryScreen(),
+    const ServicesScreen(),
+    const ChatScreen(),
+    const ProfileScreen(),
+  ];
 
-  // Íconos y etiquetas actualizados según la imagen
   final List<BottomNavigationBarItem> _navItems = [
-    const BottomNavigationBarItem(
-      icon: Icon(Icons.home),
-      label: 'Inicio',
-    ),
-    const BottomNavigationBarItem(
-      icon: Icon(Icons.search), // Lupa en cuadrado (search)
-      label: 'Explorar',
-    ),
-    const BottomNavigationBarItem(
-      icon: Icon(Icons.work), // Maletín (briefcase) para servicios
-      label: 'Servicios',
-    ),
-    const BottomNavigationBarItem(
-      icon: Icon(Icons.chat_bubble_outline), // Burbuja de chat
-      label: 'Chat',
-    ),
-    const BottomNavigationBarItem(
-      icon: Icon(Icons.person),
-      label: 'Perfil',
-    ),
+    const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
+    const BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Explorar'),
+    const BottomNavigationBarItem(icon: Icon(Icons.work), label: 'Servicios'),
+    const BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Chat'),
+    const BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack( // Mantiene el estado de cada página
+      body: IndexedStack(
         index: _currentIndex,
         children: _pages,
       ),
@@ -86,11 +78,11 @@ final List<Widget> _pages = [
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
-            _currentIndex = index; // Cambia página al tocar
+            _currentIndex = index;
           });
         },
         items: _navItems,
-        type: BottomNavigationBarType.fixed, // Fijo para 5 items
+        type: BottomNavigationBarType.fixed,
         showSelectedLabels: true,
         showUnselectedLabels: true,
         selectedFontSize: 12,
