@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/services_screen.dart';
-import 'screens/chat_screen.dart';
-import 'screens/history_screen.dart';
 import 'screens/login_screen.dart';
 
 void main() {
@@ -36,11 +34,10 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
-  // SOLO 3 PANTALLAS PARA LA NUEVA NAVEGACIÓN
   final List<Widget> _pages = [
-    const HomeScreen(),        // 0
-    const ServicesScreen(),    // 1 (crear emprendimiento)
-    const ProfileScreen(),     // 2
+    const HomeScreen(),      
+    const ServicesScreen(),  
+    const ProfileScreen(),   
   ];
 
   @override
@@ -48,47 +45,39 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       body: _pages[_currentIndex],
 
-      // ----------- NUEVA NAVEGACIÓN INFERIOR -----------
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 10,
-        child: SizedBox(
-          height: 65,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              // BOTÓN INICIO
-              IconButton(
-                icon: Icon(
-                  Icons.home,
-                  color: _currentIndex == 0 ? const Color(0xFF90063a) : Colors.grey,
-                  size: 30,
-                ),
-                onPressed: () => setState(() => _currentIndex = 0),
-              ),
-
-              const SizedBox(width: 40), // espacio para FAB
-
-              // BOTÓN PERFIL
-              IconButton(
-                icon: Icon(
-                  Icons.person,
-                  color: _currentIndex == 2 ? const Color(0xFF90063a) : Colors.grey,
-                  size: 30,
-                ),
-                onPressed: () => setState(() => _currentIndex = 2),
-              ),
-            ],
+      // 🔥 NAVBAR RECTO (SIN CURVA)
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.white,
+        selectedItemColor: const Color(0xFF90063a),
+        unselectedItemColor: Colors.grey,
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: "Inicio",
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add_circle_outline),
+            label: "Crear",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: "Perfil",
+          ),
+        ],
+      ),
+
+      // 🔥 BOTÓN FLOTANTE OPCIONAL (puede quitarse)
+      floatingActionButton: Transform.translate(
+        offset: const Offset(0, 25), 
+        child: FloatingActionButton(
+          backgroundColor: const Color(0xFFdaa520),
+          child: const Icon(Icons.add, size: 32, color: Colors.white),
+          onPressed: () => setState(() => _currentIndex = 1),
         ),
       ),
 
-      // BOTÓN CENTRAL (CREAR)
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFFdaa520),
-        child: const Icon(Icons.add, size: 32, color: Colors.white),
-        onPressed: () => setState(() => _currentIndex = 1),
-      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }

@@ -6,71 +6,72 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Colors.white,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
             expandedHeight: 200,
             floating: false,
             pinned: true,
-            backgroundColor: Colors.transparent,
+            backgroundColor: const Color(0xFF90063a),
             flexibleSpace: FlexibleSpaceBar(
-              title: const Text('Perfil'),
+              title: const Text(
+                'Perfil',
+                style: TextStyle(color: Colors.white),
+              ),
               background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.purple, Colors.blue],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
+                color: const Color(0xFF90063a),
               ),
             ),
           ),
+
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  // Avatar y nombre
-                  Stack(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.3),
-                              blurRadius: 10,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
+                  
+                  // AVATAR
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF90063a).withOpacity(0.3),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
                         ),
-                        child: const CircleAvatar(
-                          radius: 50,
-                          backgroundColor: Colors.purple,
-                          child: Text(
-                            'JD',
-                            style: TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
+                      ],
+                    ),
+                    child: const CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Color(0xFF90063a),
+                      child: Text(
+                        'JD',
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
-                    ],
+                    ),
                   ),
+
                   const SizedBox(height: 16),
+
+                  // NOMBRE
                   const Text(
                     'Juan Pérez',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: Color(0xFF90063a),
                     ),
                   ),
+
                   const SizedBox(height: 4),
+
+                  // EMAIL
                   const Text(
                     'juan.perez@uide.edu.ec',
                     style: TextStyle(
@@ -78,11 +79,14 @@ class ProfileScreen extends StatelessWidget {
                       color: Colors.grey,
                     ),
                   ),
+
                   const SizedBox(height: 8),
+
+                  // ROL
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.purple[100],
+                      color: const Color(0xFF90063a).withOpacity(0.15),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Text(
@@ -90,55 +94,63 @@ class ProfileScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Colors.purple,
+                        color: Color(0xFF90063a),
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 24),
 
-                  // Stats row
+                  // ESTADÍSTICAS
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       _StatCard(label: 'Servicios', value: '12'),
                       _StatCard(label: 'Ventas', value: '45'),
-                      _StatCard(label: 'Rating', value: '4.8', icon: Icons.star, color: Colors.amber),
+                      _StatCard(
+                        label: 'Rating',
+                        value: '4.8',
+                        icon: Icons.star,
+                        color: Colors.amber,
+                      ),
                     ],
                   ),
+
                   const SizedBox(height: 32),
 
-                  // Menú de opciones
+                  // MENÚ
                   _MenuItem(
                     icon: Icons.history,
                     title: 'Historial de pedidos',
                     badge: '3',
-                    onTap: () => _showSnackBar(context, 'Abriendo historial de pedidos'),
+                    onTap: () => _showSnackBar(context, 'Abriendo historial...'),
                   ),
                   _MenuItem(
                     icon: Icons.favorite_border,
                     title: 'Favoritos',
                     badge: '8',
-                    onTap: () => _showSnackBar(context, 'Abriendo favoritos'),
+                    onTap: () => _showSnackBar(context, 'Abriendo favoritos...'),
                   ),
                   _MenuItem(
                     icon: Icons.rate_review,
                     title: 'Mis reseñas',
-                    onTap: () => _showSnackBar(context, 'Abriendo mis reseñas'),
+                    onTap: () => _showSnackBar(context, 'Abriendo reseñas...'),
                   ),
                   _MenuItem(
                     icon: Icons.settings,
                     title: 'Configuración',
-                    onTap: () => _showSnackBar(context, 'Abriendo configuración'),
+                    onTap: () => _showSnackBar(context, 'Abriendo configuración...'),
                   ),
+
                   const SizedBox(height: 24),
 
-                  // Botón Cerrar sesión
+                  // BOTÓN CERRAR SESIÓN
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () => _showSnackBar(context, 'Cerrando sesión...'),
+                      onPressed: () => Navigator.pushReplacementNamed(context, "/"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red[400],
+                        backgroundColor: const Color.fromARGB(255, 218, 32, 32),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -147,9 +159,9 @@ class ProfileScreen extends StatelessWidget {
                       child: const Text(
                         'Cerrar sesión',
                         style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
                           color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
                         ),
                       ),
                     ),
@@ -167,14 +179,13 @@ class ProfileScreen extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.purple,
-        duration: const Duration(seconds: 2),
+        backgroundColor: const Color(0xFF90063a),
       ),
     );
   }
 }
 
-// Widget para stats
+// 🌟 TARJETAS DE ESTADÍSTICAS
 class _StatCard extends StatelessWidget {
   final String label;
   final String value;
@@ -199,20 +210,20 @@ class _StatCard extends StatelessWidget {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: const Color(0xFF90063a).withOpacity(0.1),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
             ],
           ),
           child: icon != null
-              ? Icon(icon, size: 24, color: color ?? Colors.grey)
+              ? Icon(icon, size: 28, color: color)
               : Text(
                   value,
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Colors.purple,
+                    color: Color(0xFF90063a),
                   ),
                 ),
         ),
@@ -221,20 +232,16 @@ class _StatCard extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey[600],
-            fontWeight: FontWeight.w500,
+            color: Colors.grey[700],
+            fontWeight: FontWeight.w600,
           ),
         ),
-        if (icon == null) ...[
-          const SizedBox(height: 4),
-          const Icon(Icons.star, size: 16, color: Colors.amber),
-        ],
       ],
     );
   }
 }
 
-// Widget para items del menú
+// 🌟 ITEM DE MENÚ
 class _MenuItem extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -260,7 +267,7 @@ class _MenuItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: const Color(0xFF90063a).withOpacity(0.08),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -268,7 +275,7 @@ class _MenuItem extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon, color: Colors.purple, size: 24),
+            Icon(icon, color: const Color(0xFF90063a)),
             const SizedBox(width: 16),
             Expanded(
               child: Text(
@@ -276,7 +283,7 @@ class _MenuItem extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black87,
+                  color: Color(0xFF90063a),
                 ),
               ),
             ),
@@ -284,7 +291,7 @@ class _MenuItem extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.purple[100],
+                  color: const Color(0xFF90063a).withOpacity(0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -292,11 +299,10 @@ class _MenuItem extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: Colors.purple,
+                    color: Color(0xFF90063a),
                   ),
                 ),
               ),
-            const SizedBox(width: 8),
             const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
           ],
         ),
