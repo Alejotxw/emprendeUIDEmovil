@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'configuration_screen.dart';
+
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -139,7 +141,14 @@ class ProfileScreen extends StatelessWidget {
                   _MenuItem(
                     icon: Icons.settings,
                     title: 'Configuración',
-                    onTap: () => _showSnackBar(context, 'Abriendo configuración...'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ConfigurationScreen(),
+                        ),
+                      );
+                    },
                   ),
 
                   const SizedBox(height: 24),
