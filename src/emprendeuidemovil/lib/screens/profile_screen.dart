@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'configuration_screen.dart';
 
-
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -21,9 +20,7 @@ class ProfileScreen extends StatelessWidget {
                 'Perfil',
                 style: TextStyle(color: Colors.white),
               ),
-              background: Container(
-                color: const Color(0xFF90063a),
-              ),
+              background: Container(color: const Color(0xFF90063a)),
             ),
           ),
 
@@ -32,7 +29,6 @@ class ProfileScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  
                   // AVATAR
                   Container(
                     decoration: BoxDecoration(
@@ -76,17 +72,17 @@ class ProfileScreen extends StatelessWidget {
                   // EMAIL
                   const Text(
                     'juan.perez@uide.edu.ec',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
                   ),
 
                   const SizedBox(height: 8),
 
                   // ROL
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF90063a).withOpacity(0.15),
                       borderRadius: BorderRadius.circular(20),
@@ -125,13 +121,15 @@ class ProfileScreen extends StatelessWidget {
                     icon: Icons.history,
                     title: 'Historial de pedidos',
                     badge: '3',
-                    onTap: () => _showSnackBar(context, 'Abriendo historial...'),
+                    onTap: () =>
+                        _showSnackBar(context, 'Abriendo historial...'),
                   ),
                   _MenuItem(
                     icon: Icons.favorite_border,
                     title: 'Favoritos',
                     badge: '8',
-                    onTap: () => _showSnackBar(context, 'Abriendo favoritos...'),
+                    onTap: () =>
+                        _showSnackBar(context, 'Abriendo favoritos...'),
                   ),
                   _MenuItem(
                     icon: Icons.rate_review,
@@ -157,7 +155,13 @@ class ProfileScreen extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () => Navigator.pushReplacementNamed(context, "/"),
+                      onPressed: () {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          '/login', // 👉 Te manda al login
+                          (route) => false, // 👉 Limpia navegación
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromARGB(255, 218, 32, 32),
                         padding: const EdgeInsets.symmetric(vertical: 16),
