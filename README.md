@@ -20,4 +20,3 @@ Clona el repositorio: git clone https://github.com/tu-grupo/emprendeuider_app.gi
 Instala dependencias: flutter pub get
 Ejecuta: flutter run
 
-
