@@ -156,10 +156,13 @@ class ProfileScreen extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
+                        // Aquí más adelante puedes limpiar SharedPreferences si quieres
+
                         Navigator.pushNamedAndRemoveUntil(
                           context,
-                          '/login', // 👉 Te manda al login
-                          (route) => false, // 👉 Limpia navegación
+                          '/login', // 👈 volvemos al login
+                          (route) =>
+                              false, // 👈 borra todo el historial de pantallas
                         );
                       },
                       style: ElevatedButton.styleFrom(

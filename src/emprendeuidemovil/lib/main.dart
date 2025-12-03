@@ -26,8 +26,7 @@ class MyApp extends StatelessWidget {
 
       // Todas las rutas del proyecto
       routes: {
-        '/': (context) =>
-            const LoginScreen(), // 👈 AÑADE ESTA TAMBIÉN POR SEGURIDAD
+        '/': (context) => const LoginScreen(),
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/main': (context) => const MainScreen(),

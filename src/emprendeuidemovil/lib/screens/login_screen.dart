@@ -13,9 +13,9 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-
-  final AuthService _authService = AuthService();
   bool loading = false;
+
+  final _authService = AuthService();
 
   @override
   void dispose() {
@@ -32,13 +32,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final UserModel user = await _authService.login(
         email: _emailCtrl.text.trim(),
-        password: _passwordCtrl.text.trim(),
+        password: _passwordCtrl.text,
       );
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("Bienvenido ${user.nombre}!")));
+      ).showSnackBar(SnackBar(content: Text('Bienvenido ${user.nombre}')));
 
+      // Si el login es correcto, lo mandamos al main
       Navigator.pushReplacementNamed(context, '/main');
     } catch (e) {
       ScaffoldMessenger.of(
@@ -51,8 +52,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    const primaryColor = Color(0xFF90063a);
+    const buttonColor = Color(0xFFdaa520);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF90063a),
+      backgroundColor: primaryColor,
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -72,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 40),
 
-                // CORREO
+                // Campo de correo
                 TextFormField(
                   controller: _emailCtrl,
                   keyboardType: TextInputType.emailAddress,
@@ -88,13 +92,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderSide: BorderSide.none,
                     ),
                   ),
-                  validator: (v) =>
-                      v == null || v.isEmpty ? "Campo obligatorio" : null,
+                  validator: (value) => (value == null || value.isEmpty)
+                      ? 'Ingrese su correo'
+                      : null,
                 ),
 
                 const SizedBox(height: 20),
 
-                // PASSWORD
+                // Campo de contraseña
                 TextFormField(
                   controller: _passwordCtrl,
                   obscureText: true,
@@ -110,19 +115,20 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderSide: BorderSide.none,
                     ),
                   ),
-                  validator: (v) =>
-                      v != null && v.length >= 6 ? null : "Min 6 caracteres",
+                  validator: (value) => (value == null || value.isEmpty)
+                      ? 'Ingrese su contraseña'
+                      : null,
                 ),
 
                 const SizedBox(height: 30),
 
-                // BOTÓN LOGIN
+                // Botón iniciar sesión
                 SizedBox(
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFdaa520),
+                      backgroundColor: buttonColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -141,15 +147,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
 
-                GestureDetector(
-                  onTap: () => Navigator.pushNamed(context, "/register"),
+                // Link a registro
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/register');
+                  },
                   child: const Text(
-                    "¿No tienes cuenta? Regístrate aquí",
+                    '¿No tienes cuenta? Regístrate aquí',
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
+
+                const SizedBox(height: 40),
               ],
             ),
           ),
