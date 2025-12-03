@@ -6,6 +6,7 @@ import 'screens/profile_screen.dart';
 import 'screens/services_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/chat_screen.dart';
+import 'screens/register_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,7 +26,9 @@ class MyApp extends StatelessWidget {
 
       // Todas las rutas del proyecto
       routes: {
+        '/': (context) => const LoginScreen(),
         '/login': (context) => const LoginScreen(),
+        '/register': (context) => const RegisterScreen(),
         '/main': (context) => const MainScreen(),
         '/home': (context) => const HomeScreen(),
         '/services': (context) => const ServicesScreen(),
@@ -73,7 +76,11 @@ class _MainScreenState extends State<MainScreen> {
         items: [
           BottomNavigationBarItem(
             icon: const Icon(Icons.home, size: 28),
-            activeIcon: const Icon(Icons.home, size: 30, color: Color(0xFF90063a)),
+            activeIcon: const Icon(
+              Icons.home,
+              size: 30,
+              color: Color(0xFF90063a),
+            ),
             label: "Inicio",
           ),
           BottomNavigationBarItem(
@@ -96,7 +103,11 @@ class _MainScreenState extends State<MainScreen> {
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.person, size: 28),
-            activeIcon: const Icon(Icons.person, size: 30, color: Color(0xFF90063a)),
+            activeIcon: const Icon(
+              Icons.person,
+              size: 30,
+              color: Color(0xFF90063a),
+            ),
             label: "Perfil",
           ),
         ],

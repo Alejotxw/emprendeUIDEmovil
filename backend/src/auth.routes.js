@@ -111,5 +111,36 @@ router.post("/login", async (req, res) => {
     return res.status(500).json({ message: "Error en el servidor" });
   }
 });
+// ========== OBTENER PERFIL DE USUARIO ==========
+// GET /auth/user/:uid
+router.get("/user/:uid", async (req, res) => {
+  try {
+    const { uid } = req.params;
+
+    if (!uid) {
+      return res.status(400).json({ message: "Falta el uid" });
+    }
+
+    const userRef = db.collection("users").doc(uid);
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    const userData = userDoc.data();
+
+    return res.json({
+      uid: userDoc.id,
+      nombre: userData.nombre,
+      email: userData.email,
+      roles: userData.roles || [],
+      creadoEn: userData.createdAt || null,
+    });
+  } catch (error) {
+    console.error("Error en GET /auth/user/:uid:", error);
+    return res.status(500).json({ message: "Error en el servidor" });
+  }
+});
 
 module.exports = router;
