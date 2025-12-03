@@ -19,3 +19,5 @@ Instalación y Ejecución
 Clona el repositorio: git clone https://github.com/tu-grupo/emprendeuider_app.git
 Instala dependencias: flutter pub get
 Ejecuta: flutter run
+
+

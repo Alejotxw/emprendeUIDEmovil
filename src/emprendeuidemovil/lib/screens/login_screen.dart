@@ -1,7 +1,33 @@
 import 'package:flutter/material.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passController = TextEditingController();
+
+  void validarLogin() {
+    String email = emailController.text.trim();
+    String pass = passController.text.trim();
+
+    if (email.isEmpty || pass.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Credenciales incorrectas"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Si sí escribió datos -> ingresa
+    Navigator.pushReplacementNamed(context, '/main');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +52,7 @@ class LoginScreen extends StatelessWidget {
 
               // Campo de correo
               TextField(
+                controller: emailController,
                 keyboardType: TextInputType.emailAddress,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
@@ -45,6 +72,7 @@ class LoginScreen extends StatelessWidget {
 
               // Campo de contraseña
               TextField(
+                controller: passController,
                 obscureText: true,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
@@ -73,10 +101,7 @@ class LoginScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  onPressed: () {
-                        Navigator.pushReplacementNamed(context, '/main');
-                      },
-                  
+                  onPressed: validarLogin,
                   child: const Text(
                     'Ingresar',
                     style: TextStyle(
