@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const authRoutes = require("./auth.routes");
 const productRoutes = require("./products.routes");
+const notificationsRoutes = require("./notifications.routes"); 
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -14,6 +15,8 @@ app.use(express.json());
 app.use("/auth", authRoutes);
 // Rutas de productos
 app.use("/products", productRoutes);
+// Rutas de notificaciones
+app.use("/notifications", notificationsRoutes);
 
 // Ruta de prueba
 app.get("/", (req, res) => {

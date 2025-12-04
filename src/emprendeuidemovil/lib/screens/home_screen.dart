@@ -86,13 +86,20 @@ class DetailScreen extends StatelessWidget {
                       const Icon(Icons.star, color: Colors.amber, size: 28),
                       const SizedBox(width: 8),
                       Text(
-                        '${service.rating.toStringAsFixed(1)}',
-                        style: const TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                        service.rating.toStringAsFixed(1),
+                        style: const TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(width: 8),
                       Text(
                         '(${service.rating >= 4.5 ? 'Muy recomendado' : 'Bueno'})',
-                        style: const TextStyle(fontSize: 14, color: Colors.white70),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.white70,
+                        ),
                       ),
                     ],
                   ),
@@ -107,17 +114,34 @@ class DetailScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Card(
                 elevation: 6,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Información', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF90063A))),
+                      const Text(
+                        'Información',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF90063A),
+                        ),
+                      ),
                       const SizedBox(height: 16),
-                      _buildInfoRow(Icons.access_time, 'Horario', 'Lun-Vie 10:00 - 16:00'),
+                      _buildInfoRow(
+                        Icons.access_time,
+                        'Horario',
+                        'Lun-Vie 10:00 - 16:00',
+                      ),
                       const SizedBox(height: 12),
-                      _buildInfoRow(Icons.location_on, 'Ubicación', 'Campus UIDE, Cafetería'),
+                      _buildInfoRow(
+                        Icons.location_on,
+                        'Ubicación',
+                        'Campus UIDE, Cafetería',
+                      ),
                       const SizedBox(height: 12),
                       _buildInfoRow(Icons.person, 'Emprendedor', 'Romy Ríos'),
                     ],
@@ -133,25 +157,46 @@ class DetailScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Card(
                 elevation: 6,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        children: [
-                          const Icon(Icons.menu_book, color: Color(0xFF90063A)),
-                          const SizedBox(width: 10),
-                          const Text('Servicios Disponibles', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        children: const [
+                          Icon(Icons.menu_book, color: Color(0xFF90063A)),
+                          SizedBox(width: 10),
+                          Text(
+                            'Servicios Disponibles',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 16),
-                      _buildServiceItem('Almuerzos', 'Menú del día con sopa y seco', '\$2.50'),
+                      _buildServiceItem(
+                        'Almuerzos',
+                        'Menú del día con sopa y seco',
+                        '\$2.50',
+                      ),
                       const SizedBox(height: 12),
-                      _buildServiceItem('Postres', 'Tortas, brownies, y más', '\$2.50', isSelected: true),
+                      _buildServiceItem(
+                        'Postres',
+                        'Tortas, brownies, y más',
+                        '\$2.50',
+                        isSelected: true,
+                      ),
                       const SizedBox(height: 12),
-                      _buildServiceItem('Bebidas', 'Jugos naturales y café', '\$1.00'),
+                      _buildServiceItem(
+                        'Bebidas',
+                        'Jugos naturales y café',
+                        '\$1.00',
+                      ),
                     ],
                   ),
                 ),
@@ -160,7 +205,7 @@ class DetailScreen extends StatelessWidget {
 
             const SizedBox(height: 40),
 
-            // Botón grande y bonito
+            // Botón grande
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 30),
               child: ElevatedButton.icon(
@@ -173,12 +218,17 @@ class DetailScreen extends StatelessWidget {
                   );
                 },
                 icon: const Icon(Icons.send, size: 28),
-                label: const Text('Solicitar Servicio', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                label: const Text(
+                  'Solicitar Servicio',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF90063A),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 18),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                   elevation: 8,
                   minimumSize: const Size(double.infinity, 60),
                 ),
@@ -192,7 +242,7 @@ class DetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String title, String value) {
+  static Widget _buildInfoRow(IconData icon, String title, String value) {
     return Row(
       children: [
         Icon(icon, color: const Color(0xFF90063A), size: 26),
@@ -200,21 +250,35 @@ class DetailScreen extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: const TextStyle(fontSize: 14, color: Colors.grey)),
-            Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+            Text(
+              value,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildServiceItem(String title, String description, String price, {bool isSelected = false}) {
+  static Widget _buildServiceItem(
+    String title,
+    String description,
+    String price, {
+    bool isSelected = false,
+  }) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isSelected ? const Color(0xFFFFF3E0) : Colors.grey[50],
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isSelected ? const Color(0xFFFF9800) : Colors.transparent, width: 2),
+        border: Border.all(
+          color: isSelected ? const Color(0xFFFF9800) : Colors.transparent,
+          width: 2,
+        ),
       ),
       child: Row(
         children: [
@@ -222,9 +286,18 @@ class DetailScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(description, style: const TextStyle(fontSize: 13, color: Colors.grey)),
+                Text(
+                  description,
+                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                ),
               ],
             ),
           ),
@@ -235,10 +308,24 @@ class DetailScreen extends StatelessWidget {
                 color: const Color(0xFF90063A),
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Text('Seleccionado', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+              child: const Text(
+                'Seleccionado',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           const SizedBox(width: 12),
-          Text(price, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF90063A))),
+          Text(
+            price,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF90063A),
+            ),
+          ),
         ],
       ),
     );
@@ -260,7 +347,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(() => setState(() => _searchQuery = _searchController.text.toLowerCase()));
+    _searchController.addListener(
+      () => setState(() => _searchQuery = _searchController.text.toLowerCase()),
+    );
   }
 
   @override
@@ -270,28 +359,135 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   final List<Service> _services = [
-    Service(id: '1', letter: 'D', name: 'Delicias Caseras', subtitle: 'Comidas preparadas con amor', price: 30.00, rating: 4.8, category: 'Comida'),
-    Service(id: '2', letter: 'M', name: 'Diseño Pro', subtitle: 'Diseño gráfico profesional para proyectos', price: 30.00, rating: 4.8, category: 'Diseño'),
-    Service(id: '3', letter: 'T', name: 'Delicias Caseras', subtitle: 'Postres deliciosos preparados con amor', price: 5.00, rating: 2.5, category: 'Comida'),
-    Service(id: '4', letter: 'A', name: 'Servicios de Comida', subtitle: 'Platos caseros preparados con amor', price: 8.00, rating: 2.5, category: 'Comida'),
-    Service(id: '5', letter: 'G', name: 'Comidas Caseras', subtitle: 'Delicias caseras', price: 6.00, rating: 2.5, category: 'Comida'),
-    Service(id: '6', letter: 'F', name: 'Delicias Caseras', subtitle: 'Servicios de comida preparados con amor', price: 7.00, rating: 2.5, category: 'Comida'),
-    Service(id: '7', letter: 'W', name: 'Web Design', subtitle: 'Diseño web moderno y responsive', price: 100.00, rating: 4.7, category: 'Diseño'),
-    Service(id: '8', letter: 'L', name: 'Logo Maker', subtitle: 'Creación de logos únicos y creativos', price: 40.00, rating: 4.6, category: 'Diseño'),
-    Service(id: '9', letter: 'P', name: 'Pasteles Personalizados', subtitle: 'Pasteles para ocasiones especiales', price: 25.00, rating: 4.9, category: 'Comida'),
-    Service(id: '10', letter: 'A', name: 'App Development', subtitle: 'Desarrollo de aplicaciones móviles personalizadas', price: 150.00, rating: 4.9, category: 'Tecnologia'),
-    Service(id: '11', letter: 'S', name: 'Software Solutions', subtitle: 'Soluciones de software a medida', price: 200.00, rating: 4.7, category: 'Tecnologia'),
-    Service(id: '12', letter: 'H', name: 'Handmade Crafts', subtitle: 'Artesanías hechas a mano únicas', price: 15.00, rating: 4.5, category: 'Artesanias'),
-    Service(id: '13', letter: 'J', name: 'Joyas Artesanales', subtitle: 'Joyas personalizadas con materiales naturales', price: 50.00, rating: 4.8, category: 'Artesanias'),
+    Service(
+      id: '1',
+      letter: 'D',
+      name: 'Delicias Caseras',
+      subtitle: 'Comidas preparadas con amor',
+      price: 30.00,
+      rating: 4.8,
+      category: 'Comida',
+    ),
+    Service(
+      id: '2',
+      letter: 'M',
+      name: 'Diseño Pro',
+      subtitle: 'Diseño gráfico profesional para proyectos',
+      price: 30.00,
+      rating: 4.8,
+      category: 'Diseño',
+    ),
+    Service(
+      id: '3',
+      letter: 'T',
+      name: 'Delicias Caseras',
+      subtitle: 'Postres deliciosos preparados con amor',
+      price: 5.00,
+      rating: 2.5,
+      category: 'Comida',
+    ),
+    Service(
+      id: '4',
+      letter: 'A',
+      name: 'Servicios de Comida',
+      subtitle: 'Platos caseros preparados con amor',
+      price: 8.00,
+      rating: 2.5,
+      category: 'Comida',
+    ),
+    Service(
+      id: '5',
+      letter: 'G',
+      name: 'Comidas Caseras',
+      subtitle: 'Delicias caseras',
+      price: 6.00,
+      rating: 2.5,
+      category: 'Comida',
+    ),
+    Service(
+      id: '6',
+      letter: 'F',
+      name: 'Delicias Caseras',
+      subtitle: 'Servicios de comida preparados con amor',
+      price: 7.00,
+      rating: 2.5,
+      category: 'Comida',
+    ),
+    Service(
+      id: '7',
+      letter: 'W',
+      name: 'Web Design',
+      subtitle: 'Diseño web moderno y responsive',
+      price: 100.00,
+      rating: 4.7,
+      category: 'Diseño',
+    ),
+    Service(
+      id: '8',
+      letter: 'L',
+      name: 'Logo Maker',
+      subtitle: 'Creación de logos únicos y creativos',
+      price: 40.00,
+      rating: 4.6,
+      category: 'Diseño',
+    ),
+    Service(
+      id: '9',
+      letter: 'P',
+      name: 'Pasteles Personalizados',
+      subtitle: 'Pasteles para ocasiones especiales',
+      price: 25.00,
+      rating: 4.9,
+      category: 'Comida',
+    ),
+    Service(
+      id: '10',
+      letter: 'A',
+      name: 'App Development',
+      subtitle: 'Desarrollo de aplicaciones móviles personalizadas',
+      price: 150.00,
+      rating: 4.9,
+      category: 'Tecnologia',
+    ),
+    Service(
+      id: '11',
+      letter: 'S',
+      name: 'Software Solutions',
+      subtitle: 'Soluciones de software a medida',
+      price: 200.00,
+      rating: 4.7,
+      category: 'Tecnologia',
+    ),
+    Service(
+      id: '12',
+      letter: 'H',
+      name: 'Handmade Crafts',
+      subtitle: 'Artesanías hechas a mano únicas',
+      price: 15.00,
+      rating: 4.5,
+      category: 'Artesanias',
+    ),
+    Service(
+      id: '13',
+      letter: 'J',
+      name: 'Joyas Artesanales',
+      subtitle: 'Joyas personalizadas con materiales naturales',
+      price: 50.00,
+      rating: 4.8,
+      category: 'Artesanias',
+    ),
   ];
 
-  List<Service> get _favoriteServices => _services.where((s) => _favorites.contains(s.id)).toList();
+  List<Service> get _favoriteServices =>
+      _services.where((s) => _favorites.contains(s.id)).toList();
 
   List<Service> get _filteredServices {
-    var filtered = _services.where((s) =>
-        _searchQuery.isEmpty ||
-        s.name.toLowerCase().contains(_searchQuery) ||
-        s.subtitle.toLowerCase().contains(_searchQuery));
+    var filtered = _services.where(
+      (s) =>
+          _searchQuery.isEmpty ||
+          s.name.toLowerCase().contains(_searchQuery) ||
+          s.subtitle.toLowerCase().contains(_searchQuery),
+    );
 
     if (_selectedCategoryIndex != 0) {
       final selectedCategory = _categories[_selectedCategoryIndex]['label'];
@@ -303,11 +499,17 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Service> get _filteredTopServices => _filteredServices.take(2).toList();
 
   void _toggleFavorite(String id) {
-    setState(() => _favorites.contains(id) ? _favorites.remove(id) : _favorites.add(id));
+    setState(
+      () =>
+          _favorites.contains(id) ? _favorites.remove(id) : _favorites.add(id),
+    );
   }
 
   void _navigateToDetail(Service service) {
-    Navigator.push(context, MaterialPageRoute(builder: (_) => DetailScreen(service: service)));
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => DetailScreen(service: service)),
+    );
   }
 
   final List<Map<String, dynamic>> _categories = [
@@ -330,7 +532,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
+              // Header con botón de notificaciones
               Container(
                 margin: const EdgeInsets.all(16),
                 padding: const EdgeInsets.all(32),
@@ -344,14 +546,46 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Hola, Alejandro', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white)),
-                        Text('¿Qué necesitas hoy?', style: TextStyle(fontSize: 16, color: Colors.white70)),
+                        Text(
+                          'Hola, Alejandro',
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          '¿Qué necesitas hoy?',
+                          style: TextStyle(fontSize: 16, color: Colors.white70),
+                        ),
                       ],
                     ),
-                    CircleAvatar(
-                      radius: 28,
-                      backgroundColor: Colors.white,
-                      child: const Text('U', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFF90063A))),
+                    Row(
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/notifications');
+                          },
+                          icon: const Icon(
+                            Icons.notifications,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const CircleAvatar(
+                          radius: 28,
+                          backgroundColor: Colors.white,
+                          child: Text(
+                            'U',
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF90063A),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -366,10 +600,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       controller: _searchController,
                       decoration: InputDecoration(
                         hintText: 'Buscar servicios...',
-                        prefixIcon: const Icon(Icons.search, color: Color(0xFF90063A)),
+                        prefixIcon: const Icon(
+                          Icons.search,
+                          color: Color(0xFF90063A),
+                        ),
                         filled: true,
                         fillColor: const Color(0xFF90063A).withOpacity(0.08),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -384,19 +624,41 @@ class _HomeScreenState extends State<HomeScreen> {
                           final cat = _categories[i];
                           final selected = _selectedCategoryIndex == i;
                           return GestureDetector(
-                            onTap: () => setState(() => _selectedCategoryIndex = i),
+                            onTap: () =>
+                                setState(() => _selectedCategoryIndex = i),
                             child: Container(
                               margin: const EdgeInsets.only(right: 10),
-                              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 18,
+                                vertical: 10,
+                              ),
                               decoration: BoxDecoration(
-                                color: selected ? const Color(0xFFFFF3E0) : const Color(0xFFF5F5F5),
+                                color: selected
+                                    ? const Color(0xFFFFF3E0)
+                                    : const Color(0xFFF5F5F5),
                                 borderRadius: BorderRadius.circular(25),
                               ),
                               child: Row(
                                 children: [
-                                  Icon(cat['icon'], size: 18, color: selected ? const Color(0xFFFF9800) : Colors.grey[600]),
+                                  Icon(
+                                    cat['icon'],
+                                    size: 18,
+                                    color: selected
+                                        ? const Color(0xFFFF9800)
+                                        : Colors.grey[600],
+                                  ),
                                   const SizedBox(width: 6),
-                                  Text(cat['label'], style: TextStyle(fontWeight: selected ? FontWeight.w600 : FontWeight.normal, color: selected ? const Color(0xFFFF9800) : Colors.grey[700])),
+                                  Text(
+                                    cat['label'],
+                                    style: TextStyle(
+                                      fontWeight: selected
+                                          ? FontWeight.w600
+                                          : FontWeight.normal,
+                                      color: selected
+                                          ? const Color(0xFFFF9800)
+                                          : Colors.grey[700],
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -406,18 +668,28 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Top Destacadas (AQUÍ ESTABA EL FIX)
-                    Text(_searchQuery.isEmpty ? 'Top Destacadas' : 'Resultados', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    // Top Destacadas
+                    Text(
+                      _searchQuery.isEmpty ? 'Top Destacadas' : 'Resultados',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 12),
                     SizedBox(
-                      height: 200, // antes 180 → ahora 200 = SIN OVERFLOW
+                      height: 200,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: _filteredTopServices.length,
                         itemBuilder: (_, i) {
                           final service = _filteredTopServices[i];
                           return Padding(
-                            padding: EdgeInsets.only(right: i < _filteredTopServices.length - 1 ? 12 : 0),
+                            padding: EdgeInsets.only(
+                              right: i < _filteredTopServices.length - 1
+                                  ? 12
+                                  : 0,
+                            ),
                             child: ServiceCard(
                               service: service,
                               isFavorite: _favorites.contains(service.id),
@@ -431,8 +703,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 24),
 
                     Text(
-                      _searchQuery.isNotEmpty ? 'Resultados (${_filteredServices.length})' : '${_categories[_selectedCategoryIndex]['label']} los emprendimientos',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      _searchQuery.isNotEmpty
+                          ? 'Resultados (${_filteredServices.length})'
+                          : '${_categories[_selectedCategoryIndex]['label']} los emprendimientos',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 12),
 
@@ -443,29 +720,49 @@ class _HomeScreenState extends State<HomeScreen> {
                       childAspectRatio: 0.75,
                       crossAxisSpacing: 14,
                       mainAxisSpacing: 14,
-                      children: _filteredServices.map((s) => ServiceCard(
-                            service: s,
-                            isFavorite: _favorites.contains(s.id),
-                            onCardTap: () => _navigateToDetail(s),
-                            onHeartTap: () => _toggleFavorite(s.id),
-                          )).toList(),
+                      children: _filteredServices
+                          .map(
+                            (s) => ServiceCard(
+                              service: s,
+                              isFavorite: _favorites.contains(s.id),
+                              onCardTap: () => _navigateToDetail(s),
+                              onHeartTap: () => _toggleFavorite(s.id),
+                            ),
+                          )
+                          .toList(),
                     ),
 
                     const SizedBox(height: 24),
-                    const Text('Favoritos', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Favoritos',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 12),
 
                     _favoriteServices.isEmpty
                         ? Container(
                             height: 180,
-                            decoration: BoxDecoration(color: const Color(0xFFF8F8F8), borderRadius: BorderRadius.circular(16)),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF8F8F8),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
                             child: const Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.favorite_border, size: 50, color: Colors.grey),
+                                  Icon(
+                                    Icons.favorite_border,
+                                    size: 50,
+                                    color: Colors.grey,
+                                  ),
                                   SizedBox(height: 10),
-                                  Text('Aún no tienes favoritos', style: TextStyle(color: Colors.grey)),
+                                  Text(
+                                    'Aún no tienes favoritos',
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
                                 ],
                               ),
                             ),
@@ -477,12 +774,16 @@ class _HomeScreenState extends State<HomeScreen> {
                             childAspectRatio: 0.75,
                             crossAxisSpacing: 14,
                             mainAxisSpacing: 14,
-                            children: _favoriteServices.map((s) => ServiceCard(
-                                  service: s,
-                                  isFavorite: true,
-                                  onCardTap: () => _navigateToDetail(s),
-                                  onHeartTap: () => _toggleFavorite(s.id),
-                                )).toList(),
+                            children: _favoriteServices
+                                .map(
+                                  (s) => ServiceCard(
+                                    service: s,
+                                    isFavorite: true,
+                                    onCardTap: () => _navigateToDetail(s),
+                                    onHeartTap: () => _toggleFavorite(s.id),
+                                  ),
+                                )
+                                .toList(),
                           ),
 
                     const SizedBox(height: 40),
@@ -520,19 +821,46 @@ class ServiceCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFF90063A),
           borderRadius: BorderRadius.circular(16),
-          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4))],
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 8,
+              offset: Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           children: [
             CircleAvatar(
               radius: 26,
               backgroundColor: Colors.white,
-              child: Text(service.letter, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF90063A))),
+              child: Text(
+                service.letter,
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF90063A),
+                ),
+              ),
             ),
             const SizedBox(height: 12),
-            Text(service.name, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
+            Text(
+              service.name,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
             const SizedBox(height: 4),
-            Text(service.subtitle, style: const TextStyle(color: Colors.white70, fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
+            Text(
+              service.subtitle,
+              style: const TextStyle(color: Colors.white70, fontSize: 12),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
             const Spacer(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -541,17 +869,31 @@ class ServiceCard extends StatelessWidget {
                   children: [
                     const Icon(Icons.star, size: 16, color: Colors.amber),
                     const SizedBox(width: 4),
-                    Text(service.rating.toStringAsFixed(1), style: const TextStyle(color: Colors.white)),
+                    Text(
+                      service.rating.toStringAsFixed(1),
+                      style: const TextStyle(color: Colors.white),
+                    ),
                   ],
                 ),
                 GestureDetector(
                   onTap: onHeartTap,
-                  child: Icon(isFavorite ? Icons.favorite : Icons.favorite_border, color: Colors.white, size: 22),
+                  child: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: Colors.white,
+                    size: 22,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            Text('\$${service.price.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.bold)),
+            Text(
+              '\$${service.price.toStringAsFixed(2)}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 19,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
       ),

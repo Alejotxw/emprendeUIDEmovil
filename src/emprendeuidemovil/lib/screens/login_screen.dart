@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../models/user_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../services/notifications_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,6 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool loading = false;
 
   final _authService = AuthService();
+  final _notificationsService = NotificationsService();
 
   @override
   void dispose() {
@@ -30,16 +34,29 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       setState(() => loading = true);
 
+      // 1️⃣ Login con tu backend
       final UserModel user = await _authService.login(
         email: _emailCtrl.text.trim(),
         password: _passwordCtrl.text,
       );
 
+      // 2️⃣ Guardar información del usuario localmente
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('uid', user.uid);
+      await prefs.setString('nombre', user.nombre);
+      await prefs.setString('email', user.email);
+      await prefs.setString('rol', user.rol);
+
+      // 3️⃣ Registrar token FCM en backend
+      final notificationsService = NotificationsService();
+      await notificationsService.initAndRegisterToken(user.uid);
+
+      // 4️⃣ Mensaje de bienvenida
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Bienvenido ${user.nombre}')));
 
-      // Si el login es correcto, lo mandamos al main
+      // 5️⃣ Navegar al main
       Navigator.pushReplacementNamed(context, '/main');
     } catch (e) {
       ScaffoldMessenger.of(
