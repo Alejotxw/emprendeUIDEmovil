@@ -15,12 +15,9 @@ class ProfileScreen extends StatelessWidget {
             floating: false,
             pinned: true,
             backgroundColor: const Color(0xFF90063a),
-            flexibleSpace: FlexibleSpaceBar(
-              title: const Text(
-                'Perfil',
-                style: TextStyle(color: Colors.white),
-              ),
-              background: Container(color: const Color(0xFF90063a)),
+            flexibleSpace: const FlexibleSpaceBar(
+              title: Text('Perfil', style: TextStyle(color: Colors.white)),
+              background: ColoredBox(color: Color(0xFF90063a)),
             ),
           ),
 
@@ -102,7 +99,7 @@ class ProfileScreen extends StatelessWidget {
                   // ESTADÍSTICAS
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
+                    children: const [
                       _StatCard(label: 'Servicios', value: '12'),
                       _StatCard(label: 'Ventas', value: '45'),
                       _StatCard(
@@ -136,6 +133,16 @@ class ProfileScreen extends StatelessWidget {
                     title: 'Mis reseñas',
                     onTap: () => _showSnackBar(context, 'Abriendo reseñas...'),
                   ),
+
+                  // 👇 NUEVO: Notificaciones
+                  _MenuItem(
+                    icon: Icons.notifications_active,
+                    title: 'Notificaciones',
+                    onTap: () {
+                      Navigator.pushNamed(context, '/notifications');
+                    },
+                  ),
+
                   _MenuItem(
                     icon: Icons.settings,
                     title: 'Configuración',
@@ -156,13 +163,12 @@ class ProfileScreen extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Aquí más adelante puedes limpiar SharedPreferences si quieres
+                        // Aquí más adelante puedes limpiar SharedPreferences
 
                         Navigator.pushNamedAndRemoveUntil(
                           context,
-                          '/login', // 👈 volvemos al login
-                          (route) =>
-                              false, // 👈 borra todo el historial de pantallas
+                          '/login',
+                          (route) => false,
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -191,7 +197,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  void _showSnackBar(BuildContext context, String message) {
+  static void _showSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),

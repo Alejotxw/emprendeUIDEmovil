@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
@@ -7,8 +9,19 @@ import 'screens/services_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/chat_screen.dart';
 import 'screens/register_screen.dart';
+import 'screens/notifications_screen.dart';
 
-void main() {
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  // Manejo opcional de notificaciones en segundo plano
+}
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
   runApp(const MyApp());
 }
 
@@ -21,10 +34,8 @@ class MyApp extends StatelessWidget {
       title: 'EmprendeUIDE',
       debugShowCheckedModeBanner: false,
 
-      // Pantalla inicial
       initialRoute: '/login',
 
-      // Todas las rutas del proyecto
       routes: {
         '/': (context) => const LoginScreen(),
         '/login': (context) => const LoginScreen(),
@@ -35,6 +46,9 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => const ProfileScreen(),
         '/history': (context) => const HistoryScreen(),
         '/chat': (context) => const ChatScreen(),
+
+        // Más adelante aquí agregaremos '/notifications'
+        '/notifications': (context) => const NotificationsScreen(),
       },
     );
   }
@@ -60,7 +74,6 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _pages[_currentIndex],
-
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.white,
         elevation: 20,
@@ -70,9 +83,7 @@ class _MainScreenState extends State<MainScreen> {
         type: BottomNavigationBarType.fixed,
         selectedFontSize: 12,
         unselectedFontSize: 11,
-
         onTap: (index) => setState(() => _currentIndex = index),
-
         items: [
           BottomNavigationBarItem(
             icon: const Icon(Icons.home, size: 28),
