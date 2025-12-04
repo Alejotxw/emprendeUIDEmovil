@@ -14,7 +14,7 @@ Frontend: Flutter (Dart).
 Estructura: Widgets reutilizables (Cards, Grids, Tabs).
 Simulaciones: Con Android Studio.
 
-Instalación y Ejecución
+Instalación y Ejecución.
 
 Clona el repositorio: git clone https://github.com/tu-grupo/emprendeuider_app.git
 Instala dependencias: flutter pub get
