@@ -16,6 +16,7 @@ El equipo de desarrollo está compuesto por 5 miembros:
 * **Sebastián Chocho** - Full Stack Developer - @Alejotxw
 * **Aidan Carpio** - Full Stack Developer - @Aidan-5
 * **Malena Orbea** - Full Stack Developer - @maleorbea
+* **Kevin Giron** -Full stack Developer - @KevinGiron
 
 ## Enlaces a GitHub Projects
 Aquí puedes encontrar la planificación completa del proyecto y el estado actual del trabajo:
@@ -63,11 +64,20 @@ EMPRENDEUIDEMOVIL/
 │       │   │   ├── login_screen.dart
 │       │   │   ├── profile_screen.dart
 │       │   │   └── services_screen.dart
+│       │   ├── models/      # carpeta de modelos
+│       │   │   ├── notification_model.dart
+│       │   │   ├── user_model.dart
+│       │   ├── services/      # carpeta de servicios
+│       │   │   ├── auth_service.dart
+│       │   │   ├── notification_service.dart
 │       │   └── main.dart     # Punto de entrada y Widget principal (App)
 │       ├── test/             # Pruebas de la aplicación Flutter
 │       ├── assets/           # (Implícito) Imágenes, fuentes, íconos
 │       ├── pubspec.yaml      # Dependencias de Flutter (paquetes)
-│       └── ...               # Otros archivos de configuración de Flutter (.metadata, .gitignore, etc.)
+│       └── analysis_option.yaml     # Otros archivos de configuración de Flutter (.metadata, .gitignore, etc.)
+│       └── pobspec.lock
+│       └── .metadata
+│       └── .gitignore  
 │
 ├── tests/                    # Tests de nivel superior
 │   └── .gitkeep              # Placeholder para mantener la carpeta
