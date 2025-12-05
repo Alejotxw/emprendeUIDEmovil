@@ -35,10 +35,12 @@ EMPRENDEUIDEMOVIL/
 ├── backend/                  # API REST Express
 │   ├── node_modules          # Dependencias de Node.js (ignoradas por Git)
 │   ├── src/                  # Código fuente del Backend
+|   |___|__ Reporte-sistemas/ # Reporte de actualizaciones del Sistema
 │   │   ├── auth.routes.js    # Definición de rutas de Autenticación (Login, Registro)
 │   │   ├── firebase.js       # Configuración o utilidades de Firebase Admin
 │   │   ├── index.js          # Servidor principal (Punto de entrada)
 │   │   └── products.routes.js# Definición de rutas de Productos/Emprendimientos
+|   |__|__ reporte.js         # Coodigo para reportes de actualizacion del sistema  
 │   ├── package-lock.json     # Archivo de bloqueo de dependencias
 │   └── package.json          # Dependencias y scripts del Backend
 │
