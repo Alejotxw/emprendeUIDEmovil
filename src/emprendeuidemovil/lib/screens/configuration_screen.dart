@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'edit_profile_screen.dart';
+
 
 class ConfigurationScreen extends StatefulWidget {
   const ConfigurationScreen({super.key});
@@ -127,20 +129,36 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
   }
 
   Widget _editButton() {
-    return Container(
+  return InkWell(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => EditProfileScreen(
+            currentName: "Sebastián Chocho",
+            currentPhone: "0969331762",
+          ),
+        ),
+      );
+    },
+    child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: const Color(0xFFdaa520).withOpacity(0.25),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFFdaa520), width: 1.5),
       ),
-      child: const Text("Editar",
-          style: TextStyle(
-            color: Color(0xFF90063a),
-            fontWeight: FontWeight.bold,
-          )),
-    );
-  }
+      child: const Text(
+        "Editar",
+        style: TextStyle(
+          color: Color(0xFF90063a),
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+  );
+}
+
 
   // --------------------------- NOTIFICACIONES -----------------------------
 
