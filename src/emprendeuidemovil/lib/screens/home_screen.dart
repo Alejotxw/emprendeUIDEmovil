@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Service {
   final String id;
@@ -344,12 +345,54 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
+  List<Service> _services = []; // ← viene de Firestore
+  bool _loading = true; // ← indicador de carga
+  String? _error; // ← mensaje de error opcional
+
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(
-      () => setState(() => _searchQuery = _searchController.text.toLowerCase()),
-    );
+
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text.toLowerCase();
+      });
+    });
+
+    _loadServicesFromFirestore(); // ← cargar Firestore al iniciar
+  }
+
+  Future<void> _loadServicesFromFirestore() async {
+    try {
+      final snap = await FirebaseFirestore.instance
+          .collection('products')
+          .where('isActive', isEqualTo: true)
+          .get();
+
+      final list = snap.docs.map((doc) {
+        final data = doc.data();
+
+        return Service(
+          id: doc.id,
+          letter: (data['title'] ?? '?')[0].toUpperCase(),
+          name: data['title'] ?? 'Sin nombre',
+          subtitle: data['description'] ?? '',
+          price: (data['price'] is num) ? data['price'].toDouble() : 0.0,
+          rating: 4.8, // si no tienes rating aún
+          category: data['category'] ?? 'Otros',
+        );
+      }).toList();
+
+      setState(() {
+        _services = list;
+        _loading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _loading = false;
+        _error = "Error cargando catálogo: $e";
+      });
+    }
   }
 
   @override
@@ -357,126 +400,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _searchController.dispose();
     super.dispose();
   }
-
-  final List<Service> _services = [
-    Service(
-      id: '1',
-      letter: 'D',
-      name: 'Delicias Caseras',
-      subtitle: 'Comidas preparadas con amor',
-      price: 30.00,
-      rating: 4.8,
-      category: 'Comida',
-    ),
-    Service(
-      id: '2',
-      letter: 'M',
-      name: 'Diseño Pro',
-      subtitle: 'Diseño gráfico profesional para proyectos',
-      price: 30.00,
-      rating: 4.8,
-      category: 'Diseño',
-    ),
-    Service(
-      id: '3',
-      letter: 'T',
-      name: 'Delicias Caseras',
-      subtitle: 'Postres deliciosos preparados con amor',
-      price: 5.00,
-      rating: 2.5,
-      category: 'Comida',
-    ),
-    Service(
-      id: '4',
-      letter: 'A',
-      name: 'Servicios de Comida',
-      subtitle: 'Platos caseros preparados con amor',
-      price: 8.00,
-      rating: 2.5,
-      category: 'Comida',
-    ),
-    Service(
-      id: '5',
-      letter: 'G',
-      name: 'Comidas Caseras',
-      subtitle: 'Delicias caseras',
-      price: 6.00,
-      rating: 2.5,
-      category: 'Comida',
-    ),
-    Service(
-      id: '6',
-      letter: 'F',
-      name: 'Delicias Caseras',
-      subtitle: 'Servicios de comida preparados con amor',
-      price: 7.00,
-      rating: 2.5,
-      category: 'Comida',
-    ),
-    Service(
-      id: '7',
-      letter: 'W',
-      name: 'Web Design',
-      subtitle: 'Diseño web moderno y responsive',
-      price: 100.00,
-      rating: 4.7,
-      category: 'Diseño',
-    ),
-    Service(
-      id: '8',
-      letter: 'L',
-      name: 'Logo Maker',
-      subtitle: 'Creación de logos únicos y creativos',
-      price: 40.00,
-      rating: 4.6,
-      category: 'Diseño',
-    ),
-    Service(
-      id: '9',
-      letter: 'P',
-      name: 'Pasteles Personalizados',
-      subtitle: 'Pasteles para ocasiones especiales',
-      price: 25.00,
-      rating: 4.9,
-      category: 'Comida',
-    ),
-    Service(
-      id: '10',
-      letter: 'A',
-      name: 'App Development',
-      subtitle: 'Desarrollo de aplicaciones móviles personalizadas',
-      price: 150.00,
-      rating: 4.9,
-      category: 'Tecnologia',
-    ),
-    Service(
-      id: '11',
-      letter: 'S',
-      name: 'Software Solutions',
-      subtitle: 'Soluciones de software a medida',
-      price: 200.00,
-      rating: 4.7,
-      category: 'Tecnologia',
-    ),
-    Service(
-      id: '12',
-      letter: 'H',
-      name: 'Handmade Crafts',
-      subtitle: 'Artesanías hechas a mano únicas',
-      price: 15.00,
-      rating: 4.5,
-      category: 'Artesanias',
-    ),
-    Service(
-      id: '13',
-      letter: 'J',
-      name: 'Joyas Artesanales',
-      subtitle: 'Joyas personalizadas con materiales naturales',
-      price: 50.00,
-      rating: 4.8,
-      category: 'Artesanias',
-    ),
-  ];
 
   List<Service> get _favoriteServices =>
       _services.where((s) => _favorites.contains(s.id)).toList();
@@ -493,16 +416,16 @@ class _HomeScreenState extends State<HomeScreen> {
       final selectedCategory = _categories[_selectedCategoryIndex]['label'];
       filtered = filtered.where((s) => s.category == selectedCategory);
     }
+
     return filtered.toList();
   }
 
   List<Service> get _filteredTopServices => _filteredServices.take(2).toList();
 
   void _toggleFavorite(String id) {
-    setState(
-      () =>
-          _favorites.contains(id) ? _favorites.remove(id) : _favorites.add(id),
-    );
+    setState(() {
+      _favorites.contains(id) ? _favorites.remove(id) : _favorites.add(id);
+    });
   }
 
   void _navigateToDetail(Service service) {
@@ -527,258 +450,224 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.only(bottom: bottomPadding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header con botón de notificaciones
-              Container(
-                margin: const EdgeInsets.all(16),
-                padding: const EdgeInsets.all(32),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF90063A).withOpacity(0.95),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Hola, Alejandro',
-                          style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Text(
-                          '¿Qué necesitas hoy?',
-                          style: TextStyle(fontSize: 16, color: Colors.white70),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/notifications');
-                          },
-                          icon: const Icon(
-                            Icons.notifications,
-                            color: Colors.white,
-                            size: 28,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        const CircleAvatar(
-                          radius: 28,
-                          backgroundColor: Colors.white,
-                          child: Text(
-                            'U',
-                            style: TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF90063A),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: _loading
+            ? const Center(child: CircularProgressIndicator()) // ← loading
+            : _error != null
+            ? Center(child: Text(_error!)) // ← error
+            : SingleChildScrollView(
+                padding: EdgeInsets.only(bottom: bottomPadding),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: 'Buscar servicios...',
-                        prefixIcon: const Icon(
-                          Icons.search,
-                          color: Color(0xFF90063A),
-                        ),
-                        filled: true,
-                        fillColor: const Color(0xFF90063A).withOpacity(0.08),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
+                    // ----- TODO TU DISEÑO ORIGINAL -----
+                    // HEADER
+                    Container(
+                      margin: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(32),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF90063A).withOpacity(0.95),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Hola, Alejandro',
+                                style: TextStyle(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Text(
+                                '¿Qué necesitas hoy?',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white70,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    '/notifications',
+                                  );
+                                },
+                                icon: const Icon(
+                                  Icons.notifications,
+                                  color: Colors.white,
+                                  size: 28,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              const CircleAvatar(
+                                radius: 28,
+                                backgroundColor: Colors.white,
+                                child: Text(
+                                  'U',
+                                  style: TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF90063A),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 24),
 
-                    // Categorías
-                    SizedBox(
-                      height: 44,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: _categories.length,
-                        itemBuilder: (_, i) {
-                          final cat = _categories[i];
-                          final selected = _selectedCategoryIndex == i;
-                          return GestureDetector(
-                            onTap: () =>
-                                setState(() => _selectedCategoryIndex = i),
-                            child: Container(
-                              margin: const EdgeInsets.only(right: 10),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 18,
-                                vertical: 10,
+                    // ------- BUSCADOR + FILTROS + GRID -------
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextField(
+                            controller: _searchController,
+                            decoration: InputDecoration(
+                              hintText: 'Buscar servicios...',
+                              prefixIcon: const Icon(
+                                Icons.search,
+                                color: Color(0xFF90063A),
                               ),
-                              decoration: BoxDecoration(
-                                color: selected
-                                    ? const Color(0xFFFFF3E0)
-                                    : const Color(0xFFF5F5F5),
-                                borderRadius: BorderRadius.circular(25),
+                              filled: true,
+                              fillColor: const Color(
+                                0xFF90063A,
+                              ).withOpacity(0.08),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
                               ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    cat['icon'],
-                                    size: 18,
-                                    color: selected
-                                        ? const Color(0xFFFF9800)
-                                        : Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Categorías
+                          SizedBox(
+                            height: 44,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: _categories.length,
+                              itemBuilder: (_, i) {
+                                final cat = _categories[i];
+                                final selected = _selectedCategoryIndex == i;
+                                return GestureDetector(
+                                  onTap: () => setState(
+                                    () => _selectedCategoryIndex = i,
                                   ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    cat['label'],
-                                    style: TextStyle(
-                                      fontWeight: selected
-                                          ? FontWeight.w600
-                                          : FontWeight.normal,
+                                  child: Container(
+                                    margin: const EdgeInsets.only(right: 10),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 18,
+                                      vertical: 10,
+                                    ),
+                                    decoration: BoxDecoration(
                                       color: selected
-                                          ? const Color(0xFFFF9800)
-                                          : Colors.grey[700],
+                                          ? const Color(0xFFFFF3E0)
+                                          : const Color(0xFFF5F5F5),
+                                      borderRadius: BorderRadius.circular(25),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          cat['icon'],
+                                          size: 18,
+                                          color: selected
+                                              ? const Color(0xFFFF9800)
+                                              : Colors.grey[600],
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          cat['label'],
+                                          style: TextStyle(
+                                            fontWeight: selected
+                                                ? FontWeight.w600
+                                                : FontWeight.normal,
+                                            color: selected
+                                                ? const Color(0xFFFF9800)
+                                                : Colors.grey[700],
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ],
-                              ),
+                                );
+                              },
                             ),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 24),
+                          ),
+                          const SizedBox(height: 24),
 
-                    // Top Destacadas
-                    Text(
-                      _searchQuery.isEmpty ? 'Top Destacadas' : 'Resultados',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      height: 200,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: _filteredTopServices.length,
-                        itemBuilder: (_, i) {
-                          final service = _filteredTopServices[i];
-                          return Padding(
-                            padding: EdgeInsets.only(
-                              right: i < _filteredTopServices.length - 1
-                                  ? 12
-                                  : 0,
+                          // TOP DESTACADAS
+                          Text(
+                            _searchQuery.isEmpty
+                                ? 'Top Destacadas'
+                                : 'Resultados',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
                             ),
-                            child: ServiceCard(
-                              service: service,
-                              isFavorite: _favorites.contains(service.id),
-                              onCardTap: () => _navigateToDetail(service),
-                              onHeartTap: () => _toggleFavorite(service.id),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 24),
+                          ),
+                          const SizedBox(height: 12),
 
-                    Text(
-                      _searchQuery.isNotEmpty
-                          ? 'Resultados (${_filteredServices.length})'
-                          : '${_categories[_selectedCategoryIndex]['label']} los emprendimientos',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    GridView.count(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.75,
-                      crossAxisSpacing: 14,
-                      mainAxisSpacing: 14,
-                      children: _filteredServices
-                          .map(
-                            (s) => ServiceCard(
-                              service: s,
-                              isFavorite: _favorites.contains(s.id),
-                              onCardTap: () => _navigateToDetail(s),
-                              onHeartTap: () => _toggleFavorite(s.id),
-                            ),
-                          )
-                          .toList(),
-                    ),
-
-                    const SizedBox(height: 24),
-                    const Text(
-                      'Favoritos',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    _favoriteServices.isEmpty
-                        ? Container(
-                            height: 180,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF8F8F8),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: const Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.favorite_border,
-                                    size: 50,
-                                    color: Colors.grey,
+                          SizedBox(
+                            height: 200,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: _filteredTopServices.length,
+                              itemBuilder: (_, i) {
+                                final service = _filteredTopServices[i];
+                                return Padding(
+                                  padding: EdgeInsets.only(
+                                    right: i < _filteredTopServices.length - 1
+                                        ? 12
+                                        : 0,
                                   ),
-                                  SizedBox(height: 10),
-                                  Text(
-                                    'Aún no tienes favoritos',
-                                    style: TextStyle(color: Colors.grey),
+                                  child: ServiceCard(
+                                    service: service,
+                                    isFavorite: _favorites.contains(service.id),
+                                    onCardTap: () => _navigateToDetail(service),
+                                    onHeartTap: () =>
+                                        _toggleFavorite(service.id),
                                   ),
-                                ],
-                              ),
+                                );
+                              },
                             ),
-                          )
-                        : GridView.count(
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Lista principal
+                          Text(
+                            _searchQuery.isNotEmpty
+                                ? 'Resultados (${_filteredServices.length})'
+                                : '${_categories[_selectedCategoryIndex]['label']} los emprendimientos',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+
+                          GridView.count(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             crossAxisCount: 2,
                             childAspectRatio: 0.75,
                             crossAxisSpacing: 14,
                             mainAxisSpacing: 14,
-                            children: _favoriteServices
+                            children: _filteredServices
                                 .map(
                                   (s) => ServiceCard(
                                     service: s,
-                                    isFavorite: true,
+                                    isFavorite: _favorites.contains(s.id),
                                     onCardTap: () => _navigateToDetail(s),
                                     onHeartTap: () => _toggleFavorite(s.id),
                                   ),
@@ -786,13 +675,70 @@ class _HomeScreenState extends State<HomeScreen> {
                                 .toList(),
                           ),
 
-                    const SizedBox(height: 40),
+                          const SizedBox(height: 24),
+
+                          const Text(
+                            'Favoritos',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+
+                          _favoriteServices.isEmpty
+                              ? Container(
+                                  height: 180,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF8F8F8),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: const Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.favorite_border,
+                                          size: 50,
+                                          color: Colors.grey,
+                                        ),
+                                        SizedBox(height: 10),
+                                        Text(
+                                          'Aún no tienes favoritos',
+                                          style: TextStyle(color: Colors.grey),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              : GridView.count(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  crossAxisCount: 2,
+                                  childAspectRatio: 0.75,
+                                  crossAxisSpacing: 14,
+                                  mainAxisSpacing: 14,
+                                  children: _favoriteServices
+                                      .map(
+                                        (s) => ServiceCard(
+                                          service: s,
+                                          isFavorite: true,
+                                          onCardTap: () => _navigateToDetail(s),
+                                          onHeartTap: () =>
+                                              _toggleFavorite(s.id),
+                                        ),
+                                      )
+                                      .toList(),
+                                ),
+
+                          const SizedBox(height: 40),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
       ),
     );
   }
