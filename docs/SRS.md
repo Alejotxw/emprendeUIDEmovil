@@ -190,59 +190,44 @@ El sistema deberá mostrar un formulario con todos los campos necesarios (nombre
 * RF2. Validación de datos obligatorios
 El sistema deberá validar que todos los campos obligatorios estén completos antes de permitir guardar o publicar. Si falta un campo, el sistema deberá mostrar un mensaje indicando cuál es el campo faltante.
 
-* RF3. Autenticación con correo y contraseña
-El sistema deberá permitir que un usuario registrado ingrese su correo y contraseña, y valide sus credenciales utilizando el servicio de autenticación configurado.
+* RF3. Acceso según rol del usuario
+Una vez autenticado, el sistema deberá redirigir primero al cliente o usuario para luego que se elija si quiere ser emprendedor o un cliente panel correspondiente según su rol.
 
-* RF4. Acceso según rol del usuario
-Una vez autenticado, el sistema deberá redirigir al usuario al panel correspondiente según su rol.
-
-* RF5. Edición de información personal del usuario
+* RF4. Edición de información personal del usuario
 El sistema deberá permitir que el usuario modifique su nombre y foto desde la pantalla de perfil.
 
-* RF6. Actualización de datos en Firestore y Storage
+* RF5. Actualización de datos en Firestore y Storage
 El sistema deberá guardar el nombre actualizado en Firestore y, si la foto cambia, subirla a Firebase Storage y asociarla al perfil.
 
-* RF7. Visualización de emprendimientos del usuario
-El sistema deberá mostrar al emprendedor autenticado todos los emprendimientos asociados a su uidOwner desde Firestore.
+* RF6. Visualización de emprendimientos del usuario
+El sistema deberá mostrar al emprendedor autenticado todos los emprendimientos asociados desde Firestore.
 
-* RF8. Gestión de emprendimientos (editar y eliminar)
+* RF7. Gestión de emprendimientos (editar y eliminar)
 El sistema deberá permitir editar o eliminar emprendimientos, guardando cambios o eliminándolos de la base de datos tras confirmación.
 
-* RF9. Visualización del catálogo de emprendimientos activos
+* RF8. Visualización del catálogo de emprendimientos activos
 El sistema deberá mostrar al usuario la lista de emprendimientos activos al abrir el catálogo.
 
-* RF10. Filtrado y navegación al detalle del emprendimiento
+* RF9. Filtrado y navegación al detalle del emprendimiento
 El sistema deberá permitir filtrar por categoría y redirigir al detalle al seleccionar un emprendimiento.
 
-* RF11. Visualización de métricas globales del sistema
+* RF10. Visualización de métricas globales del sistema
 El sistema deberá mostrar al administrador: total de usuarios, total de emprendimientos y total de publicaciones.
 
-* RF12. Filtrado de métricas por rango de fechas
+* RF11. Filtrado de métricas por rango de fechas
 El sistema deberá actualizar las métricas del dashboard según el rango de fechas seleccionado.
 
-* RF13. Generación de reportes descargables
-El sistema deberá permitir generar reportes PDF o JSON con base en un período seleccionado.
-
-* RF14. Manejo de períodos sin datos
-Si no existen datos en el período seleccionado, el sistema deberá mostrar “No hay datos disponibles”.
-
-* RF15. Registro de calificaciones y reseñas
+* RF12. Registro de calificaciones y reseñas
 El sistema deberá permitir enviar una calificación y comentario y guardarlos en Firestore.
 
-* RF16. Validación de reseñas duplicadas por usuario
+* RF13. Validación de reseñas duplicadas por usuario
 El sistema deberá impedir que un usuario califique el mismo emprendimiento más de una vez y mostrar el mensaje correspondiente.
 
-* RF17. Envío de notificaciones por actividad relevante
-El sistema deberá enviar una notificación al emprendedor mediante FCM cuando se registre una nueva reseña.
-
-* RF18. Visualización de notificaciones en orden cronológico
+* RF14. Visualización de notificaciones en orden cronológico
 El sistema deberá mostrar al emprendedor una lista cronológica de notificaciones guardadas en Firestore.
 
-* RF19. Visualización de métodos de contacto del emprendimiento
-El sistema deberá mostrar teléfono, email, Instagram y Facebook del emprendimiento si están registrados.
-
-* RF20. Manejo de métodos de contacto no disponibles
-El sistema deberá mostrar el texto “No disponible” en los métodos de contacto que no existan.
+* RF15. Visualización de métodos de contacto del emprendimiento
+El sistema deberá mostrar teléfono, email del emprendimiento si están registrados.
 
 
 ### Requerimientos No Funcionales (RNF)
@@ -256,19 +241,19 @@ La descripción del emprendimiento deberá tener mínimo 50 caracteres.
 La sesión deberá almacenarse de forma segura usando Provider o SharedPreferences.
 
 * RNF4. Retroalimentación inmediata ante credenciales incorrectas
-El mensaje “Credenciales incorrectas” deberá aparecer en menos de 1 segundo.
+El mensaje “Credenciales incorrectas” deberá aparecer en menos de 5 segundo.
 
 * RNF5. Integridad de los datos actualizados
 Los datos del perfil deberán actualizarse sin inconsistencias entre Firestore y Storage.
 
 * RNF6. Optimización en la carga de la imagen de perfil
-La imagen deberá actualizarse en menos de 3 segundos.
+La imagen deberá actualizarse en menos de 5 segundos.
 
 * RNF7. Consistencia en operaciones de modificación
 Las operaciones de editar o eliminar emprendimientos deberán ejecutarse sin pérdida de datos.
 
 * RNF8. Rendimiento en la carga de emprendimientos
-La lista de emprendimientos deberá cargarse en máximo 2–3 segundos.
+La lista de emprendimientos deberá cargarse en máximo 2–4 segundos.
 
 * RNF9. Eficiencia en el filtrado del catálogo
 Los filtros deberán aplicarse en menos de 2 segundos.
@@ -282,28 +267,22 @@ Las métricas del dashboard deberán cargar en máximo 3–4 segundos.
 * RNF12. Representación visual clara y comprensible
 Las métricas deberán representarse mediante gráficos legibles y de alto rendimiento.
 
-* RNF13. Exportación eficiente de archivos
-Los reportes PDF/JSON deberán generarse en un máximo de 5 segundos.
-
-* RNF14. Descarga segura e íntegra del archivo
-Los reportes descargados no deben contener corrupción o pérdida de datos.
-
-* RNF15. Cálculo eficiente del promedio de calificaciones
+* RNF13. Cálculo eficiente del promedio de calificaciones
 El promedio deberá actualizarse sin retrasos perceptibles.
 
-* RNF16. Fluidez del widget de calificación
+* RNF14. Fluidez del widget de calificación
 El widget deberá reaccionar al toque de forma instantánea incluso en dispositivos de gama media.
 
-* RNF17. Entrega oportuna de notificaciones
+* RNF15. Entrega oportuna de notificaciones
 Las notificaciones deberán recibirse en máximo 5 segundos después del evento.
 
-* RNF18. Persistencia confiable del historial de notificaciones
+* RNF16. Persistencia confiable del historial de notificaciones
 Las notificaciones deberán almacenarse sin riesgos de pérdida, incluso offline.
 
-* RNF19. Integración confiable con servicios externos de contacto
+* RNF17. Integración confiable con servicios externos de contacto
 Los enlaces deben abrirse correctamente mediante url_launcher sin errores.
 
-* RNF20. Orden y claridad en la presentación de métodos de contacto
+* RNF18. Orden y claridad en la presentación de métodos de contacto
 Los métodos de contacto deberán mostrarse de forma organizada y accesible para el usuario.
 
 
