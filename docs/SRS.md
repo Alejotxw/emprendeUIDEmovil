@@ -189,13 +189,13 @@ git push origin main
 El sistema deberá mostrar un formulario con todos los campos necesarios (nombre, descripción, categoría, contacto, imagen/logo y estado).
 
 **RF2. Validación de datos obligatorios:**
-El sistema deberá validar que todos los campos obligatorios estén completos antes de permitir guardar o publicar. Si falta un campo, el sistema deberá mostrar un mensaje indicando cuál es el campo faltante.
+El sistema deberá validar que todos los campos obligatorios estén completos antes de permitir guardar o publicar.
 
 **RF3. Acceso según rol del usuario:**
 Una vez autenticado, el sistema deberá redirigir primero al cliente o usuario para luego que se elija si quiere ser emprendedor o un cliente panel correspondiente según su rol.
 
 **RF4. Edición de información personal del usuario:**
-El sistema deberá permitir que el usuario modifique su nombre y foto desde la pantalla de perfil.
+El sistema permitira que el usuario modifique su nombre y foto desde la pantalla de perfil > configuraciones.
 
 **RF5. Actualización de datos en Firestore y Storage:**
 El sistema deberá guardar el nombre actualizado en Firestore y, si la foto cambia, subirla a Firebase Storage y asociarla al perfil.
