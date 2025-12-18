@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'configuration_screen.dart';
+import 'reviews_screen.dart';  // Import para Mis Reseñas
+import 'ratings_screen.dart';  // Import para Rating de Servicios
+import 'orders_screen.dart';  // Import para Mis Pedidos
+import 'settings_screen.dart';  // Import para Configuraciones
 
 
 class ProfileScreen extends StatelessWidget {
@@ -8,6 +11,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+<<<<<<< Updated upstream
       backgroundColor: Colors.white,
       body: CustomScrollView(
         slivers: [
@@ -24,14 +28,73 @@ class ProfileScreen extends StatelessWidget {
               background: Container(
                 color: const Color(0xFF90063a),
               ),
+=======
+      appBar: AppBar(
+        title: const Text('Mi Perfil'),
+        backgroundColor: const Color(0xFFC8102E),
+        foregroundColor: Colors.white,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Avatar
+            const CircleAvatar(
+              radius: 50,
+              backgroundColor: Color(0xFFC8102E),
+              child: Icon(Icons.person, size: 50, color: Colors.white),
+>>>>>>> Stashed changes
             ),
-          ),
-
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
+            const SizedBox(height: 16),
+            // Nombre
+            const Text(
+              'Sebastián Chocho',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            // Email
+            const Text(
+              'sebastianchocho@uide.edu.ec',
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            // Botones Cliente / Emprendedor (centrados uno al lado del otro)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  ),
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Modo Cliente activado')));
+                  },
+                  child: const Text('Cliente'),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  ),
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Modo Emprendedor activado')));
+                  },
+                  child: const Text('Emprendedor'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 32),
+            // Lista de secciones (con navegación)
+            Expanded(
+              child: ListView(
                 children: [
+<<<<<<< Updated upstream
                   
                   // AVATAR
                   Container(
@@ -141,15 +204,20 @@ class ProfileScreen extends StatelessWidget {
                   _MenuItem(
                     icon: Icons.settings,
                     title: 'Configuración',
+=======
+                  ListTile(
+                    leading: const Icon(Icons.rate_review, color: Color(0xFFC8102E)),
+                    title: const Text('Mis Reseñas'),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+>>>>>>> Stashed changes
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => const ConfigurationScreen(),
-                        ),
+                        MaterialPageRoute(builder: (context) => const ReviewsScreen()),
                       );
                     },
                   ),
+<<<<<<< Updated upstream
 
                   const SizedBox(height: 24),
 
@@ -174,10 +242,45 @@ class ProfileScreen extends StatelessWidget {
                         ),
                       ),
                     ),
+=======
+                  ListTile(
+                    leading: const Icon(Icons.star, color: Color(0xFFC8102E)),
+                    title: const Text('Rating de Servicios'),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const RatingsScreen()),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.shopping_cart, color: Color(0xFFC8102E)),
+                    title: const Text('Mis Pedidos'),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const OrdersScreen()),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.settings, color: Color(0xFFC8102E)),
+                    title: const Text('Configuraciones'),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                      );
+                    },
+>>>>>>> Stashed changes
                   ),
                 ],
               ),
             ),
+<<<<<<< Updated upstream
           ),
         ],
       ),
@@ -293,26 +396,25 @@ class _MenuItem extends StatelessWidget {
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                   color: Color(0xFF90063a),
+=======
+            const SizedBox(height: 16),
+            // Botón Cerrar Sesión (rojo)
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+>>>>>>> Stashed changes
                 ),
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Sesión cerrada')));
+                  Navigator.popUntil(context, ModalRoute.withName('/login'));
+                },
+                child: const Text('Cerrar sesión', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               ),
             ),
-            if (badge != null)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF90063a).withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  badge!,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF90063a),
-                  ),
-                ),
-              ),
-            const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
           ],
         ),
       ),

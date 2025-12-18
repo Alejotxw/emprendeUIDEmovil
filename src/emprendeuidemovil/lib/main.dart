@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+<<<<<<< Updated upstream
 
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
@@ -9,6 +10,23 @@ import 'screens/chat_screen.dart';
 
 void main() {
   runApp(const MyApp());
+=======
+import 'package:provider/provider.dart';
+import 'providers/service_provider.dart';
+import 'providers/cart_provider.dart';
+import 'widgets/bottom_navigation.dart';
+
+void main() {
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => ServiceProvider()),
+        ChangeNotifierProvider(create: (context) => CartProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
+>>>>>>> Stashed changes
 }
 
 class MyApp extends StatelessWidget {
@@ -17,6 +35,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+<<<<<<< Updated upstream
       title: 'EmprendeUIDE',
       debugShowCheckedModeBanner: false,
 
@@ -100,7 +119,24 @@ class _MainScreenState extends State<MainScreen> {
             label: "Perfil",
           ),
         ],
+=======
+      title: 'Servicio App Cliente',
+      theme: ThemeData(
+        primarySwatch: Colors.red,
+        scaffoldBackgroundColor: Colors.white,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFFC8102E),
+          foregroundColor: Colors.white,
+        ),
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          selectedItemColor: Color(0xFFC8102E),
+          unselectedItemColor: Colors.grey,
+          type: BottomNavigationBarType.fixed,
+        ),
+>>>>>>> Stashed changes
       ),
+      home: const BottomNavigation(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
