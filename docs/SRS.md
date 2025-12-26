@@ -35,7 +35,7 @@ Aquí puedes encontrar la planificación completa del proyecto y el estado actua
 | **Gestión de Código** | Git, GitHub | \- | 
 
 ## Estructura del Proyecto
-EMPRENDEUIDEMOVIL/
+| EMPRENDEUIDEMOVIL/
 ├── backend/                  # API REST Express
 │   ├── node_modules          # Dependencias de Node.js (ignoradas por Git)
 │   ├── src/                  # Código fuente del Backend
