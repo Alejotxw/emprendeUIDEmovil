@@ -1,5 +1,3 @@
-# Guía Paso a Paso: GA-1.6 Entrega Proyecto Fase 1 en GitHub
-
 EmprendeUIDE es una aplicación móvil desarrollada en Flutter para la comunidad de la Universidad Internacional del Ecuador (UIDE). Funciona como un marketplace interno donde estudiantes emprendedores pueden publicar y ofrecer servicios como diseño gráfico, tutorías, reparaciones, fotografía y más, mientras otros estudiantes y docentes los exploran, solicitan y contratan directamente.
 
 Características Principales
@@ -21,5 +19,3 @@ Instalación y Ejecución
 Clona el repositorio: git clone https://github.com/tu-grupo/emprendeuider_app.git
 Instala dependencias: flutter pub get
 Ejecuta: flutter run
-
-

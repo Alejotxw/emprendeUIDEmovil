@@ -16,10 +16,7 @@ El equipo de desarrollo está compuesto por 5 miembros:
 * **Sebastián Chocho** - Full Stack Developer - @Alejotxw
 * **Aidan Carpio** - Full Stack Developer - @Aidan-5
 * **Malena Orbea** - Full Stack Developer - @maleorbea
-<<<<<<< Updated upstream
 * **Kevin Giron** - Full Stack Developer - @KevinGiron
-=======
->>>>>>> Stashed changes
 
 ## Enlaces a GitHub Projects
 Aquí puedes encontrar la planificación completa del proyecto y el estado actual del trabajo:
