@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'privacy_screen.dart';  // Import para Privacidad y Seguridad
-import 'support_screen.dart';  // Import para Ayuda y Soporte
-import 'edit_profile_screen.dart';  // Import para Edición de Perfil
+import 'client_taek/edit_profile_screen.dart';  // Import para navegación a edición
+import 'client_taek/support_screen.dart';
+import 'client_taek/privacy_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -55,9 +55,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
                         onPressed: () {
+                          // Navega a pantalla de edición completa
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const EditProfileScreen()),
+                            MaterialPageRoute(builder: (context) => EditProfileScreen()),  // Non-const para fix error
                           );
                         },
                         label: const Text('Editar'),
@@ -127,7 +128,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const PrivacyScreen()),
+                    MaterialPageRoute(builder: (context) => PrivacyScreen()),  // Non-const para fix error
                   );
                 },
               ),
@@ -142,7 +143,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const SupportScreen()),
+                    MaterialPageRoute(builder: (context) => SupportScreen()),  // Non-const para fix error
                   );
                 },
               ),

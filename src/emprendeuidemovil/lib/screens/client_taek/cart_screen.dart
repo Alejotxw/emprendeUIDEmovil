@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/cart_provider.dart';
-import '../models/cart_item.dart';
-import '../models/service_model.dart';
+import '../../providers/cart_provider.dart';
+import '../../models/cart_item.dart';
+import '../../models/service_model.dart';
 import 'payment_screen.dart';  // Import para navegación a PaymentScreen
 
 class CartScreen extends StatefulWidget {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../screens/home_screen.dart';
-import '../screens/favorites_screen.dart';
-import '../screens/cart_screen.dart';
-import '../screens/profile_screen.dart';
+import '../screens/client_taek/home_screen.dart';
+import '../screens/client_taek/favorites_screen.dart';
+import '../screens/client_taek/cart_screen.dart';
+import '../screens/client_taek/profile_screen.dart';
 
 class NavigationService {
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();

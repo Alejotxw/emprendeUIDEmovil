@@ -1,14 +1,6 @@
 import 'package:flutter/material.dart';
 import 'edit_profile_screen.dart'; // Asegúrate de crear este archivo
 
-class ConfigurationScreen extends StatelessWidget {
-  const ConfigurationScreen({super.key});
-
-  @override
-<<<<<<< Updated upstream
-  State<ConfigurationScreen> createState() => _ConfigurationScreenState();
-}
-
 class _ConfigurationScreenState extends State<ConfigurationScreen> {
   // Datos del perfil (editables)
   String userName = "Sebastián Chocho";
@@ -367,12 +359,5 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
       child: child,
     );
   }
-=======
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Configuraciones')),
-      body: const Center(child: Text('Configuraciones (placeholder)')),
-    );
-  }
->>>>>>> Stashed changes
+
 }
