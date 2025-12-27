@@ -18,6 +18,7 @@ El equipo de desarrollo está compuesto por 5 miembros:
 * **Malena Orbea** - Full Stack Developer - @maleorbea
 * **Kevin Giron** -Full stack Developer - @KevinGiron
 
+
 ## Enlaces a GitHub Projects
 Aquí puedes encontrar la planificación completa del proyecto y el estado actual del trabajo:
 - [Product Backlog](https://github.com/users/Alejotxw/projects/2)
@@ -32,7 +33,7 @@ Aquí puedes encontrar la planificación completa del proyecto y el estado actua
 | **Gestión de Código** | Git, GitHub | \- | 
 
 ## Estructura del Proyecto
-EMPRENDEUIDEMOVIL/
+| EMPRENDEUIDEMOVIL/
 ├── backend/                  # API REST Express
 │   ├── node_modules          # Dependencias de Node.js (ignoradas por Git)
 │   ├── src/                  # Código fuente del Backend
@@ -193,4 +194,111 @@ cp ruta/a/tu/documento.pdf docs/
 git add docs/
 git commit -m "docs: add initial Architecture or SRS document"
 git push origin main
+
+### Requerimientos Funcionales
+
+**RF1. Formulario de creación de emprendimiento:**
+El sistema deberá mostrar un formulario con todos los campos necesarios (nombre, descripción, categoría, contacto, imagen/logo y estado).
+
+**RF2. Validación de datos obligatorios:**
+El sistema deberá validar que todos los campos obligatorios estén completos antes de permitir guardar o publicar.
+
+**RF3. Acceso según rol del usuario:**
+Una vez autenticado, el sistema deberá redirigir primero al cliente o usuario para luego que se elija si quiere ser emprendedor o un cliente panel correspondiente según su rol.
+
+**RF4. Edición de información personal del usuario:**
+El sistema permitira que el usuario modifique su nombre y foto desde la pantalla de perfil > configuraciones.
+
+**RF5. Actualización de datos en Firestore y Storage:**
+El sistema deberá guardar el nombre actualizado en Firestore y, si la foto cambia, subirla a Firebase Storage y asociarla al perfil.
+
+**RF6. Visualización de emprendimientos del usuario:**
+El sistema deberá mostrar al emprendedor autenticado todos los emprendimientos asociados desde Firestore.
+
+**RF7. Gestión de emprendimientos (editar y eliminar):**
+El sistema deberá permitir editar o eliminar emprendimientos, guardando cambios o eliminándolos de la base de datos tras confirmación.
+
+**RF8. Visualización del catálogo de emprendimientos activos:**
+El sistema deberá mostrar al usuario la lista de emprendimientos activos al abrir el catálogo.
+
+**RF9. Filtrado y navegación al detalle del emprendimiento:**
+El sistema deberá permitir filtrar por categoría y redirigir al detalle al seleccionar un emprendimiento.
+
+**RF10. Visualización de métricas globales del sistema:**
+El sistema deberá mostrar al administrador: total de usuarios, total de emprendimientos y total de publicaciones.
+
+**RF11. Filtrado de métricas por rango de fechas:**
+El sistema deberá actualizar las métricas del dashboard según el rango de fechas seleccionado.
+
+**RF12. Registro de calificaciones y reseñas:**
+El sistema deberá permitir enviar una calificación y comentario y guardarlos en Firestore.
+
+**RF13. Validación de reseñas duplicadas por usuario:**
+El sistema deberá impedir que un usuario califique el mismo emprendimiento más de una vez y mostrar el mensaje correspondiente.
+
+**RF14. Visualización de notificaciones en orden cronológico:**
+El sistema deberá mostrar al emprendedor una lista cronológica de notificaciones guardadas en Firestore.
+
+**RF15. Visualización de métodos de contacto del emprendimiento:**
+El sistema deberá mostrar teléfono, email del emprendimiento si están registrados.
+
+
+
+### Requerimientos No Funcionales (RNF)
+
+**RNF1. Validación de formato y tamaño de imagen:**
+El sistema solo deberá aceptar imágenes JPG/PNG de máximo 5 MB.
+
+**RNF2. Validación mínima de descripción:**
+La descripción del emprendimiento deberá tener mínimo 50 caracteres.
+
+**RNF3. Manejo seguro de la sesión del usuario:**
+La sesión deberá almacenarse de forma segura usando Provider o SharedPreferences.
+
+**RNF4. Retroalimentación inmediata ante credenciales incorrectas:**
+El mensaje “Credenciales incorrectas” deberá aparecer en menos de 5 segundo.
+
+**RNF5. Integridad de los datos actualizados:**
+Los datos del perfil deberán actualizarse sin inconsistencias entre Firestore y Storage.
+
+**RNF6. Optimización en la carga de la imagen de perfil:**
+La imagen deberá actualizarse en menos de 5 segundos.
+
+**RNF7. Consistencia en operaciones de modificación:**
+Las operaciones de editar o eliminar emprendimientos deberán ejecutarse sin pérdida de datos.
+
+**RNF8. Rendimiento en la carga de emprendimientos:**
+La lista de emprendimientos deberá cargarse en máximo 2–4 segundos.
+
+**RNF9. Eficiencia en el filtrado del catálogo:**
+Los filtros deberán aplicarse en menos de 2 segundos.
+
+**RNF10. Orden y relevancia del contenido mostrado:**
+Los emprendimientos deberán mostrarse ordenados según categoría o relevancia definida.
+
+**RNF11. Optimización de consultas agregadas:**
+Las métricas del dashboard deberán cargar en máximo 3–4 segundos.
+
+**RNF12. Representación visual clara y comprensible:**
+Las métricas deberán representarse mediante gráficos legibles y de alto rendimiento.
+
+**RNF13. Cálculo eficiente del promedio de calificaciones:**
+El promedio deberá actualizarse sin retrasos perceptibles.
+
+**RNF14. Fluidez del widget de calificación:**
+El widget deberá reaccionar al toque de forma instantánea incluso en dispositivos de gama media.
+
+**RNF15. Entrega oportuna de notificaciones:**
+Las notificaciones deberán recibirse en máximo 5 segundos después del evento.
+
+**RNF16. Persistencia confiable del historial de notificaciones:**
+Las notificaciones deberán almacenarse sin riesgos de pérdida, incluso offline.
+
+**RNF17. Integración confiable con servicios externos de contacto:**
+Los enlaces deben abrirse correctamente mediante url_launcher sin errores.
+
+**RNF18. Orden y claridad en la presentación de métodos de contacto:**
+Los métodos de contacto deberán mostrarse de forma organizada y accesible para el usuario.
+
+
 

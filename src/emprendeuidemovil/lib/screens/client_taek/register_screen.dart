@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
-import '../models/user_model.dart';
+import 'package:emprendeuidemovil/models/cart_item.dart'; // Ajusta según tu proyecto
+import 'package:emprendeuidemovil/services/auth_service.dart'; // Ajusta según tu proyecto
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -49,7 +49,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } else if (!rolVendedor && rolComprador) {
       rolSeleccionado = 'comprador';
     } else {
-      // o ninguno marcado, o los dos marcados
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Debe elegir solo un rol: vendedor o comprador'),
@@ -61,19 +60,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
     try {
       setState(() => loading = true);
 
-      final UserModel user = await _authService.register(
+      final user = await _authService.register(
         nombre: _nombreCtrl.text.trim(),
         email: email,
         password: _passwordCtrl.text,
-        rol: rolSeleccionado, // <-- ahora sí mandamos UN rol válido
+        rol: rolSeleccionado,
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Usuario ${user.nombre} registrado con éxito')),
       );
 
-      // Después de registrarse, lo mando al login
-      Navigator.pop(context);
+      Navigator.pop(context); // Regresa al login
     } catch (e) {
       ScaffoldMessenger.of(
         context,
@@ -140,7 +138,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 onChanged: (val) {
                   setState(() {
                     rolVendedor = val ?? false;
-                    if (rolVendedor) rolComprador = false; // solo uno a la vez
+                    if (rolVendedor) rolComprador = false;
                   });
                 },
               ),
@@ -150,7 +148,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 onChanged: (val) {
                   setState(() {
                     rolComprador = val ?? false;
-                    if (rolComprador) rolVendedor = false; // solo uno a la vez
+                    if (rolComprador) rolVendedor = false;
                   });
                 },
               ),
