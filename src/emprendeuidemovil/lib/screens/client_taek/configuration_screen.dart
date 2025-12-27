@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'edit_profile_screen.dart'; // Asegúrate de tener este archivo
 
 class ConfigurationScreen extends StatefulWidget {
   const ConfigurationScreen({super.key});
@@ -8,10 +9,16 @@ class ConfigurationScreen extends StatefulWidget {
 }
 
 class _ConfigurationScreenState extends State<ConfigurationScreen> {
+  // Datos del perfil (editables)
+  String userName = "Sebastián Chocho";
+  String userPhone = "0969331762";
+
+  // Switches de notificaciones
   bool notiGeneral = true;
   bool notiSolicitudes = true;
   bool notiPromos = true;
 
+  // Colores de la app
   final Color primary = const Color(0xFF90063a);
   final Color accent = const Color(0xFFdaa520);
 
@@ -19,7 +26,6 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-
       appBar: AppBar(
         backgroundColor: primary,
         elevation: 0,
@@ -43,7 +49,6 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
           ),
         ),
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -73,8 +78,7 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
     );
   }
 
-  // *------------------------ CARDS ---------------------------*
-
+  // ====================== TARJETA DE PERFIL ======================
   Widget _perfilCard() {
     return _card(
       child: Column(
@@ -91,18 +95,19 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
               const Text(
                 "Mi perfil",
                 style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
               ),
               const Spacer(),
               _editButton(),
             ],
           ),
           const SizedBox(height: 15),
-          _perfilItem(Icons.person, "Nombre", "Sebastián Chocho"),
+          _perfilItem(Icons.person, "Nombre", userName),
           const SizedBox(height: 12),
-          _perfilItem(Icons.call, "Teléfono", "0969331762"),
+          _perfilItem(Icons.call, "Teléfono", userPhone),
         ],
       ),
     );
@@ -116,34 +121,57 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: const TextStyle(color: Colors.grey, fontSize: 13)),
-            Text(value,
-                style: const TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.w500)),
+            Text(
+              label,
+              style: const TextStyle(color: Colors.grey, fontSize: 13),
+            ),
+            Text(
+              value,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+            ),
           ],
-        )
+        ),
       ],
     );
   }
 
+  // Botón Editar funcional
   Widget _editButton() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: const Color(0xFFdaa520).withOpacity(0.25),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFdaa520), width: 1.5),
+    return GestureDetector(
+      onTap: () async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EditProfileScreen(
+              currentName: userName,
+              currentPhone: userPhone,
+            ),
+          ),
+        );
+
+        if (result != null && result is Map<String, String>) {
+          setState(() {
+            userName = result['name'] ?? userName;
+            userPhone = result['phone'] ?? userPhone;
+          });
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: accent.withOpacity(0.25),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: accent, width: 1.5),
+        ),
+        child: Text(
+          "Editar",
+          style: TextStyle(color: primary, fontWeight: FontWeight.bold),
+        ),
       ),
-      child: const Text("Editar",
-          style: TextStyle(
-            color: Color(0xFF90063a),
-            fontWeight: FontWeight.bold,
-          )),
     );
   }
 
-  // --------------------------- NOTIFICACIONES -----------------------------
-
+  // ====================== NOTIFICACIONES ======================
   Widget _notificacionesCard() {
     return _card(
       child: Column(
@@ -151,14 +179,20 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
         children: [
           Row(
             children: const [
-              Icon(Icons.notifications_active,
-                  color: Color(0xFFdaa520), size: 26),
+              Icon(
+                Icons.notifications_active,
+                color: Color(0xFFdaa520),
+                size: 26,
+              ),
               SizedBox(width: 10),
-              Text("Notificaciones",
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.black87)),
+              Text(
+                "Notificaciones",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Colors.black87,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 18),
@@ -199,26 +233,31 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title,
-                  style: const TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.w500)),
-              Text(subtitle,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                subtitle,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
             ],
           ),
         ),
         Switch(
           value: value,
           activeColor: Colors.white,
-          activeTrackColor: const Color(0xFFdaa520),
+          activeTrackColor: accent,
           onChanged: onChanged,
-        )
+        ),
       ],
     );
   }
 
-  // --------------------------- APARIENCIA ---------------------------
-
+  // ====================== APARIENCIA ======================
   Widget _aparienciaCard() {
     return _card(
       child: Column(
@@ -228,22 +267,28 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
             children: const [
               Icon(Icons.nights_stay, color: Colors.black87),
               SizedBox(width: 10),
-              Text("Apariencia",
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.black87)),
+              Text(
+                "Apariencia",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Colors.black87,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 15),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: const [
-              Text("Modo Oscuro",
-                  style: TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.w500)),
-              Text("Próximamente disponible",
-                  style: TextStyle(color: Colors.grey)),
+              Text(
+                "Modo Oscuro",
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+              ),
+              Text(
+                "Próximamente disponible",
+                style: TextStyle(color: Colors.grey),
+              ),
             ],
           ),
           const SizedBox(height: 15),
@@ -254,33 +299,36 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Idioma",
-                      style:
-                          TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+                  const Text(
+                    "Idioma",
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                  ),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: Colors.grey),
                     ),
                     child: const Text("Español"),
-                  )
+                  ),
                 ],
-              )
+              ),
             ],
-          )
+          ),
         ],
       ),
     );
   }
 
-  // ------------------ ITEM SIMPLE ------------------
-
-  Widget _itemSimple(
-      {required IconData icon,
-      required String title,
-      required String subtitle}) {
+  // ====================== ITEM SIMPLE ======================
+  Widget _itemSimple({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
     return _card(
       child: Row(
         children: [
@@ -290,11 +338,17 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
-                    style: const TextStyle(
-                        fontSize: 15, fontWeight: FontWeight.bold)),
-                Text(subtitle,
-                    style: const TextStyle(color: Colors.grey, fontSize: 13)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: const TextStyle(color: Colors.grey, fontSize: 13),
+                ),
               ],
             ),
           ),
@@ -304,8 +358,7 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
     );
   }
 
-  // ------------------------- FOOTER -------------------------
-
+  // ====================== FOOTER ======================
   Widget _footerInfo() {
     return Column(
       children: const [
@@ -315,14 +368,15 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
           style: TextStyle(color: Colors.black54, fontSize: 12),
         ),
         SizedBox(height: 10),
-        Text("© 2025 UIDE. Todos los derechos reservados.",
-            style: TextStyle(color: Colors.grey, fontSize: 11)),
+        Text(
+          "© 2025 UIDE. Todos los derechos reservados.",
+          style: TextStyle(color: Colors.grey, fontSize: 11),
+        ),
       ],
     );
   }
 
-  // ----------------------- CARD BASE -----------------------
-
+  // ====================== CARD BASE ======================
   Widget _card({required Widget child}) {
     return Container(
       width: double.infinity,
@@ -335,7 +389,7 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
             blurRadius: 6,
             color: Colors.black.withOpacity(0.05),
             offset: const Offset(0, 2),
-          )
+          ),
         ],
       ),
       child: child,

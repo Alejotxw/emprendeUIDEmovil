@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart'; // Import generado
 
 class CrearEmprendimientoScreen extends StatefulWidget {
   const CrearEmprendimientoScreen({super.key});
@@ -15,8 +16,7 @@ class _CrearEmprendimientoScreenState extends State<CrearEmprendimientoScreen> {
   final TextEditingController horarioCtrl = TextEditingController();
 
   final TextEditingController servicioNombreCtrl = TextEditingController();
-  final TextEditingController servicioDescripcionCtrl =
-      TextEditingController();
+  final TextEditingController servicioDescripcionCtrl = TextEditingController();
   final TextEditingController servicioPrecioCtrl = TextEditingController();
 
   final List<Map<String, dynamic>> servicios = [];
@@ -27,12 +27,14 @@ class _CrearEmprendimientoScreenState extends State<CrearEmprendimientoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!; // Traducciones
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text(
-          "Información Básica",
-          style: TextStyle(color: Colors.white),
+        title: Text(
+          t.basicInformation,
+          style: const TextStyle(color: Colors.white),
         ),
         backgroundColor: primaryColor,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -42,47 +44,46 @@ class _CrearEmprendimientoScreenState extends State<CrearEmprendimientoScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _title("Nombres del Emprendimiento"),
-            _input(nombreCtrl, "Ej. Delicias Caseras"),
+            _title(t.businessName),
+            _input(nombreCtrl, t.exampleBusiness),
 
             const SizedBox(height: 20),
-            _title("Categoría"),
-
+            _title(t.category),
             Wrap(
               spacing: 12,
               children: [
-                _categoriaChip("Comida", Icons.restaurant),
-                _categoriaChip("Diseño", Icons.brush),
-                _categoriaChip("Tecnología", Icons.computer),
-                _categoriaChip("Artesanías", Icons.handyman),
+                _categoriaChip(t.food, Icons.restaurant),
+                _categoriaChip(t.design, Icons.brush),
+                _categoriaChip(t.technology, Icons.computer),
+                _categoriaChip(t.crafts, Icons.handyman),
               ],
             ),
 
             const SizedBox(height: 20),
-            _title("Descripción"),
-            _textarea(descripcionCtrl, "Describe tu emprendimiento"),
+            _title(t.description),
+            _textarea(descripcionCtrl, t.describeYourBusiness),
 
             const SizedBox(height: 20),
-            _title("Ubicación"),
-            _input(ubicacionCtrl, "Ej. Campus Quito"),
+            _title(t.location),
+            _input(ubicacionCtrl, t.exampleLocation),
 
             const SizedBox(height: 20),
-            _title("Horario de Atención"),
-            _input(horarioCtrl, "Ej. Lun-Vie 9:00-17:00"),
+            _title(t.schedule),
+            _input(horarioCtrl, t.exampleSchedule),
 
             const SizedBox(height: 25),
-            _title("Servicios / Productos (${servicios.length} Servicios)"),
+            _title("${t.servicesProducts} (${servicios.length} ${t.services})"),
 
             const SizedBox(height: 10),
-            ..._buildServicios(),
+            ..._buildServicios(t),
 
             const SizedBox(height: 20),
-            _agregarServicioBox(),
+            _agregarServicioBox(t),
 
             const SizedBox(height: 30),
             _botonPrincipal(
-              text: "Crear Emprendimiento",
-              onPressed: _onCrearEmprendimiento,
+              text: t.createBusiness,
+              onPressed: () => _onCrearEmprendimiento(t),
             ),
           ],
         ),
@@ -90,55 +91,42 @@ class _CrearEmprendimientoScreenState extends State<CrearEmprendimientoScreen> {
     );
   }
 
-  void _onCrearEmprendimiento() {
+  void _onCrearEmprendimiento(AppLocalizations t) {
     final List<String> errores = [];
 
-    if (nombreCtrl.text.trim().isEmpty) {
-      errores.add("Nombre del emprendimiento");
-    }
-    if (descripcionCtrl.text.trim().isEmpty) {
-      errores.add("Descripción");
-    }
-    if (ubicacionCtrl.text.trim().isEmpty) {
-      errores.add("Ubicación");
-    }
-    if (horarioCtrl.text.trim().isEmpty) {
-      errores.add("Horario de atención");
-    }
-    if (servicios.isEmpty) {
-      errores.add("Al menos un servicio");
-    }
+    if (nombreCtrl.text.trim().isEmpty) errores.add(t.businessName);
+    if (descripcionCtrl.text.trim().isEmpty) errores.add(t.description);
+    if (ubicacionCtrl.text.trim().isEmpty) errores.add(t.location);
+    if (horarioCtrl.text.trim().isEmpty) errores.add(t.schedule);
+    if (servicios.isEmpty) errores.add(t.atLeastOneService);
 
     if (errores.isNotEmpty) {
       _mostrarErroresValidacion(errores);
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Emprendimiento creado")),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(t.businessCreated)));
   }
 
   void _mostrarErroresValidacion(List<String> errores) {
-    final mensaje = "Faltan los siguientes campos: ${errores.join(', ')}";
+    final mensaje =
+        "Faltan los siguientes campos: ${errores.join(', ')}"; // Podrías también traducir "Faltan los siguientes campos" en ARB
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(mensaje),
-        backgroundColor: Colors.red,
-      ),
+      SnackBar(content: Text(mensaje), backgroundColor: Colors.red),
     );
   }
 
   // ------------------------ WIDGETS ------------------------
-
   Widget _title(String t) => Text(
-        t,
-        style: const TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.bold,
-          color: Color(0xFF90063a),
-        ),
-      );
+    t,
+    style: TextStyle(
+      fontSize: 15,
+      fontWeight: FontWeight.bold,
+      color: primaryColor,
+    ),
+  );
 
   Widget _input(TextEditingController ctrl, String hint) {
     return TextField(
@@ -180,13 +168,10 @@ class _CrearEmprendimientoScreenState extends State<CrearEmprendimientoScreen> {
     );
   }
 
-  List<Widget> _buildServicios() {
+  List<Widget> _buildServicios(AppLocalizations t) {
     if (servicios.isEmpty) {
       return [
-        const Text(
-          "No has agregado servicios aún.",
-          style: TextStyle(color: Colors.grey),
-        ),
+        Text(t.noServicesYet, style: const TextStyle(color: Colors.grey)),
         const SizedBox(height: 10),
       ];
     }
@@ -201,8 +186,10 @@ class _CrearEmprendimientoScreenState extends State<CrearEmprendimientoScreen> {
         child: ListTile(
           leading: CircleAvatar(
             backgroundColor: primaryColor,
-            child: Text("${i + 1}",
-                style: const TextStyle(color: Colors.white)),
+            child: Text(
+              "${i + 1}",
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
           title: Text(s["nombre"]),
           subtitle: Text("${s["descripcion"]}\n\$${s["precio"]}"),
@@ -215,7 +202,7 @@ class _CrearEmprendimientoScreenState extends State<CrearEmprendimientoScreen> {
     }).toList();
   }
 
-  Widget _agregarServicioBox() {
+  Widget _agregarServicioBox(AppLocalizations t) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -225,49 +212,47 @@ class _CrearEmprendimientoScreenState extends State<CrearEmprendimientoScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Agregar nuevo servicio:",
-            style: TextStyle(fontWeight: FontWeight.bold),
+          Text(
+            t.addNewService,
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
-
-          _input(servicioNombreCtrl, "Nombre del servicio"),
+          _input(servicioNombreCtrl, t.serviceName),
           const SizedBox(height: 10),
-          _input(servicioDescripcionCtrl, "Descripción breve"),
+          _input(servicioDescripcionCtrl, t.shortDescription),
           const SizedBox(height: 10),
-          _input(servicioPrecioCtrl, "Precio (Ej: \$5.00)"),
-
+          _input(servicioPrecioCtrl, t.priceExample),
           const SizedBox(height: 10),
-
           _botonPrincipal(
-            text: "Agregar Servicio",
-            onPressed: _onAgregarServicio,
-          )
+            text: t.addService,
+            onPressed: () => _onAgregarServicio(t),
+          ),
         ],
       ),
     );
   }
 
-  void _onAgregarServicio() {
+  void _onAgregarServicio(AppLocalizations t) {
     final nombre = servicioNombreCtrl.text.trim();
     final precio = servicioPrecioCtrl.text.trim();
 
     if (nombre.isEmpty || precio.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("El nombre y precio del servicio son requeridos."),
+        SnackBar(
+          content: Text(t.serviceNamePriceRequired),
           backgroundColor: Colors.red,
         ),
       );
       return;
     }
 
-    // Verificar duplicado
-    final existeDuplicado = servicios.any((s) => s["nombre"].toString().toLowerCase() == nombre.toLowerCase());
+    final existeDuplicado = servicios.any(
+      (s) => s["nombre"].toString().toLowerCase() == nombre.toLowerCase(),
+    );
     if (existeDuplicado) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Ya tienes un producto o servicio con este nombre"),
+        SnackBar(
+          content: Text(t.duplicateService),
           backgroundColor: Colors.red,
         ),
       );
@@ -287,17 +272,21 @@ class _CrearEmprendimientoScreenState extends State<CrearEmprendimientoScreen> {
     servicioPrecioCtrl.clear();
   }
 
-  Widget _botonPrincipal({required String text, required VoidCallback onPressed}) {
+  Widget _botonPrincipal({
+    required String text,
+    required VoidCallback onPressed,
+  }) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFdaa520),
+          backgroundColor: buttonColor,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 14),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
         child: Text(text),
       ),
