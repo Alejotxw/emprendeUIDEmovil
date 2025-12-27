@@ -18,6 +18,8 @@ class ServiceCard extends StatelessWidget {
     return Consumer<ServiceProvider>(
       builder: (context, provider, child) {
         final isFav = provider.isFavorite(service.id);
+        final colorScheme = Theme.of(context).colorScheme;
+
         IconData getIcon() {
           switch (service.category) {
             case 'Comida': return Icons.restaurant;
@@ -40,9 +42,16 @@ class ServiceCard extends StatelessWidget {
           onTap: onTap,
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: colorScheme.surface,
               borderRadius: BorderRadius.circular(12),
-              boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), spreadRadius: 1, blurRadius: 4, offset: const Offset(0, 2))],
+              boxShadow: [
+                BoxShadow(
+                  color: colorScheme.shadow.withOpacity(0.1),
+                  spreadRadius: 1,
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                )
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,10 +61,10 @@ class ServiceCard extends StatelessWidget {
                     Container(
                       height: 100,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFC8102E).withOpacity(0.8),
+                        color: colorScheme.primary.withOpacity(0.8),
                         borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                       ),
-                      child: Center(child: Icon(getIcon(), size: 40, color: Colors.white)),
+                      child: Center(child: Icon(getIcon(), size: 40, color: colorScheme.onPrimary)),
                     ),
                     Positioned(
                       top: 4,
@@ -64,7 +73,7 @@ class ServiceCard extends StatelessWidget {
                         onTap: () => provider.toggleFavorite(service.id),
                         child: Icon(
                           isFav ? Icons.favorite : Icons.favorite_border,
-                          color: isFav ? Colors.red : Colors.white70,
+                          color: isFav ? Colors.red : colorScheme.onPrimary.withOpacity(0.7),
                           size: 24,
                         ),
                       ),
@@ -77,18 +86,34 @@ class ServiceCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(service.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
+                        Text(
+                          service.name,
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: colorScheme.onSurface),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         const SizedBox(height: 2),
-                        Text(service.subtitle, style: const TextStyle(fontSize: 11, color: Colors.grey), maxLines: 1, overflow: TextOverflow.ellipsis),
+                        Text(
+                          service.subtitle,
+                          style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         const SizedBox(height: 4),
                         Row(
                           children: [
                             const Icon(Icons.star, size: 14, color: Colors.amber),
-                            Text('${service.rating} (${service.reviewCount})', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                            Text(
+                              '${service.rating} (${service.reviewCount})',
+                              style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 2),
-                        Text('\$${service.price.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFFC8102E))),
+                        Text(
+                          '\$${service.price.toStringAsFixed(2)}',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: colorScheme.primary),
+                        ),
                       ],
                     ),
                   ),

@@ -5,7 +5,8 @@ import '../screens/client_taek/cart_screen.dart';
 import '../screens/client_taek/profile_screen.dart';
 
 class BottomNavigation extends StatefulWidget {
-  const BottomNavigation({super.key});
+  final VoidCallback toggleTheme;
+  const BottomNavigation({super.key, required this.toggleTheme});
 
   @override
   State<BottomNavigation> createState() => _BottomNavigationState();
@@ -20,7 +21,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
   void initState() {
     super.initState();
     _screens = [
-      const HomeScreen(),
+      HomeScreen(toggleTheme: widget.toggleTheme),
       const FavoritesScreen(),
       const CartScreen(),
       const ProfileScreen(),
