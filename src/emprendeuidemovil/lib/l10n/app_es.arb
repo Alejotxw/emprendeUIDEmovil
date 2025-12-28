@@ -1,0 +1,258 @@
+{
+  "@@locale": "es",
+  
+  "appTitle": "Servicio App Cliente",
+  "hello": "Hola, {name}",
+  "@hello": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  
+  "myCart": "Mi Carrito",
+  "services": "Servicios",
+  "products": "Productos",
+  "cartEmpty": "Tu carrito está vacío. ¡Agrega algo!",
+  "add": "Agregar",
+  "remove": "Eliminar",
+  "edit": "Editar",
+  "cancel": "Cancelar",
+  "save": "Guardar",
+  "saveChanges": "Guardar Cambios",
+  "accept": "Aceptar",
+  "accepted": "Aceptada",
+  "pending": "Pendiente",
+  "comment": "Comentario",
+  "quantity": "Cantidad",
+  "price": "Precio",
+  "total": "Total",
+  "subtotal": "Subtotal",
+  
+  "editComment": "Editar Comentario",
+  "editQuantity": "Editar Cantidad",
+  "commentPlaceholder": "Describe lo que necesitas...",
+  "commentCannotBeEmpty": "El comentario no puede estar vacío",
+  "commentUpdated": "Comentario actualizado",
+  "quantityUpdated": "Cantidad actualizada a {quantity}",
+  "@quantityUpdated": {
+    "placeholders": {
+      "quantity": {
+        "type": "Object"
+      }
+    }
+  },
+  "quantityMustBeGreaterThanZero": "La cantidad debe ser mayor a 0",
+  
+  "paymentMethod": "Forma de Pago",
+  "paymentMethodTitle": "Método de Pago",
+  "selectPaymentMethod": "Selecciona un método de pago",
+  "payInPerson": "Pago en físico",
+  "payByTransfer": "Pago por transferencia",
+  "secureLocation": "Ubicación segura",
+  "transferData": "Datos para transferencia",
+  "bankName": "Banco: Banco Nacional",
+  "accountNumber": "Cuenta: 1234-5678-9012",
+  "holderID": "C.I. Titular: 1234567890",
+  "reference": "Referencia: Compra en EmprendeUI",
+  "pay": "Pagar",
+  "paymentSuccessful": "Pago exitoso por {method}!",
+  "@paymentSuccessful": {
+    "placeholders": {
+      "method": {
+        "type": "Object"
+      }
+    }
+  },
+  
+  "myProfile": "Mi Perfil",
+  "fullName": "Nombre Completo",
+  "phone": "Teléfono",
+  "cellphone": "Celular",
+  "cellphonePlaceholder": "e.j. ",
+  "email": "Correo electrónico",
+  "settings": "Configuraciones",
+  "customize": "Personaliza tu experiencia",
+  "notifications": "Notificaciones",
+  "generalNotifications": "Notificaciones generales",
+  "generalNotificationsSubtitle": "Recibe actualizaciones importantes",
+  "requests": "Solicitudes",
+  "requestsSubtitle": "Estado de tus solicitudes",
+  "offersAndPromotions": "Ofertas y promociones",
+  "offersSubtitle": "Descuentos exclusivos UIDE",
+  "appearance": "Apariencia",
+  "darkMode": "Modo Oscuro",
+  "darkModeComingSoon": "Próximamente disponible",
+  "language": "Idioma",
+  "spanish": "Español",
+  "english": "Inglés",
+  "privacyAndSecurity": "Privacidad y Seguridad",
+  "privacySubtitle": "Protege tu información",
+  "helpAndSupport": "Ayuda y Soporte",
+  "helpSubtitle": "Estamos aquí para ayudarte",
+  "appVersion": "EmprendeUIDE v1.0",
+  "appDescription": "Marketplace estudiantil oficial",
+  "university": "Universidad Internacional del Ecuador",
+  "copyright": "© 2025 UIDE. Todos los derechos reservados.",
+  "changesSaved": "Cambios guardados",
+  
+  "myFavorites": "Mis Favoritos",
+  "noFavorites": "No hay favoritos. ¡Agrega en Home!",
+  
+  "search": "Buscar",
+  "searchPlaceholder": "¿Qué necesitas hoy? Busca servicios o emprendimientos",
+  "searchResults": "Resultados de búsqueda ({query})",
+  "@searchResults": {
+    "placeholders": {
+      "query": {
+        "type": "Object"
+      }
+    }
+  },
+  "suggestedOptions": "Opciones sugeridas",
+  "topFeatured": "TOP Destacadas",
+  "allEntrepreneurships": "Todos los Emprendimientos",
+  "moreResults": "Más resultados",
+  "noExactResults": "No se encontraron resultados exactos.",
+  "showingServices": "Mostrando {count} servicios en {category}",
+  "@showingServices": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      },
+      "category": {
+        "type": "Object"
+      }
+    }
+  },
+  
+  "categories": "Categorías",
+  "food": "Comida",
+  "tutoring": "Tutorías",
+  "portfolios": "Portafolios",
+  "consultations": "Consultas",
+  "designs": "Diseños",
+  "books": "Libros",
+  "templates": "Plantillas",
+  "languages": "Idioma",
+  "writing": "Redacciones",
+  "prototypes": "Prototipos",
+  "research": "Investigaciones",
+  "art": "Arte",
+  "presentations": "Presentaciones",
+  "accessories": "Accesorios",
+  "technology": "Tecnología",
+  "crafts": "Artesanías",
+  
+  "availableServices": "Servicios Disponibles",
+  "availableProducts": "Productos Disponibles",
+  "noServicesAvailable": "No hay servicios disponibles en este momento.",
+  "noProductsAvailable": "No hay productos disponibles en este momento.",
+  "serviceDescription": "Descripción del Servicio",
+  "request": "Solicitar",
+  "addToCart": "Agregar al Carrito",
+  "serviceRequested": "Servicio solicitado y agregado al carrito",
+  "productAdded": "Producto agregado al carrito ({quantity})",
+  "@productAdded": {
+    "placeholders": {
+      "quantity": {
+        "type": "Object"
+      }
+    }
+  },
+  
+  "information": "Información",
+  "schedule": "Horario",
+  "location": "Ubicación",
+  "scheduleValue": "Lun-Vie 10:00-16:00",
+  "locationValue": "Dirección mock, Quito, Ecuador",
+  "mapPlaceholder": "Mapa Placeholder",
+  
+  "myOrders": "Mis Pedidos",
+  "myReviews": "Mis Reseñas",
+  "serviceRating": "Rating de Servicios",
+  "logout": "Cerrar sesión",
+  "sessionClosed": "Sesión cerrada",
+  "client": "Cliente",
+  "entrepreneur": "Emprendedor",
+  "clientModeActivated": "Modo Cliente activado",
+  "entrepreneurModeActivated": "Modo Emprendedor activado",
+  
+  "register": "Registro",
+  "login": "Iniciar Sesión",
+  "password": "Contraseña",
+  "institutionalEmail": "Correo institucional",
+  "selectYourRole": "Selecciona tu rol",
+  "seller": "Vendedor",
+  "buyer": "Comprador",
+  "registerMe": "Registrarme",
+  "mustUseInstitutionalEmail": "Debe usar un correo institucional @uide.edu.ec",
+  "mustSelectOneRole": "Debe elegir solo un rol: vendedor o comprador",
+  "userRegisteredSuccessfully": "Usuario {name} registrado con éxito",
+  "@userRegisteredSuccessfully": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "requiredField": "Campo obligatorio",
+  "minimumCharacters": "Mínimo 6 caracteres",
+  
+  "createEntrepreneurship": "Crear Emprendimiento",
+  "basicInformation": "Información Básica",
+  "entrepreneurshipName": "Nombres del Emprendimiento",
+  "entrepreneurshipNamePlaceholder": "Ej. Delicias Caseras",
+  "category": "Categoría",
+  "description": "Descripción",
+  "descriptionPlaceholder": "Describe tu emprendimiento",
+  "locationPlaceholder": "Ej. Campus Quito",
+  "scheduleAttention": "Horario de Atención",
+  "schedulePlaceholder": "Ej. Lun-Vie 9:00-17:00",
+  "servicesProducts": "Servicios / Productos ({count} Servicios)",
+  "@servicesProducts": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "noServicesYet": "No has agregado servicios aún.",
+  "addNewService": "Agregar nuevo servicio:",
+  "serviceName": "Nombre del servicio",
+  "briefDescription": "Descripción breve",
+  "priceExample": "Precio (Ej: $5.00)",
+  "addService": "Agregar Servicio",
+  "entrepreneurshipCreated": "Emprendimiento creado",
+  
+  "protectedAccount": "Cuenta Protegida",
+  "accountProtectedMessage": "Tu cuenta está activa y protegida. Mantén tus datos seguros con nuestras recomendaciones.",
+  "profilePrivacy": "Privacidad de perfil",
+  "showEmail": "Mostrar correo electrónico",
+  "showEmailSubtitle": "Visible en tu perfil público",
+  "showPhone": "Mostrar teléfono",
+  "showPhoneSubtitle": "Visible en tu perfil público",
+  "privacyCommitment": "Nos comprometemos a proteger tu privacidad y mantener tus datos seguros.",
+  "privacyPolicy": "Política de Privacidad",
+  "termsOfUse": "Términos de Uso",
+  
+  "writeYourMessage": "Escribe tu mensaje...",
+  "send": "Enviar",
+  "assistantGreeting": "Hola soy tu asistente virtual de Emprende UIDE. ¿En qué puedo ayudarte?",
+  "thankYouMessage": "Gracias por tu mensaje. Te responderemos pronto.",
+  "whatsapp": "WhatsApp",
+  
+  "viewDetails": "Ver {name}",
+  "@viewDetails": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  
+  "ordersScreenPlaceholder": "Pantalla de Mis Pedidos - Implementar lista de pedidos con status",
+  "reviewsScreenPlaceholder": "Pantalla de Mis Reseñas - Implementar lista de reseñas con check/trash",
+  "ratingsScreenPlaceholder": "Pantalla de Rating de Servicios - Implementar cards con stars"
+}
