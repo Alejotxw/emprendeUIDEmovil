@@ -16,7 +16,11 @@ El equipo de desarrollo está compuesto por 5 miembros:
 * **Sebastián Chocho** - Full Stack Developer - @Alejotxw
 * **Aidan Carpio** - Full Stack Developer - @Aidan-5
 * **Malena Orbea** - Full Stack Developer - @maleorbea
+<<<<<<< HEAD
+* **Kevin Giron** -Full stack Developer - @KevinGiron
+=======
 * **Kevin Giron** - Full Stack Developer - @KevinGiron
+>>>>>>> main
 
 ## Enlaces a GitHub Projects
 Aquí puedes encontrar la planificación completa del proyecto y el estado actual del trabajo:
@@ -36,10 +40,12 @@ Aquí puedes encontrar la planificación completa del proyecto y el estado actua
 ├── backend/                  # API REST Express
 │   ├── node_modules          # Dependencias de Node.js (ignoradas por Git)
 │   ├── src/                  # Código fuente del Backend
+|   |___|__ Reporte-sistemas/ # Reporte de actualizaciones del Sistema
 │   │   ├── auth.routes.js    # Definición de rutas de Autenticación (Login, Registro)
 │   │   ├── firebase.js       # Configuración o utilidades de Firebase Admin
 │   │   ├── index.js          # Servidor principal (Punto de entrada)
 │   │   └── products.routes.js# Definición de rutas de Productos/Emprendimientos
+|   |__|__ reporte.js         # Coodigo para reportes de actualizacion del sistema  
 │   ├── package-lock.json     # Archivo de bloqueo de dependencias
 │   └── package.json          # Dependencias y scripts del Backend
 │
@@ -62,11 +68,20 @@ Aquí puedes encontrar la planificación completa del proyecto y el estado actua
 │       │   │   ├── login_screen.dart
 │       │   │   ├── profile_screen.dart
 │       │   │   └── services_screen.dart
+│       │   ├── models/      # carpeta de modelos
+│       │   │   ├── notification_model.dart
+│       │   │   ├── user_model.dart
+│       │   ├── services/      # carpeta de servicios
+│       │   │   ├── auth_service.dart
+│       │   │   ├── notification_service.dart
 │       │   └── main.dart     # Punto de entrada y Widget principal (App)
 │       ├── test/             # Pruebas de la aplicación Flutter
 │       ├── assets/           # (Implícito) Imágenes, fuentes, íconos
 │       ├── pubspec.yaml      # Dependencias de Flutter (paquetes)
-│       └── ...               # Otros archivos de configuración de Flutter (.metadata, .gitignore, etc.)
+│       └── analysis_option.yaml     # Otros archivos de configuración de Flutter (.metadata, .gitignore, etc.)
+│       └── pobspec.lock
+│       └── .metadata
+│       └── .gitignore  
 │
 ├── tests/                    # Tests de nivel superior
 │   └── .gitkeep              # Placeholder para mantener la carpeta

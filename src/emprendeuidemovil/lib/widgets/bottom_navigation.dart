@@ -3,9 +3,17 @@ import '../screens/client_taek/home_screen.dart';
 import '../screens/client_taek/favorites_screen.dart';
 import '../screens/client_taek/cart_screen.dart';
 import '../screens/client_taek/profile_screen.dart';
+import '../l10n/app_localizations.dart';
 
 class BottomNavigation extends StatefulWidget {
-  const BottomNavigation({super.key});
+  final VoidCallback toggleTheme;     // Para cambiar tema claro/oscuro
+  final Function(Locale) setLocale;   // Para cambiar idioma
+
+  const BottomNavigation({
+    super.key,
+    required this.toggleTheme,
+    required this.setLocale,
+  });
 
   @override
   State<BottomNavigation> createState() => _BottomNavigationState();
@@ -20,26 +28,44 @@ class _BottomNavigationState extends State<BottomNavigation> {
   void initState() {
     super.initState();
     _screens = [
-      const HomeScreen(),
+      HomeScreen(toggleTheme: widget.toggleTheme),       // ← Pasa toggleTheme
       const FavoritesScreen(),
       const CartScreen(),
-      const ProfileScreen(),
+      ProfileScreen(setLocale: widget.setLocale),       // ← Pasa setLocale
     ];
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return Scaffold(
       body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: 'Favoritos'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Carrito'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
+        items: [
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.home_outlined),
+            activeIcon: const Icon(Icons.home),
+            label: t.dashboard,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.favorite_border),
+            activeIcon: const Icon(Icons.favorite),
+            label: t.favorites,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.shopping_cart_outlined),
+            activeIcon: const Icon(Icons.shopping_cart),
+            label: t.cart,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.person_outline),
+            activeIcon: const Icon(Icons.person),
+            label: t.profile,
+          ),
         ],
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -8,8 +9,12 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  final TextEditingController _nameController = TextEditingController(text: 'Sebastián Chocho');
-  final TextEditingController _phoneController = TextEditingController(text: '09931762');
+  final TextEditingController _nameController = TextEditingController(
+    text: 'Sebastián Chocho',
+  );
+  final TextEditingController _phoneController = TextEditingController(
+    text: '09931762',
+  );
 
   @override
   void dispose() {
@@ -20,9 +25,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mi Perfil'),
+        title: Text(t.myProfile),
         backgroundColor: const Color(0xFFC8102E),
         foregroundColor: Colors.white,
       ),
@@ -40,24 +47,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             // Nombre Completo
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Nombre Completo',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: t.nameLabel,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
             // Celular
             TextField(
               controller: _phoneController,
-              decoration: const InputDecoration(
-                labelText: 'Celular',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: t.phoneLabel,
+                border: const OutlineInputBorder(),
                 prefixText: 'e.j. ',
               ),
               keyboardType: TextInputType.phone,
             ),
             const Spacer(),
-            // Botones Cancelar / Guardar Cambios (centrados uno al lado del otro)
+            // Botones Cancelar / Guardar Cambios
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -65,22 +72,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 12,
+                    ),
                   ),
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancelar'),
+                  child: Text(t.cancel),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 12,
+                    ),
                   ),
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cambios guardados')));
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(t.save)));
                     Navigator.pop(context);
                   },
-                  child: const Text('Guardar Cambios'),
+                  child: Text(t.save),
                 ),
               ],
             ),

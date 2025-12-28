@@ -11,7 +11,7 @@ class _SupportScreenState extends State<SupportScreen> {
   final TextEditingController _messageController = TextEditingController();
   final List<String> _messages = [
     'Hola soy tu asistente virtual de Emprende UIDE. ¿En qué puedo ayudarte?',
-  ];  // Mock chat
+  ]; // Mock chat
 
   @override
   void dispose() {
@@ -47,7 +47,11 @@ class _SupportScreenState extends State<SupportScreen> {
                 ),
                 Column(
                   children: [
-                    const Icon(Icons.message, size: 48, color: Colors.green),  // Icons.message para WhatsApp (fix error)
+                    const Icon(
+                      Icons.message,
+                      size: 48,
+                      color: Colors.green,
+                    ), // Icons.message para WhatsApp (fix error)
                     const Text('WhatsApp'),
                   ],
                 ),
@@ -98,7 +102,9 @@ class _SupportScreenState extends State<SupportScreen> {
                       // Mock respuesta
                       Future.delayed(const Duration(seconds: 1), () {
                         setState(() {
-                          _messages.add('Gracias por tu mensaje. Te responderemos pronto.');
+                          _messages.add(
+                            'Gracias por tu mensaje. Te responderemos pronto.',
+                          );
                         });
                       });
                     }

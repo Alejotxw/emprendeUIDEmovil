@@ -11,7 +11,10 @@ class AuthService {
     return UserModel(id: 'mock_id', email: email, name: name);
   }
 
-  Future<UserModel?> login({required String email, required String password}) async {
+  Future<UserModel?> login({
+    required String email,
+    required String password,
+  }) async {
     // Mock login
     await Future.delayed(const Duration(seconds: 1));
     if (email == 'test@example.com' && password == '123') {

@@ -1,0 +1,8 @@
+{
+  "usuario": "luis",
+  "modulo": "registro",
+  "descripcion": "Se corrigió el flujo de validación en el formulario.",
+  "version_flutter": "1.0.4",
+  "version_backend": "2.2",
+  "estado": "completado"
+}

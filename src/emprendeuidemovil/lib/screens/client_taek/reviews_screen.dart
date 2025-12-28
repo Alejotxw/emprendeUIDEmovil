@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 
 class ReviewsScreen extends StatelessWidget {
   const ReviewsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mis Reseñas'),
+        title: Text(t.myReviews), // Ahora usa el texto traducible
         backgroundColor: const Color(0xFFC8102E),
         foregroundColor: Colors.white,
       ),
-      body: const Center(
-        child: Text('Pantalla de Mis Reseñas - Implementar lista de reseñas con check/trash'),
+      body: Center(
+        child: Text(
+          t.myReviews + ' - Implementar lista de reseñas con check/trash',
+        ),
       ),
     );
   }

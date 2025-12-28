@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/service_model.dart';
 import '../../providers/cart_provider.dart';
+import '../../l10n/app_localizations.dart';
 
 class DetailScreen extends StatefulWidget {
   final ServiceModel service;
@@ -13,12 +14,12 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
-  int _selectedServiceIndex = -1;  // Para selección de servicio ( -1 = ninguno)
-  int _selectedProductIndex = -1;  // Para selección de producto ( -1 = ninguno)
-  int _productQuantity = 1;  // Contador para cantidad de producto seleccionado (inicia en 1)
-  final TextEditingController _commentController = TextEditingController();  // Para servicios
-  bool _isServiceValid = false;  // Validación para servicios (selección + comentario)
-  bool _isProductValid = false;  // Validación para productos (selección)
+  int _selectedServiceIndex = -1;
+  int _selectedProductIndex = -1;
+  int _productQuantity = 1;
+  final TextEditingController _commentController = TextEditingController();
+  bool _isServiceValid = false;
+  bool _isProductValid = false;
 
   @override
   void dispose() {
@@ -28,6 +29,8 @@ class _DetailScreenState extends State<DetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return Consumer<CartProvider>(
       builder: (context, cartProvider, child) {
         return Scaffold(
@@ -50,16 +53,18 @@ class _DetailScreenState extends State<DetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Imagen principal (placeholder; ajusta a tu asset)
+                // Imagen principal
                 Container(
                   width: double.infinity,
                   height: 200,
                   decoration: BoxDecoration(
                     image: const DecorationImage(
-                      image: AssetImage('assets/food_placeholder.png'),  // Agrega imagen de comida
+                      image: AssetImage('assets/food_placeholder.png'),
                       fit: BoxFit.cover,
                     ),
-                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
+                    borderRadius: const BorderRadius.vertical(
+                      bottom: Radius.circular(12),
+                    ),
                   ),
                 ),
                 Padding(
@@ -67,43 +72,61 @@ class _DetailScreenState extends State<DetailScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Título y chip
+                      // Título y categoría
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
                             child: Text(
                               widget.service.name,
-                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                           Chip(
                             label: Text(widget.service.category),
                             backgroundColor: Colors.orange[100],
-                            labelStyle: const TextStyle(color: Color(0xFFC8102E)),
+                            labelStyle: const TextStyle(
+                              color: Color(0xFFC8102E),
+                            ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Por Kevin Giraldo',  // Mock
-                        style: const TextStyle(fontSize: 16, color: Colors.grey),
+                        t.entrepreneurMode, // Ejemplo de autor mock
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       // Descripción
                       Text(
                         widget.service.subtitle,
-                        style: const TextStyle(fontSize: 16, color: Colors.black87),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black87,
+                        ),
                       ),
                       const SizedBox(height: 24),
                       // Información
-                      const Text(
-                        'Información',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFC8102E)),
+                      Text(
+                        t.itemDetails, // "Información"
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFC8102E),
+                        ),
                       ),
                       const SizedBox(height: 16),
-                      _buildInfoCard('Horario', 'Lun-Vie 10:00-16:00'),
-                      _buildInfoCard('Ubicación', 'Dirección mock, Quito, Ecuador'),
+                      _buildInfoCard(t.serviceRating, 'Lun-Vie 10:00-16:00'),
+                      _buildInfoCard(
+                        t.viewService,
+                        'Dirección mock, Quito, Ecuador',
+                      ),
                       // Mapa placeholder
                       Container(
                         height: 150,
@@ -112,49 +135,82 @@ class _DetailScreenState extends State<DetailScreen> {
                           borderRadius: BorderRadius.circular(8),
                           color: Colors.grey[300],
                         ),
-                        child: const Center(child: Text('Mapa Placeholder')),
+                        child: Center(child: Text(t.mapPlaceholder)),
                       ),
                       const SizedBox(height: 24),
                       // Servicios o Productos
                       Text(
-                        widget.service.isService ? 'Servicios Disponibles' : 'Productos Disponibles',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFC8102E)),
+                        widget.service.isService ? t.services : t.products,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFC8102E),
+                        ),
                       ),
                       const SizedBox(height: 16),
-                      if (widget.service.isService && widget.service.services.isNotEmpty)
-                        ...widget.service.services.asMap().entries.map((entry) => _buildServiceItem(entry.value, entry.key + 1)).toList()
+                      if (widget.service.isService &&
+                          widget.service.services.isNotEmpty)
+                        ...widget.service.services
+                            .asMap()
+                            .entries
+                            .map(
+                              (entry) => _buildServiceItem(
+                                entry.value,
+                                entry.key + 1,
+                                t,
+                              ),
+                            )
+                            .toList()
                       else if (widget.service.isService)
-                        const Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: Text('No hay servicios disponibles en este momento.'),
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(t.noServices),
                         )
                       else if (widget.service.products.isNotEmpty)
-                        ...widget.service.products.asMap().entries.map((entry) => _buildProductItem(entry.value, entry.key + 1)).toList()
+                        ...widget.service.products
+                            .asMap()
+                            .entries
+                            .map(
+                              (entry) => _buildProductItem(
+                                entry.value,
+                                entry.key + 1,
+                                t,
+                              ),
+                            )
+                            .toList()
                       else
-                        const Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: Text('No hay productos disponibles en este momento.'),
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(t.emptyCart),
                         ),
                       const SizedBox(height: 24),
-                      // Para servicios: TextField descripción + Botón Solicitar
+                      // Para servicios
                       if (widget.service.isService)
                         Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Descripción del Servicio',
-                              style: TextStyle(fontSize: 16, color: Colors.grey),
+                            Text(
+                              t.commentHint,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
                             ),
                             const SizedBox(height: 8),
                             TextField(
                               controller: _commentController,
                               decoration: InputDecoration(
-                                hintText: 'Describe lo que necesitas...',
+                                hintText: t.commentHint,
                                 border: const OutlineInputBorder(),
                                 filled: true,
                                 fillColor: Colors.grey[50],
                               ),
                               maxLines: 3,
-                              onChanged: (value) => setState(() => _isServiceValid = _selectedServiceIndex != -1 && value.isNotEmpty),
+                              onChanged: (value) => setState(() {
+                                _isServiceValid =
+                                    _selectedServiceIndex != -1 &&
+                                    value.isNotEmpty;
+                              }),
                             ),
                             const SizedBox(height: 16),
                             SizedBox(
@@ -163,17 +219,27 @@ class _DetailScreenState extends State<DetailScreen> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.orange,
                                   foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
                                 ),
                                 onPressed: _isServiceValid
                                     ? () {
-                                        final selectedItem = widget.service.services[_selectedServiceIndex];
+                                        final selectedItem = widget
+                                            .service
+                                            .services[_selectedServiceIndex];
                                         cartProvider.addToCart(
                                           widget.service,
                                           serviceItem: selectedItem,
                                           comment: _commentController.text,
                                         );
-                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Servicio solicitado y agregado al carrito')));
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(t.commentUpdated),
+                                          ),
+                                        );
                                         _commentController.clear();
                                         setState(() {
                                           _selectedServiceIndex = -1;
@@ -181,12 +247,12 @@ class _DetailScreenState extends State<DetailScreen> {
                                         });
                                       }
                                     : null,
-                                child: const Text('Solicitar'),
+                                child: Text(t.save),
                               ),
                             ),
                           ],
                         ),
-                      // Para productos: Lista con selección única + Contador y Botón al Lado
+                      // Para productos
                       if (widget.service.isProduct)
                         Column(
                           children: [
@@ -201,17 +267,29 @@ class _DetailScreenState extends State<DetailScreen> {
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.orange,
                                         foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(vertical: 16),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 16,
+                                        ),
                                       ),
                                       onPressed: _isProductValid
                                           ? () {
-                                              final selectedItem = widget.service.products[_selectedProductIndex];
+                                              final selectedItem = widget
+                                                  .service
+                                                  .products[_selectedProductIndex];
                                               cartProvider.addToCart(
                                                 widget.service,
                                                 product: selectedItem,
                                                 quantity: _productQuantity,
                                               );
-                                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Producto agregado al carrito ($_productQuantity)')));
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                    '${t.add} $_productQuantity',
+                                                  ),
+                                                ),
+                                              );
                                               setState(() {
                                                 _selectedProductIndex = -1;
                                                 _productQuantity = 1;
@@ -219,13 +297,16 @@ class _DetailScreenState extends State<DetailScreen> {
                                               });
                                             }
                                           : null,
-                                      label: Text('Agregar al Carrito'),
+                                      label: Text(t.add),
                                     ),
                                   ),
                                   const SizedBox(width: 8),
-                                  // Contador + / - al lado del botón
+                                  // Contador
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 8,
+                                    ),
                                     decoration: BoxDecoration(
                                       border: Border.all(color: Colors.grey),
                                       borderRadius: BorderRadius.circular(8),
@@ -234,13 +315,29 @@ class _DetailScreenState extends State<DetailScreen> {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         IconButton(
-                                          icon: const Icon(Icons.remove, size: 20),
-                                          onPressed: () => setState(() => _productQuantity = _productQuantity > 1 ? _productQuantity - 1 : 1),
+                                          icon: const Icon(
+                                            Icons.remove,
+                                            size: 20,
+                                          ),
+                                          onPressed: () => setState(
+                                            () => _productQuantity =
+                                                _productQuantity > 1
+                                                ? _productQuantity - 1
+                                                : 1,
+                                          ),
                                         ),
-                                        Text('$_productQuantity', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                        Text(
+                                          '$_productQuantity',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
                                         IconButton(
                                           icon: const Icon(Icons.add, size: 20),
-                                          onPressed: () => setState(() => _productQuantity++),
+                                          onPressed: () => setState(
+                                            () => _productQuantity++,
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -272,58 +369,29 @@ class _DetailScreenState extends State<DetailScreen> {
       ),
       child: Row(
         children: [
-          Icon(title == 'Horario' ? Icons.schedule : Icons.location_on, color: Colors.orange),
+          Icon(
+            title.contains('Horario') ? Icons.schedule : Icons.location_on,
+            color: Colors.orange,
+          ),
           const SizedBox(width: 8),
-          Expanded(child: Text('$title: $value', style: const TextStyle(fontWeight: FontWeight.w500))),
+          Expanded(
+            child: Text(
+              '$title: $value',
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildProductItem(ProductItem item, int index) {
-    final isSelected = _selectedProductIndex == index - 1;  // 0-based index
+  Widget _buildProductItem(ProductItem item, int index, AppLocalizations t) {
+    final isSelected = _selectedProductIndex == index - 1;
     return GestureDetector(
       onTap: () => setState(() {
         _selectedProductIndex = index - 1;
-        _isProductValid = true;  // Habilita botón al seleccionar
-        _productQuantity = 1;  // Resetea contador al seleccionar nuevo
-      }),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.orange[50] : Colors.transparent,  // Naranja clarito al seleccionar
-          border: Border.all(
-            color: isSelected ? Colors.orange : Colors.grey[300]!,
-            width: isSelected ? 2 : 1,
-          ),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text('$index. ', style: const TextStyle(fontWeight: FontWeight.bold)),
-                Expanded(child: Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold))),
-                if (isSelected) const Icon(Icons.check, color: Colors.orange, size: 20),
-              ],
-            ),
-            Text(item.description, style: const TextStyle(fontSize: 14, color: Colors.grey)),
-            const SizedBox(height: 8),
-            Text('\$${item.price.toStringAsFixed(2)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFC8102E))),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildServiceItem(ServiceItem item, int index) {
-    final isSelected = _selectedServiceIndex == index - 1;
-    return GestureDetector(
-      onTap: () => setState(() {
-        _selectedServiceIndex = index - 1;
-        _isServiceValid = _selectedServiceIndex != -1 && _commentController.text.isNotEmpty;
+        _isProductValid = true;
+        _productQuantity = 1;
       }),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
@@ -341,14 +409,90 @@ class _DetailScreenState extends State<DetailScreen> {
           children: [
             Row(
               children: [
-                Text('$index. ', style: const TextStyle(fontWeight: FontWeight.bold)),
-                Expanded(child: Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold))),
-                if (isSelected) const Icon(Icons.check, color: Colors.orange, size: 20),
+                Text(
+                  '$index. ',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Expanded(
+                  child: Text(
+                    item.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                if (isSelected)
+                  const Icon(Icons.check, color: Colors.orange, size: 20),
               ],
             ),
-            Text(item.description, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+            Text(
+              item.description,
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
+            ),
             const SizedBox(height: 8),
-            Text('\$${item.price.toStringAsFixed(2)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFC8102E))),
+            Text(
+              '\$${item.price.toStringAsFixed(2)}',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFFC8102E),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildServiceItem(ServiceItem item, int index, AppLocalizations t) {
+    final isSelected = _selectedServiceIndex == index - 1;
+    return GestureDetector(
+      onTap: () => setState(() {
+        _selectedServiceIndex = index - 1;
+        _isServiceValid =
+            _selectedServiceIndex != -1 && _commentController.text.isNotEmpty;
+      }),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.orange[50] : Colors.transparent,
+          border: Border.all(
+            color: isSelected ? Colors.orange : Colors.grey[300]!,
+            width: isSelected ? 2 : 1,
+          ),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  '$index. ',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Expanded(
+                  child: Text(
+                    item.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                if (isSelected)
+                  const Icon(Icons.check, color: Colors.orange, size: 20),
+              ],
+            ),
+            Text(
+              item.description,
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '\$${item.price.toStringAsFixed(2)}',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFFC8102E),
+              ),
+            ),
           ],
         ),
       ),
