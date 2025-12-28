@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
+import 'l10n/app_localizations.dart';
 
 // Providers
 import 'providers/service_provider.dart';
@@ -21,18 +24,14 @@ import 'providers/user_profile_provider.dart';
 import 'providers/order_provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/event_provider.dart';
-import 'providers/review_provider.dart'; // Import del ReviewProvider
+import 'providers/review_provider.dart';
 
-// Pantallas modo Emprendedor
+// Pantallas
 import 'screens/emprendedor_taek/solicitudes.dart';
 import 'screens/emprendedor_taek/mis_emprendimientos.dart';
-
-// Pantallas modo Cliente
 import 'screens/client_taek/home_screen.dart';
 import 'screens/client_taek/favorites_screen.dart';
 import 'screens/client_taek/cart_screen.dart';
-
-// Pantalla de perfil unificada y Chat
 import 'screens/profile_screen.dart';
 // 🔹 Localización
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -45,9 +44,10 @@ import 'providers/cart_provider.dart';
 // 🔹 Widgets
 import 'widgets/bottom_navigation.dart';
 import 'screens/chat_screen.dart'; // Agregado
+
+import 'screens/chat_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/admin_screen.dart';
-
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -82,7 +82,7 @@ Future<void> main() async {
 
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => EventProvider()),
-        ChangeNotifierProvider(create: (_) => ReviewProvider()), // Provider de Reseñas
+        ChangeNotifierProvider(create: (_) => ReviewProvider()),
       ],
       child: const MyApp(),
     ),
@@ -162,6 +162,27 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           title: 'EmprendeUIDE',
           debugShowCheckedModeBanner: false,
+
+          // 🔹 LOCALIZACIÓN
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('es'),
+            Locale('en'),
+          ],
+          localeResolutionCallback: (locale, supportedLocales) {
+            for (final supported in supportedLocales) {
+              if (supported.languageCode == locale?.languageCode) {
+                return supported;
+              }
+            }
+            return const Locale('es');
+          },
+
           theme: ThemeData(
             primarySwatch: Colors.red,
             scaffoldBackgroundColor: Colors.white,
@@ -170,6 +191,7 @@ class MyApp extends StatelessWidget {
               foregroundColor: Colors.white,
             ),
           ),
+
           darkTheme: ThemeData.dark().copyWith(
             primaryColor: const Color(0xFFC8102E),
             appBarTheme: const AppBarTheme(
@@ -177,7 +199,9 @@ class MyApp extends StatelessWidget {
               foregroundColor: Colors.white,
             ),
           ),
+
           themeMode: settings.darkMode ? ThemeMode.dark : ThemeMode.light,
+
           builder: (context, child) {
             final scale = settings.largeFont ? 1.18 : 1.0;
             return MediaQuery(
@@ -187,6 +211,7 @@ class MyApp extends StatelessWidget {
               child: child!,
             );
           },
+
           home: const LoginScreen(),
           routes: {
             '/login': (context) => const LoginScreen(),
@@ -216,21 +241,19 @@ class _MainScreenState extends State<MainScreen> {
         final role = roleProvider.role;
         final isCliente = role == UserRole.cliente;
 
-        // Definición de páginas según el rol
         final List<Widget> pages = isCliente
-            ? [
-                const HomeScreen(),
-                const FavoritesScreen(),
-                const CartScreen(),
-                const ProfileScreen(),
+            ? const [
+                HomeScreen(),
+                FavoritesScreen(),
+                CartScreen(),
+                ProfileScreen(),
               ]
-            : [
-                const SolicitudesScreen(),
-                const MisEmprendimientosScreen(),
-                const ProfileScreen(),
+            : const [
+                SolicitudesScreen(),
+                MisEmprendimientosScreen(),
+                ProfileScreen(),
               ];
 
-        // Seguridad por si el índice queda fuera de rango al cambiar de rol
         if (_selectedIndex >= pages.length) {
           _selectedIndex = 0;
         }
@@ -240,15 +263,14 @@ class _MainScreenState extends State<MainScreen> {
             index: _selectedIndex,
             children: pages,
           ),
-          bottomNavigationBar: isCliente
-              ? _buildClienteBottomBar()
-              : _buildEmprendedorBottomBar(),
+          bottomNavigationBar:
+              isCliente ? _buildClienteBottomBar() : _buildEmprendedorBottomBar(),
           floatingActionButton: FloatingActionButton(
             heroTag: 'chat_fab',
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ChatScreen()),
+                MaterialPageRoute(builder: (_) => const ChatScreen()),
               );
             },
             backgroundColor: const Color.fromARGB(255, 127, 0, 2),
@@ -259,9 +281,10 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  // ================== BARRA CLIENTE ==================
+  // ================= CLIENTE =================
   Widget _buildClienteBottomBar() {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       height: 80,
       decoration: BoxDecoration(
@@ -277,40 +300,39 @@ class _MainScreenState extends State<MainScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildClienteNavItem(icon: Icons.home_outlined, index: 0),
-          _buildClienteNavItem(icon: Icons.favorite_border, index: 1),
-          _buildClienteNavItem(icon: Icons.shopping_cart_outlined, index: 2),
-          _buildClienteNavItem(icon: Icons.person_outline, index: 3),
+          _navItem(Icons.home_outlined, 0),
+          _navItem(Icons.favorite_border, 1),
+          _navItem(Icons.shopping_cart_outlined, 2),
+          _navItem(Icons.person_outline, 3),
         ],
       ),
     );
   }
 
-  Widget _buildClienteNavItem({required IconData icon, required int index}) {
+  Widget _navItem(IconData icon, int index) {
     final bool isSelected = _selectedIndex == index;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return GestureDetector(
       onTap: () => setState(() => _selectedIndex = index),
-      child: Container(
+      child: Padding(
         padding: const EdgeInsets.all(12),
         child: Icon(
           icon,
           size: 30,
-          color: isSelected 
-              ? const Color(0xFF83002A) 
+          color: isSelected
+              ? const Color(0xFF83002A)
               : (isDark ? Colors.white70 : Colors.grey),
         ),
       ),
     );
   }
 
-  // ================== BARRA EMPRENDEDOR ==================
+  // ================= EMPRENDEDOR =================
   Widget _buildEmprendedorBottomBar() {
     const Color activeColor = Color(0xFF83002A);
-    final Color inactiveColor = Theme.of(context).brightness == Brightness.dark 
-        ? Colors.white70 
-        : Colors.grey;
+    final Color inactiveColor =
+        Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.grey;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
@@ -325,67 +347,22 @@ class _MainScreenState extends State<MainScreen> {
           BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -5)),
         ],
       ),
-      child: Stack(
-        clipBehavior: Clip.none,
-        alignment: Alignment.center,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              // Solicitudes (Izquierda) - Índice 0
-              GestureDetector(
-                onTap: () => setState(() => _selectedIndex = 0),
-                child: SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: CustomPaint(
-                    key: ValueKey('solicitudes_${_selectedIndex == 0}'),
-                    painter: EditNoteIconPainter(
-                      color: _selectedIndex == 0 ? activeColor : inactiveColor,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 60),
-              // Perfil (Derecha) - Índice 2
-              GestureDetector(
-                onTap: () => setState(() => _selectedIndex = 2),
-                child: SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: CustomPaint(
-                    key: ValueKey('perfil_${_selectedIndex == 2}'),
-                    painter: UserIconPainter(
-                      color: _selectedIndex == 2 ? activeColor : inactiveColor,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+          GestureDetector(
+            onTap: () => setState(() => _selectedIndex = 0),
+            child: Icon(Icons.edit_note,
+                color: _selectedIndex == 0 ? activeColor : inactiveColor),
           ),
-          // Botón central flotante (+) - Índice 1
-          Positioned(
-            top: -30,
-            child: GestureDetector(
-              onTap: () => setState(() => _selectedIndex = 1),
-              child: Container(
-                width: 70,
-                height: 70,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF83002A),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF83002A).withOpacity(0.4),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(15),
-                child: CustomPaint(painter: PlusIconPainter()),
-              ),
-            ),
+          GestureDetector(
+            onTap: () => setState(() => _selectedIndex = 1),
+            child: const Icon(Icons.add_circle, size: 40, color: activeColor),
+          ),
+          GestureDetector(
+            onTap: () => setState(() => _selectedIndex = 2),
+            child:
+                Icon(Icons.person, color: _selectedIndex == 2 ? activeColor : inactiveColor),
           ),
         ],
       ),
