@@ -82,49 +82,14 @@ class _CrearEmprendimientoScreenState extends State<CrearEmprendimientoScreen> {
             const SizedBox(height: 30),
             _botonPrincipal(
               text: "Crear Emprendimiento",
-              onPressed: _onCrearEmprendimiento,
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Emprendimiento creado")),
+                );
+              },
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  void _onCrearEmprendimiento() {
-    final List<String> errores = [];
-
-    if (nombreCtrl.text.trim().isEmpty) {
-      errores.add("Nombre del emprendimiento");
-    }
-    if (descripcionCtrl.text.trim().isEmpty) {
-      errores.add("Descripción");
-    }
-    if (ubicacionCtrl.text.trim().isEmpty) {
-      errores.add("Ubicación");
-    }
-    if (horarioCtrl.text.trim().isEmpty) {
-      errores.add("Horario de atención");
-    }
-    if (servicios.isEmpty) {
-      errores.add("Al menos un servicio");
-    }
-
-    if (errores.isNotEmpty) {
-      _mostrarErroresValidacion(errores);
-      return;
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Emprendimiento creado")),
-    );
-  }
-
-  void _mostrarErroresValidacion(List<String> errores) {
-    final mensaje = "Faltan los siguientes campos: ${errores.join(', ')}";
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(mensaje),
-        backgroundColor: Colors.red,
       ),
     );
   }
@@ -241,50 +206,26 @@ class _CrearEmprendimientoScreenState extends State<CrearEmprendimientoScreen> {
 
           _botonPrincipal(
             text: "Agregar Servicio",
-            onPressed: _onAgregarServicio,
+            onPressed: () {
+              if (servicioNombreCtrl.text.isEmpty ||
+                  servicioPrecioCtrl.text.isEmpty) return;
+
+              setState(() {
+                servicios.add({
+                  "nombre": servicioNombreCtrl.text,
+                  "descripcion": servicioDescripcionCtrl.text,
+                  "precio": servicioPrecioCtrl.text,
+                });
+              });
+
+              servicioNombreCtrl.clear();
+              servicioDescripcionCtrl.clear();
+              servicioPrecioCtrl.clear();
+            },
           )
         ],
       ),
     );
-  }
-
-  void _onAgregarServicio() {
-    final nombre = servicioNombreCtrl.text.trim();
-    final precio = servicioPrecioCtrl.text.trim();
-
-    if (nombre.isEmpty || precio.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("El nombre y precio del servicio son requeridos."),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    // Verificar duplicado
-    final existeDuplicado = servicios.any((s) => s["nombre"].toString().toLowerCase() == nombre.toLowerCase());
-    if (existeDuplicado) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Ya tienes un producto o servicio con este nombre"),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    setState(() {
-      servicios.add({
-        "nombre": nombre,
-        "descripcion": servicioDescripcionCtrl.text.trim(),
-        "precio": precio,
-      });
-    });
-
-    servicioNombreCtrl.clear();
-    servicioDescripcionCtrl.clear();
-    servicioPrecioCtrl.clear();
   }
 
   Widget _botonPrincipal({required String text, required VoidCallback onPressed}) {
