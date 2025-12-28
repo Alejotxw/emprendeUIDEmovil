@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 
 class OrdersScreen extends StatelessWidget {
   const OrdersScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mis Pedidos'),
+        title: Text(t.myOrders), // Título traducible
         backgroundColor: const Color(0xFFC8102E),
         foregroundColor: Colors.white,
       ),
-      body: const Center(
-        child: Text('Pantalla de Mis Pedidos - Implementar lista de pedidos con status'),
+      body: Center(
+        child: Text(t.myOrders + ' - Implementar lista de pedidos con status'),
       ),
     );
   }

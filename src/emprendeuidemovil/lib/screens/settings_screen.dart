@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'client_taek/edit_profile_screen.dart';  // Import para navegación a edición
+import 'client_taek/edit_profile_screen.dart';
 import 'client_taek/support_screen.dart';
 import 'client_taek/privacy_screen.dart';
+import '../l10n/app_localizations.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  final Function(Locale) setLocale; // recibe función para cambiar idioma
+  const SettingsScreen({super.key, required this.setLocale});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -13,17 +15,18 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _generalNotifications = true;
   bool _requestNotifications = false;
-  String _selectedLanguage = 'Español';
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Configuraciones'),
+        title: Text(t.settings),
         backgroundColor: const Color(0xFFC8102E),
         foregroundColor: Colors.white,
       ),
@@ -39,11 +42,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Mi Perfil', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(
+                      t.myProfile,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 8),
-                    const Text('Nombre: Sebastián Chocho', style: TextStyle(fontSize: 16)),
+                    Text(
+                      '${t.nameLabel}: Sebastián Chocho',
+                      style: const TextStyle(fontSize: 16),
+                    ),
                     const SizedBox(height: 8),
-                    const Text('Teléfono: 09931762', style: TextStyle(fontSize: 16)),
+                    Text(
+                      '${t.phoneLabel}: 09931762',
+                      style: const TextStyle(fontSize: 16),
+                    ),
                     const SizedBox(height: 16),
                     SizedBox(
                       width: double.infinity,
@@ -55,13 +70,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
                         onPressed: () {
-                          // Navega a pantalla de edición completa
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => EditProfileScreen()),  // Non-const para fix error
+                            MaterialPageRoute(
+                              builder: (context) => EditProfileScreen(),
+                            ),
                           );
                         },
-                        label: const Text('Editar'),
+                        label: Text(t.edit),
                       ),
                     ),
                   ],
@@ -76,18 +92,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Notificaciones generales', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(
+                      t.generalNotifications,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     SwitchListTile(
-                      title: const Text('Recibe actualizaciones importantes'),
+                      title: Text(t.importantUpdates),
                       value: _generalNotifications,
-                      onChanged: (value) => setState(() => _generalNotifications = value),
+                      onChanged: (value) =>
+                          setState(() => _generalNotifications = value),
                       activeColor: const Color(0xFFC8102E),
                     ),
                     SwitchListTile(
-                      title: const Text('Estado de tus solicitudes'),
+                      title: Text(t.requestStatus),
                       value: _requestNotifications,
-                      onChanged: (value) => setState(() => _requestNotifications = value),
+                      onChanged: (value) =>
+                          setState(() => _requestNotifications = value),
                       activeColor: const Color(0xFFC8102E),
                     ),
                   ],
@@ -102,48 +126,66 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Idioma', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(
+                      t.language,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Text('Actualmente solo disponible en '),
-                        Chip(
-                          label: const Text('Español'),
-                          backgroundColor: Colors.orange[100],
-                          labelStyle: const TextStyle(color: Color(0xFFC8102E)),
+                    DropdownButton<Locale>(
+                      value: Localizations.localeOf(context),
+                      items: const [
+                        DropdownMenuItem(
+                          value: Locale('es'),
+                          child: Text('Español'),
+                        ),
+                        DropdownMenuItem(
+                          value: Locale('en'),
+                          child: Text('English'),
                         ),
                       ],
+                      onChanged: (locale) {
+                        if (locale != null) widget.setLocale(locale);
+                      },
                     ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 16),
-            // Privacidad y Seguridad (navega a sub-pantalla)
+            // Privacidad y Seguridad
             Card(
               child: ListTile(
-                leading: const Icon(Icons.privacy_tip, color: Color(0xFFC8102E)),
-                title: const Text('Privacidad y Seguridad'),
+                leading: const Icon(
+                  Icons.privacy_tip,
+                  color: Color(0xFFC8102E),
+                ),
+                title: Text(t.privacySecurity),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => PrivacyScreen()),  // Non-const para fix error
+                    MaterialPageRoute(builder: (context) => PrivacyScreen()),
                   );
                 },
               ),
             ),
             const SizedBox(height: 16),
-            // Ayuda y Soporte (navega a sub-pantalla)
+            // Ayuda y Soporte
             Card(
               child: ListTile(
-                leading: const Icon(Icons.help_outline, color: Color(0xFFC8102E)),
-                title: const Text('Ayuda y Soporte'),
+                leading: const Icon(
+                  Icons.help_outline,
+                  color: Color(0xFFC8102E),
+                ),
+                title: Text(t.helpSupport),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => SupportScreen()),  // Non-const para fix error
+                    MaterialPageRoute(builder: (context) => SupportScreen()),
                   );
                 },
               ),
@@ -158,17 +200,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     const Icon(Icons.warning, color: Colors.red, size: 24),
                     const SizedBox(height: 8),
-                    const Text('Acerca de UIDE V1', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Emprende UIDE V1\nMarketplace para la Comunidad UIDE\nUniversidad Internacional del Ecuador',
-                      style: TextStyle(fontSize: 16),
+                    Text(
+                      t.aboutUIDE,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 8),
-                    const Center(
+                    Text(
+                      t.aboutUIDEDescription,
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(height: 8),
+                    Center(
                       child: Text(
-                        '© 2025 UIDE. Todos los derechos reservados.',
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                        t.copyright,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
                   ],

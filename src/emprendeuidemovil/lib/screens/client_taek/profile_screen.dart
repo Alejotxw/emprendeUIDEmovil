@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
-import 'reviews_screen.dart';  // Import para Mis Reseñas
-import 'ratings_screen.dart';  // Import para Rating de Servicios
-import 'orders_screen.dart';  // Import para Mis Pedidos
-import '../settings_screen.dart';  // Import para Configuraciones
+import 'reviews_screen.dart'; // Mis Reseñas
+import 'ratings_screen.dart'; // Rating de Servicios
+import 'orders_screen.dart'; // Mis Pedidos
+import '../settings_screen.dart'; // Configuraciones
+import '../../l10n/app_localizations.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  final Function(Locale) setLocale; // Recibe función para cambiar idioma
+  const ProfileScreen({super.key, required this.setLocale});
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mi Perfil'),
+        title: Text(t.profile),
         backgroundColor: const Color(0xFFC8102E),
         foregroundColor: Colors.white,
       ),
@@ -41,7 +45,7 @@ class ProfileScreen extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
-            // Botones Cliente / Emprendedor (centrados uno al lado del otro)
+            // Botones Cliente / Emprendedor
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -49,10 +53,15 @@ class ProfileScreen extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
                   ),
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Modo Cliente activado')));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Modo Cliente activado')),
+                    );
                   },
                   child: const Text('Cliente'),
                 ),
@@ -60,10 +69,17 @@ class ProfileScreen extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
                   ),
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Modo Emprendedor activado')));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Modo Emprendedor activado'),
+                      ),
+                    );
                   },
                   child: const Text('Emprendedor'),
                 ),
@@ -75,46 +91,62 @@ class ProfileScreen extends StatelessWidget {
               child: ListView(
                 children: [
                   ListTile(
-                    leading: const Icon(Icons.rate_review, color: Color(0xFFC8102E)),
-                    title: const Text('Mis Reseñas'),
+                    leading: const Icon(
+                      Icons.rate_review,
+                      color: Color(0xFFC8102E),
+                    ),
+                    title: Text(t.myReviews),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const ReviewsScreen()),
+                        MaterialPageRoute(
+                          builder: (context) => ReviewsScreen(),
+                        ),
                       );
                     },
                   ),
                   ListTile(
                     leading: const Icon(Icons.star, color: Color(0xFFC8102E)),
-                    title: const Text('Rating de Servicios'),
+                    title: Text(t.serviceRating),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const RatingsScreen()),
+                        MaterialPageRoute(
+                          builder: (context) => RatingsScreen(),
+                        ),
                       );
                     },
                   ),
                   ListTile(
-                    leading: const Icon(Icons.shopping_cart, color: Color(0xFFC8102E)),
-                    title: const Text('Mis Pedidos'),
+                    leading: const Icon(
+                      Icons.shopping_cart,
+                      color: Color(0xFFC8102E),
+                    ),
+                    title: Text(t.myOrders),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const OrdersScreen()),
+                        MaterialPageRoute(builder: (context) => OrdersScreen()),
                       );
                     },
                   ),
                   ListTile(
-                    leading: const Icon(Icons.settings, color: Color(0xFFC8102E)),
-                    title: const Text('Configuraciones'),
+                    leading: const Icon(
+                      Icons.settings,
+                      color: Color(0xFFC8102E),
+                    ),
+                    title: Text(t.settings),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              SettingsScreen(setLocale: setLocale),
+                        ),
                       );
                     },
                   ),
@@ -122,7 +154,7 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            // Botón Cerrar Sesión (rojo)
+            // Botón Cerrar Sesión
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -132,10 +164,18 @@ class ProfileScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Sesión cerrada')));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Sesión cerrada')),
+                  );
                   Navigator.popUntil(context, ModalRoute.withName('/login'));
                 },
-                child: const Text('Cerrar sesión', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                child: Text(
+                  t.logout,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ],

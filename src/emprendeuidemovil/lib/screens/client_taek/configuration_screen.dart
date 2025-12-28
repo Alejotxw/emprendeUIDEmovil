@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
-import 'edit_profile_screen.dart'; // Asegúrate de crear este archivo
+import 'edit_profile_screen.dart'; // Asegúrate de tener este archivo
+
+class ConfigurationScreen extends StatefulWidget {
+  const ConfigurationScreen({super.key});
+
+  @override
+  State<ConfigurationScreen> createState() => _ConfigurationScreenState();
+}
 
 class _ConfigurationScreenState extends State<ConfigurationScreen> {
   // Datos del perfil (editables)
@@ -88,12 +95,13 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
               const Text(
                 "Mi perfil",
                 style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
               ),
               const Spacer(),
-              _editButton(), // Botón funcional
+              _editButton(),
             ],
           ),
           const SizedBox(height: 15),
@@ -113,13 +121,16 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label,
-                style: const TextStyle(color: Colors.grey, fontSize: 13)),
-            Text(value,
-                style: const TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.w500)),
+            Text(
+              label,
+              style: const TextStyle(color: Colors.grey, fontSize: 13),
+            ),
+            Text(
+              value,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+            ),
           ],
-        )
+        ),
       ],
     );
   }
@@ -154,10 +165,7 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
         ),
         child: Text(
           "Editar",
-          style: TextStyle(
-            color: primary,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: primary, fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -171,14 +179,20 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
         children: [
           Row(
             children: const [
-              Icon(Icons.notifications_active,
-                  color: Color(0xFFdaa520), size: 26),
+              Icon(
+                Icons.notifications_active,
+                color: Color(0xFFdaa520),
+                size: 26,
+              ),
               SizedBox(width: 10),
-              Text("Notificaciones",
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.black87)),
+              Text(
+                "Notificaciones",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Colors.black87,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 18),
@@ -219,11 +233,17 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title,
-                  style: const TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.w500)),
-              Text(subtitle,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                subtitle,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
             ],
           ),
         ),
@@ -232,7 +252,7 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
           activeColor: Colors.white,
           activeTrackColor: accent,
           onChanged: onChanged,
-        )
+        ),
       ],
     );
   }
@@ -247,22 +267,28 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
             children: const [
               Icon(Icons.nights_stay, color: Colors.black87),
               SizedBox(width: 10),
-              Text("Apariencia",
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.black87)),
+              Text(
+                "Apariencia",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Colors.black87,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 15),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: const [
-              Text("Modo Oscuro",
-                  style: TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.w500)),
-              Text("Próximamente disponible",
-                  style: TextStyle(color: Colors.grey)),
+              Text(
+                "Modo Oscuro",
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+              ),
+              Text(
+                "Próximamente disponible",
+                style: TextStyle(color: Colors.grey),
+              ),
             ],
           ),
           const SizedBox(height: 15),
@@ -273,22 +299,25 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Idioma",
-                      style:
-                          TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+                  const Text(
+                    "Idioma",
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                  ),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 6),
+                      horizontal: 14,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: Colors.grey),
                     ),
                     child: const Text("Español"),
-                  )
+                  ),
                 ],
-              )
+              ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -309,12 +338,17 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
-                    style: const TextStyle(
-                        fontSize: 15, fontWeight: FontWeight.bold)),
-                Text(subtitle,
-                    style:
-                        const TextStyle(color: Colors.grey, fontSize: 13)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: const TextStyle(color: Colors.grey, fontSize: 13),
+                ),
               ],
             ),
           ),
@@ -334,8 +368,10 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
           style: TextStyle(color: Colors.black54, fontSize: 12),
         ),
         SizedBox(height: 10),
-        Text("© 2025 UIDE. Todos los derechos reservados.",
-            style: TextStyle(color: Colors.grey, fontSize: 11)),
+        Text(
+          "© 2025 UIDE. Todos los derechos reservados.",
+          style: TextStyle(color: Colors.grey, fontSize: 11),
+        ),
       ],
     );
   }
@@ -353,11 +389,10 @@ class _ConfigurationScreenState extends State<ConfigurationScreen> {
             blurRadius: 6,
             color: Colors.black.withOpacity(0.05),
             offset: const Offset(0, 2),
-          )
+          ),
         ],
       ),
       child: child,
     );
   }
-
 }

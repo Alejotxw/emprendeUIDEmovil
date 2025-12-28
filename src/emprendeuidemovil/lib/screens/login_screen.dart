@@ -74,9 +74,9 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                        Navigator.pushReplacementNamed(context, '/main');
-                      },
-                  
+                    Navigator.pushReplacementNamed(context, '/main');
+                  },
+
                   child: const Text(
                     'Ingresar',
                     style: TextStyle(
