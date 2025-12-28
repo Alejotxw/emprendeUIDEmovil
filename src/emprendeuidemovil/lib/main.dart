@@ -16,15 +16,32 @@ void main() {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  ThemeMode _themeMode = ThemeMode.light;
+
+  void _toggleTheme() {
+    setState(() {
+      _themeMode = _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Servicio App Cliente',
       theme: ThemeData(
-        primarySwatch: Colors.red,
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFC8102E),
+          brightness: Brightness.light,
+        ),
         scaffoldBackgroundColor: Colors.white,
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFFC8102E),
@@ -36,7 +53,30 @@ class MyApp extends StatelessWidget {
           type: BottomNavigationBarType.fixed,
         ),
       ),
-      home: const BottomNavigation(),
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFC8102E),
+          brightness: Brightness.dark,
+        ),
+        // Dark mode defaults usually create a dark background, but we can override if needed
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFFC8102E), // Keep brand color or adapt
+          foregroundColor: Colors.white,
+        ),
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          selectedItemColor: Color(0xFFC8102E), // Visible on dark? Maybe lighten it?
+          // If the background is dark, a red selected item might be hard to see or okay.
+          // Let's stick to brand color or secondary. 
+          // Actually, let's use the inverse primary or just red if it contrasts enough.
+          // On dark surface, standard red 0xFFC8102E might be low contrast.
+          // let's use a slightly lighter red or just keep it consistent for now.
+          unselectedItemColor: Colors.grey,
+          type: BottomNavigationBarType.fixed,
+        ),
+      ),
+      themeMode: _themeMode,
+      home: BottomNavigation(toggleTheme: _toggleTheme),
       debugShowCheckedModeBanner: false,
     );
   }

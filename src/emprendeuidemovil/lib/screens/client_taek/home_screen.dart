@@ -6,7 +6,8 @@ import '../../widgets/service_card.dart';
 import 'detail_screen.dart';  // Import para navegación a detalle
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final VoidCallback toggleTheme;
+  const HomeScreen({super.key, required this.toggleTheme});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -45,6 +46,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Consumer<ServiceProvider>(
       builder: (context, serviceProvider, child) {
         List<ServiceModel> filteredServices = serviceProvider.allServices;
@@ -65,13 +69,13 @@ class _HomeScreenState extends State<HomeScreen> {
             : '';
 
         return Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: colorScheme.surface,
           appBar: PreferredSize(
             preferredSize: const Size.fromHeight(140.0),
             child: Container(
-              decoration: const BoxDecoration(
-                color: Color(0xFFC8102E),
-                borderRadius: BorderRadius.only(
+              decoration: BoxDecoration(
+                color: colorScheme.primary,
+                borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(0),
                   bottomRight: Radius.circular(0),
                 ),
@@ -82,13 +86,25 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Hola, Alejandro',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Hola, Alejandro',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: colorScheme.onPrimary,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: widget.toggleTheme,
+                            icon: Icon(
+                              isDark ? Icons.light_mode : Icons.dark_mode,
+                              color: colorScheme.onPrimary,
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 8),
                       // Autocomplete para sugerencias
@@ -110,16 +126,16 @@ class _HomeScreenState extends State<HomeScreen> {
                             focusNode: focusNode,
                             onChanged: (value) => setState(() => _searchQuery = value),
                             onSubmitted: (value) => setState(() => _searchQuery = value),
-                            style: const TextStyle(color: Colors.white),
+                            style: TextStyle(color: colorScheme.onPrimary),
                             decoration: InputDecoration(
                               hintText: _searchQuery.isEmpty
                                   ? '¿Qué necesitas hoy? Busca servicios o emprendimientos'
                                   : null,
-                              hintStyle: const TextStyle(color: Colors.white70, fontSize: 14),
-                              prefixIcon: const Icon(Icons.search, color: Colors.white70),
+                              hintStyle: TextStyle(color: colorScheme.onPrimary.withOpacity(0.7), fontSize: 14),
+                              prefixIcon: Icon(Icons.search, color: colorScheme.onPrimary.withOpacity(0.7)),
                               suffixIcon: _searchQuery.isNotEmpty
                                   ? IconButton(
-                                      icon: const Icon(Icons.clear, color: Colors.white70),
+                                      icon: Icon(Icons.clear, color: colorScheme.onPrimary.withOpacity(0.7)),
                                       onPressed: () {
                                         _searchController.clear();
                                         setState(() => _searchQuery = '');
@@ -149,7 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Row(
                       children: _categories.map((category) => Padding(
                         padding: const EdgeInsets.only(right: 12),
-                        child: _buildCategoryChip(category, () => _onCategoryTap(category)),
+                        child: _buildCategoryChip(category, () => _onCategoryTap(category), colorScheme),
                       )).toList(),
                     ),
                   ),
@@ -164,14 +180,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Text(
                         _searchQuery.isEmpty ? 'TOP Destacadas' : (hasExactResults ? 'Resultados de búsqueda ($_searchQuery)' : 'Opciones sugeridas'),
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFFC8102E)),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: colorScheme.primary),
                       ),
                       if (suggestionText.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 4),
                           child: Text(
                             suggestionText,
-                            style: const TextStyle(fontSize: 14, color: Colors.grey),
+                            style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant),
                           ),
                         ),
                     ],
@@ -214,7 +230,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                     child: Text(
                       _searchQuery.isEmpty ? 'Todos los Emprendimientos' : 'Más resultados',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFFC8102E)),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: colorScheme.primary),
                     ),
                   ),
                 ),
@@ -268,7 +284,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildCategoryChip(String label, VoidCallback onTap) {
+  Widget _buildCategoryChip(String label, VoidCallback onTap, ColorScheme colorScheme) {
     IconData icon = _getCategoryIcon(label);
     return GestureDetector(
       onTap: onTap,
@@ -281,21 +297,21 @@ class _HomeScreenState extends State<HomeScreen> {
             height: 50,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFFF5E8E8),  // Fondo rojo claro
-              border: Border.all(color: const Color(0xFFC8102E), width: 1),  // Borde rojo
+              color: colorScheme.surfaceVariant,  // Fondo adaptado
+              border: Border.all(color: colorScheme.primary, width: 1),  // Borde primario
             ),
             child: Icon(
               icon,
               size: 24,
-              color: const Color(0xFFC8102E),
+              color: colorScheme.primary,
             ),
           ),
           const SizedBox(height: 4),  // Pegado abajo
           // Nombre de categoría
           Text(
             label,
-            style: const TextStyle(
-              color: Color(0xFFC8102E),
+            style: TextStyle(
+              color: colorScheme.primary,
               fontWeight: FontWeight.w500,
               fontSize: 12,
             ),
