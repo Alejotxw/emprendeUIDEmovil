@@ -33,8 +33,6 @@ Aquí puedes encontrar la planificación completa del proyecto y el estado actua
 | **Gestión de Código** | Git, GitHub | \- | 
 
 ## Estructura del Proyecto
-## Estructura del Proyecto
-
 ```text
 EMPRENDEUIDEMOVIL/                     # Carpeta raíz del proyecto
 ├── backend/                           # API REST Express
@@ -87,7 +85,7 @@ EMPRENDEUIDEMOVIL/                     # Carpeta raíz del proyecto
 │   └── .gitkeep                        # Placeholder para mantener la carpeta
 ├── .gitignore                          # Archivos ignorados por Git
 └── README.md                           # Documentación principal del proyecto
-
+```
 
 ## Instalación del Proyecto
 
