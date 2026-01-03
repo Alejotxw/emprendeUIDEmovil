@@ -16,7 +16,8 @@ El equipo de desarrollo está compuesto por 5 miembros:
 * **Sebastián Chocho** - Full Stack Developer - @Alejotxw
 * **Aidan Carpio** - Full Stack Developer - @Aidan-5
 * **Malena Orbea** - Full Stack Developer - @maleorbea
-* **Kevin Giron** - Full Stack Developer - @KevinGiron
+* **Kevin Giron** -Full stack Developer - @KevinGiron
+
 
 ## Enlaces a GitHub Projects
 Aquí puedes encontrar la planificación completa del proyecto y el estado actual del trabajo:
@@ -32,28 +33,31 @@ Aquí puedes encontrar la planificación completa del proyecto y el estado actua
 | **Gestión de Código** | Git, GitHub | \- | 
 
 ## Estructura del Proyecto
-| EMPRENDEUIDEMOVIL/
-├── backend/                  # API REST Express
-│   ├── node_modules          # Dependencias de Node.js (ignoradas por Git)
-│   ├── src/                  # Código fuente del Backend
-│   │   ├── auth.routes.js    # Definición de rutas de Autenticación (Login, Registro)
-│   │   ├── firebase.js       # Configuración o utilidades de Firebase Admin
-│   │   ├── index.js          # Servidor principal (Punto de entrada)
-│   │   └── products.routes.js# Definición de rutas de Productos/Emprendimientos
-│   ├── package-lock.json     # Archivo de bloqueo de dependencias
-│   └── package.json          # Dependencias y scripts del Backend
+```text
+EMPRENDEUIDEMOVIL/                     # Carpeta raíz del proyecto
+├── backend/                           # API REST Express
+│   ├── node_modules/                  # Dependencias de Node.js (ignoradas por Git)
+│   ├── src/                           # Código fuente del Backend
+│   │   ├── Reporte-sistemas/           # Reporte de actualizaciones del Sistema
+│   │   ├── auth.routes.js              # Definición de rutas de Autenticación (Login, Registro)
+│   │   ├── firebase.js                 # Configuración o utilidades de Firebase Admin
+│   │   ├── index.js                    # Servidor principal (Punto de entrada)
+│   │   ├── products.routes.js          # Definición de rutas de Productos/Emprendimientos
+│   │   └── reporte.js                  # Código para reportes de actualización del sistema
+│   ├── package-lock.json               # Archivo de bloqueo de dependencias
+│   └── package.json                    # Dependencias y scripts del Backend
 │
-├── docs/                     # Documentación y artefactos de diseño
-│   ├── .gitkeep              # Placeholder para mantener la carpeta
-│   └── SRS.md                # Especificación de Requerimientos del Sistema (en formato Markdown)
+├── docs/                               # Documentación y artefactos de diseño
+│   ├── .gitkeep                        # Placeholder para mantener la carpeta
+│   └── SRS.md                          # Especificación de Requerimientos del Sistema
 │
-├── src/                      # Contenedor de la aplicación Flutter
-│   ├── .gitkeep              # Placeholder para mantener la carpeta (Añadido)
-│   └── emprendeuidemovil/    # Proyecto base de la aplicación Flutter
-│       ├── android/          # Código nativo de Android
-│       ├── ios/              # Código nativo de iOS
-│       ├── lib/              # Código fuente Dart de la aplicación
-│       │   ├── screens/      # Pantallas completas de la aplicación (UI principal)
+├── src/                                # Contenedor de la aplicación Flutter
+│   ├── .gitkeep                        # Placeholder para mantener la carpeta
+│   └── emprendeuidemovil/              # Proyecto base de la aplicación Flutter
+│       ├── android/                    # Código nativo de Android
+│       ├── ios/                        # Código nativo de iOS
+│       ├── lib/                        # Código fuente Dart de la aplicación
+│       │   ├── screens/                # Pantallas completas de la aplicación
 │       │   │   ├── chat_screen.dart
 │       │   │   ├── configuration_screen.dart
 │       │   │   ├── emprendimiento_form.dart
@@ -62,16 +66,26 @@ Aquí puedes encontrar la planificación completa del proyecto y el estado actua
 │       │   │   ├── login_screen.dart
 │       │   │   ├── profile_screen.dart
 │       │   │   └── services_screen.dart
-│       │   └── main.dart     # Punto de entrada y Widget principal (App)
-│       ├── test/             # Pruebas de la aplicación Flutter
-│       ├── assets/           # (Implícito) Imágenes, fuentes, íconos
-│       ├── pubspec.yaml      # Dependencias de Flutter (paquetes)
-│       └── ...               # Otros archivos de configuración de Flutter (.metadata, .gitignore, etc.)
+│       │   ├── models/                 # Modelos de datos
+│       │   │   ├── notification_model.dart
+│       │   │   └── user_model.dart
+│       │   ├── services/               # Servicios de la aplicación
+│       │   │   ├── auth_service.dart
+│       │   │   └── notification_service.dart
+│       │   └── main.dart                # Punto de entrada y Widget principal
+│       ├── test/                       # Pruebas de la aplicación Flutter
+│       ├── assets/                     # Imágenes, fuentes e íconos
+│       ├── pubspec.yaml                # Dependencias de Flutter
+│       ├── analysis_options.yaml       # Configuración de análisis
+│       ├── pubspec.lock                # Bloqueo de dependencias
+│       ├── .metadata                   # Metadata de Flutter
+│       └── .gitignore                  # Ignorados del proyecto Flutter
 │
-├── tests/                    # Tests de nivel superior
-│   └── .gitkeep              # Placeholder para mantener la carpeta
-├── .gitignore                # Archivos ignorados por Git
-└── README.md                 # Documentación principal del proyecto
+├── tests/                              # Tests de nivel superior
+│   └── .gitkeep                        # Placeholder para mantener la carpeta
+├── .gitignore                          # Archivos ignorados por Git
+└── README.md                           # Documentación principal del proyecto
+```
 
 ## Instalación del Proyecto
 
@@ -185,108 +199,159 @@ git push origin main
 
 ### Requerimientos Funcionales
 
-**RF1. Formulario de creación de emprendimiento:**
-El sistema deberá mostrar un formulario con todos los campos necesarios (nombre, descripción, categoría, contacto, imagen/logo y estado).
+**RF1. Creación de emprendimiento**
+El sistema deberá mostrar un formulario donde el emprendedor pueda ingresar la información de su emprendimiento, como nombre, descripción, categoría, datos de contacto, imagen o logo y su estado.
 
-**RF2. Validación de datos obligatorios:**
-El sistema deberá validar que todos los campos obligatorios estén completos antes de permitir guardar o publicar.
+**RF2. Verificación de campos obligatorios**
+El sistema deberá comprobar que los campos importantes estén completos antes de permitir guardar o publicar un emprendimiento.
 
-**RF3. Acceso según rol del usuario:**
-Una vez autenticado, el sistema deberá redirigir primero al cliente o usuario para luego que se elija si quiere ser emprendedor o un cliente panel correspondiente según su rol.
+**RF3. Acceso según tipo de usuario**
+Luego de iniciar sesión, el sistema deberá permitir que el usuario acceda según su rol, ya sea como cliente o como emprendedor, mostrándole el panel correspondiente.
 
-**RF4. Edición de información personal del usuario:**
-El sistema permitira que el usuario modifique su nombre y foto desde la pantalla de perfil > configuraciones.
+**RF4. Edición del perfil del usuario**
+El sistema permitirá que el usuario cambie su nombre y su foto desde la sección de perfil y configuraciones.
 
-**RF5. Actualización de datos en Firestore y Storage:**
-El sistema deberá guardar el nombre actualizado en Firestore y, si la foto cambia, subirla a Firebase Storage y asociarla al perfil.
+**RF5. Actualización de información del perfil**
+El sistema deberá guardar el nombre actualizado del usuario y, si se cambia la foto, subirla y asociarla correctamente al perfil.
 
-**RF6. Visualización de emprendimientos del usuario:**
-El sistema deberá mostrar al emprendedor autenticado todos los emprendimientos asociados desde Firestore.
+**RF6. Visualización de emprendimientos propios**
+El sistema deberá mostrar al emprendedor todos los emprendimientos que tenga registrados.
 
-**RF7. Gestión de emprendimientos (editar y eliminar):**
-El sistema deberá permitir editar o eliminar emprendimientos, guardando cambios o eliminándolos de la base de datos tras confirmación.
+**RF7. Edición y eliminación de emprendimientos**
+El sistema permitirá modificar o eliminar emprendimientos, solicitando confirmación antes de guardar los cambios o borrar la información.
 
-**RF8. Visualización del catálogo de emprendimientos activos:**
-El sistema deberá mostrar al usuario la lista de emprendimientos activos al abrir el catálogo.
+**RF8. Visualización del catálogo de emprendimientos**
+El sistema deberá mostrar al usuario un listado de los emprendimientos que se encuentren activos.
 
-**RF9. Filtrado y navegación al detalle del emprendimiento:**
-El sistema deberá permitir filtrar por categoría y redirigir al detalle al seleccionar un emprendimiento.
+**RF9. Filtrado y acceso al detalle del emprendimiento**
+El sistema permitirá filtrar los emprendimientos por categoría y acceder a la información detallada de cada uno al seleccionarlo.
 
-**RF10. Visualización de métricas globales del sistema:**
-El sistema deberá mostrar al administrador: total de usuarios, total de emprendimientos y total de publicaciones.
+**RF10. Visualización de estadísticas generales**
+El sistema mostrará al administrador información general como el número total de usuarios, emprendimientos y publicaciones.
 
-**RF11. Filtrado de métricas por rango de fechas:**
-El sistema deberá actualizar las métricas del dashboard según el rango de fechas seleccionado.
+**RF11. Filtrado de estadísticas por fechas**
+El sistema permitirá ajustar las estadísticas según el rango de fechas seleccionado por el administrador.
 
-**RF12. Registro de calificaciones y reseñas:**
-El sistema deberá permitir enviar una calificación y comentario y guardarlos en Firestore.
+**RF12. Registro de calificaciones y comentarios**
+El sistema permitirá a los usuarios dejar una calificación y un comentario sobre un emprendimiento.
 
-**RF13. Validación de reseñas duplicadas por usuario:**
-El sistema deberá impedir que un usuario califique el mismo emprendimiento más de una vez y mostrar el mensaje correspondiente.
+**RF13. Control de calificaciones repetidas**
+El sistema evitará que un usuario califique más de una vez el mismo emprendimiento y mostrará un mensaje informativo.
 
-**RF14. Visualización de notificaciones en orden cronológico:**
-El sistema deberá mostrar al emprendedor una lista cronológica de notificaciones guardadas en Firestore.
+**RF14. Visualización de notificaciones**
+El sistema mostrará al emprendedor sus notificaciones ordenadas desde la más reciente hasta la más antigua.
 
-**RF15. Visualización de métodos de contacto del emprendimiento:**
-El sistema deberá mostrar teléfono, email del emprendimiento si están registrados.
+**RF15. Visualización de datos de contacto del emprendimiento**
+El sistema mostrará los datos de contacto del emprendimiento, como teléfono y correo electrónico, siempre que estén registrados.
+
+**RF16. Registro de nuevos usuarios**
+El sistema permitirá que nuevos usuarios se registren ingresando sus datos básicos.
+
+**RF17. Inicio y cierre de sesión**
+El sistema permitirá al usuario iniciar sesión y cerrarla cuando lo desee.
+
+**RF18. Recuperación de contraseña**
+El sistema permitirá al usuario recuperar su contraseña en caso de olvido.
+
+**RF19. Cambio de rol de usuario**
+El sistema permitirá que un usuario pueda cambiar su rol de cliente a emprendedor desde su perfil.
+
+**RF20. Publicación y despublicación de emprendimientos**
+El sistema permitirá al emprendedor activar o desactivar la visibilidad de su emprendimiento.
+
+**RF21. Visualización del estado del emprendimiento**
+El sistema mostrará si un emprendimiento se encuentra activo o inactivo.
+
+**RF22. Búsqueda por nombre del emprendimiento**
+El sistema permitirá buscar emprendimientos ingresando su nombre o parte de él.
+
+**RF23. Visualización de calificaciones promedio**
+El sistema mostrará el promedio de calificaciones de cada emprendimiento.
+
+**RF24. Acceso al historial de calificaciones**
+El sistema permitirá visualizar los comentarios y calificaciones realizadas por los usuarios.
+
+**RF25. Visualización de información básica del emprendedor**
+El sistema mostrará información básica del emprendedor asociada a cada emprendimiento.
 
 
 
 ### Requerimientos No Funcionales (RNF)
 
-**RNF1. Validación de formato y tamaño de imagen:**
-El sistema solo deberá aceptar imágenes JPG/PNG de máximo 5 MB.
+**RNF1. Validación de imágenes**
+El sistema solo permitirá subir imágenes en formato JPG o PNG y con un tamaño máximo de 5 MB.
 
-**RNF2. Validación mínima de descripción:**
-La descripción del emprendimiento deberá tener mínimo 50 caracteres.
+**RNF2. Longitud mínima de la descripción**
+La descripción del emprendimiento deberá tener al menos 50 caracteres.
 
-**RNF3. Manejo seguro de la sesión del usuario:**
-La sesión deberá almacenarse de forma segura usando Provider o SharedPreferences.
+**RNF3. Seguridad de la sesión del usuario**
+El sistema deberá mantener la sesión del usuario de forma segura para evitar accesos no autorizados.
 
-**RNF4. Retroalimentación inmediata ante credenciales incorrectas:**
-El mensaje “Credenciales incorrectas” deberá aparecer en menos de 5 segundo.
+**RNF4. Mensajes claros ante errores de inicio de sesión**
+Cuando las credenciales sean incorrectas, el sistema deberá mostrar un mensaje claro en pocos segundos.
 
-**RNF5. Integridad de los datos actualizados:**
-Los datos del perfil deberán actualizarse sin inconsistencias entre Firestore y Storage.
+**RNF5. Consistencia de la información del perfil**
+Los datos del perfil deberán actualizarse correctamente sin errores ni diferencias entre la información guardada.
 
-**RNF6. Optimización en la carga de la imagen de perfil:**
-La imagen deberá actualizarse en menos de 5 segundos.
+**RNF6. Rapidez al actualizar la imagen de perfil**
+La foto de perfil deberá actualizarse en un tiempo corto sin afectar la experiencia del usuario.
 
-**RNF7. Consistencia en operaciones de modificación:**
-Las operaciones de editar o eliminar emprendimientos deberán ejecutarse sin pérdida de datos.
+**RNF7. Confiabilidad en cambios de emprendimientos**
+Las acciones de editar o eliminar emprendimientos deberán realizarse sin pérdida de información.
 
-**RNF8. Rendimiento en la carga de emprendimientos:**
-La lista de emprendimientos deberá cargarse en máximo 2–4 segundos.
+**RNF8. Tiempo de carga del listado de emprendimientos**
+El listado de emprendimientos deberá mostrarse en un tiempo razonable al ingresar a la aplicación.
 
-**RNF9. Eficiencia en el filtrado del catálogo:**
-Los filtros deberán aplicarse en menos de 2 segundos.
+**RNF9. Rapidez en los filtros del catálogo**
+Los filtros del catálogo deberán aplicarse de forma rápida para facilitar la búsqueda.
 
-**RNF10. Orden y relevancia del contenido mostrado:**
-Los emprendimientos deberán mostrarse ordenados según categoría o relevancia definida.
+**RNF10. Orden del contenido mostrado**
+Los emprendimientos deberán mostrarse de forma ordenada según su categoría o relevancia.
 
-**RNF11. Optimización de consultas agregadas:**
-Las métricas del dashboard deberán cargar en máximo 3–4 segundos.
+**RNF11. Rendimiento del panel de estadísticas**
+Las estadísticas del sistema deberán cargarse sin demoras perceptibles.
 
-**RNF12. Representación visual clara y comprensible:**
-Las métricas deberán representarse mediante gráficos legibles y de alto rendimiento.
+**RNF12. Visualización clara de estadísticas**
+Las estadísticas deberán mostrarse mediante gráficos fáciles de entender y visualmente claros.
 
-**RNF13. Cálculo eficiente del promedio de calificaciones:**
-El promedio deberá actualizarse sin retrasos perceptibles.
+**RNF13. Actualización del promedio de calificaciones**
+El promedio de calificaciones deberá actualizarse de forma rápida al recibir nuevas valoraciones.
 
-**RNF14. Fluidez del widget de calificación:**
-El widget deberá reaccionar al toque de forma instantánea incluso en dispositivos de gama media.
+**RNF14. Respuesta inmediata del sistema de calificación**
+El sistema de calificación deberá reaccionar de inmediato al tocarlo, incluso en dispositivos normales.
 
-**RNF15. Entrega oportuna de notificaciones:**
-Las notificaciones deberán recibirse en máximo 5 segundos después del evento.
+**RNF15. Rapidez en la entrega de notificaciones**
+Las notificaciones deberán llegar al usuario poco tiempo después de que ocurra el evento.
 
-**RNF16. Persistencia confiable del historial de notificaciones:**
-Las notificaciones deberán almacenarse sin riesgos de pérdida, incluso offline.
+**RNF16. Almacenamiento confiable de notificaciones**
+Las notificaciones deberán guardarse correctamente incluso si el usuario no tiene conexión en ese momento.
 
-**RNF17. Integración confiable con servicios externos de contacto:**
-Los enlaces deben abrirse correctamente mediante url_launcher sin errores.
+**RNF17. Funcionamiento correcto de enlaces de contacto**
+Los enlaces para contactar al emprendimiento deberán abrirse sin errores.
 
-**RNF18. Orden y claridad en la presentación de métodos de contacto:**
-Los métodos de contacto deberán mostrarse de forma organizada y accesible para el usuario.
+**RNF18. Presentación clara de los métodos de contacto**
+Los métodos de contacto deberán mostrarse de forma ordenada y fácil de identificar.
+
+**RNF19. Usabilidad del sistema**
+El sistema deberá ser fácil de usar y comprensible para usuarios sin conocimientos técnicos.
+
+**RNF20. Diseño adaptable a distintos dispositivos**
+El sistema deberá verse correctamente en celulares, tablets y computadoras.
+
+**RNF21. Disponibilidad del sistema**
+El sistema deberá estar disponible la mayor parte del tiempo sin interrupciones frecuentes.
+
+**RNF22. Protección de la información del usuario**
+Los datos personales del usuario deberán mantenerse protegidos.
+
+**RNF23. Mensajes claros y comprensibles**
+Los mensajes del sistema deberán ser claros y fáciles de entender para el usuario.
+
+**RNF24. Estabilidad del sistema**
+El sistema deberá funcionar sin cierres inesperados durante su uso normal.
+
+**RNF25. Experiencia fluida de navegación**
+La navegación entre pantallas deberá sentirse rápida y sin retrasos molestos.
 
 
 
