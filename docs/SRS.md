@@ -38,53 +38,111 @@ EMPRENDEUIDEMOVIL/                     # Carpeta raíz del proyecto
 ├── backend/                           # API REST Express
 │   ├── node_modules/                  # Dependencias de Node.js (ignoradas por Git)
 │   ├── src/                           # Código fuente del Backend
-│   │   ├── Reporte-sistemas/           # Reporte de actualizaciones del Sistema
-│   │   ├── auth.routes.js              # Definición de rutas de Autenticación (Login, Registro)
-│   │   ├── firebase.js                 # Configuración o utilidades de Firebase Admin
-│   │   ├── index.js                    # Servidor principal (Punto de entrada)
-│   │   ├── products.routes.js          # Definición de rutas de Productos/Emprendimientos
-│   │   └── reporte.js                  # Código para reportes de actualización del sistema
-│   ├── package-lock.json               # Archivo de bloqueo de dependencias
-│   └── package.json                    # Dependencias y scripts del Backend
+│   │   ├── reporte-sistemas/          # Reporte de actualizaciones del Sistema
+│   │   │   └── reporte_1764920074554.json
+│   │   ├── auth.routes.js             # Rutas de Autenticación (Login, Registro)
+│   │   ├── firebase.js                # Configuración de Firebase Admin
+│   │   ├── index.js                   # Servidor principal (Punto de entrada)
+│   │   ├── notifications.routes.js    # Rutas de Notificaciones (NUEVO)
+│   │   ├── products.routes.js         # Rutas de Productos/Emprendimientos
+│   │   └── reportes.js                # Código para reportes del sistema
+│   ├── package-lock.json              # Archivo de bloqueo de dependencias
+│   └── package.json                   # Dependencias y scripts del Backend
 │
-├── docs/                               # Documentación y artefactos de diseño
-│   ├── .gitkeep                        # Placeholder para mantener la carpeta
-│   └── SRS.md                          # Especificación de Requerimientos del Sistema
+├── docs/                              # Documentación y artefactos de diseño
+│   ├── ADR/                           # Architecture Decision Records (NUEVO)
+│   │   ├── ADR-001 Arquitectura General del sistema.md
+│   │   ├── ADR-002 Uso de Firebase como Base de datos.md
+│   │   └── ADR-003 Autenticación de Usuarios con firebase Authentication.md
+│   ├── audit/                         # Auditoría (NUEVO)
+│   │   └── Report.md
+│   ├── diagrams/                      # Diagramas del sistema (NUEVO)
+│   │   ├── .gitkeep
+│   │   ├── Diagrama de secuencia-Cliente.drawio
+│   │   └── diagrama proyecto.pdf
+│   ├── Documentación de Arquitectura.md
+│   └── SRS.md                         # Especificación de Requerimientos del Sistema
 │
-├── src/                                # Contenedor de la aplicación Flutter
-│   ├── .gitkeep                        # Placeholder para mantener la carpeta
-│   └── emprendeuidemovil/              # Proyecto base de la aplicación Flutter
-│       ├── android/                    # Código nativo de Android
-│       ├── ios/                        # Código nativo de iOS
-│       ├── lib/                        # Código fuente Dart de la aplicación
-│       │   ├── screens/                # Pantallas completas de la aplicación
-│       │   │   ├── chat_screen.dart
-│       │   │   ├── configuration_screen.dart
-│       │   │   ├── emprendimiento_form.dart
-│       │   │   ├── history_screen.dart
-│       │   │   ├── home_screen.dart
+├── src/                               # Contenedor de la aplicación Flutter
+│   └── emprendeuidemovil/             # Proyecto base de la aplicación Flutter
+│       ├── android/                   # Código nativo de Android
+│       ├── ios/                       # Código nativo de iOS
+│       ├── lib/                       # Código fuente Dart de la aplicación
+│       │   ├── models/                # Modelos de datos
+│       │   │   ├── cart_item.dart
+│       │   │   ├── service_model.dart
+│       │   │   └── user_model.dart
+│       │   │
+│       │   ├── providers/             # Gestores de estado (NUEVO)
+│       │   │   ├── cart_provider.dart
+│       │   │   ├── service_provider.dart
+│       │   │   └── user_role_provider.dart
+│       │   │
+│       │   ├── screens/               # Pantallas de la aplicación
+│       │   │   ├── client_taek/       # Pantallas del cliente (NUEVO)
+│       │   │   │   ├── cart_screen.dart
+│       │   │   │   ├── configuration_screen.dart
+│       │   │   │   ├── detail_screen.dart
+│       │   │   │   ├── edit_profile_screen.dart
+│       │   │   │   ├── emprendimiento_form.dart
+│       │   │   │   ├── favorites_screen.dart
+│       │   │   │   ├── home_screen.dart
+│       │   │   │   ├── orders_screen.dart
+│       │   │   │   ├── payment_screen.dart
+│       │   │   │   ├── privacy_screen.dart
+│       │   │   │   ├── ratings_screen.dart
+│       │   │   │   ├── register_screen.dart
+│       │   │   │   ├── reviews_screen.dart
+│       │   │   │   └── support_screen.dart
+│       │   │   │
+│       │   │   ├── emprendedor_taek/  # Pantallas del emprendedor (NUEVO)
+│       │   │   │   ├── ayuda_soporte.dart
+│       │   │   │   ├── comentarios_servicios.dart
+│       │   │   │   ├── configuracion_emprendedor.dart
+│       │   │   │   ├── detalle_solicitud.dart
+│       │   │   │   ├── edit_perfil_emprendedor.dart
+│       │   │   │   ├── form_emprendimiento.dart
+│       │   │   │   ├── mis_emprendimientos.dart
+│       │   │   │   ├── privacidad_seguridad.dart
+│       │   │   │   ├── rating_servicios_emprendedor.dart
+│       │   │   │   └── solicitudes.dart
+│       │   │   │
 │       │   │   ├── login_screen.dart
 │       │   │   ├── profile_screen.dart
-│       │   │   └── services_screen.dart
-│       │   ├── models/                 # Modelos de datos
-│       │   │   ├── notification_model.dart
-│       │   │   └── user_model.dart
-│       │   ├── services/               # Servicios de la aplicación
+│       │   │   └── settings_screen.dart
+│       │   │
+│       │   ├── services/              # Servicios de la aplicación
 │       │   │   ├── auth_service.dart
-│       │   │   └── notification_service.dart
-│       │   └── main.dart                # Punto de entrada y Widget principal
-│       ├── test/                       # Pruebas de la aplicación Flutter
-│       ├── assets/                     # Imágenes, fuentes e íconos
-│       ├── pubspec.yaml                # Dependencias de Flutter
-│       ├── analysis_options.yaml       # Configuración de análisis
-│       ├── pubspec.lock                # Bloqueo de dependencias
-│       ├── .metadata                   # Metadata de Flutter
-│       └── .gitignore                  # Ignorados del proyecto Flutter
+│       │   │   └── navigation_service.dart
+│       │   │
+│       │   ├── widgets/               # Widgets reutilizables (NUEVO)
+│       │   │   ├── bottom_navigation.dart
+│       │   │   ├── category_chip.dart
+│       │   │   ├── custom_app_bar.dart
+│       │   │   └── service_card.dart
+│       │   │
+│       │   └── main.dart              # Punto de entrada y Widget principal
+│       │
+│       ├── linux/                     # Código nativo de Linux (NUEVO)
+│       ├── macos/                     # Código nativo de macOS (NUEVO)
+│       ├── test/                      # Pruebas de la aplicación Flutter
+│       ├── tests/                     # Tests adicionales (NUEVO)
+│       ├── web/                       # Código nativo de Web (NUEVO)
+│       ├── windows/                   # Código nativo de Windows (NUEVO)
+│       ├── assets/                    # Imágenes, fuentes e íconos
+│       ├── .gitignore                 # Ignorados del proyecto Flutter
+│       ├── .metadata                  # Metadata de Flutter
+│       ├── analysis_options.yaml      # Configuración de análisis
+│       ├── flutter_01.png             # Logo del proyecto (NUEVO)
+│       ├── pubspec.lock               # Bloqueo de dependencias
+│       ├── pubspec.yaml               # Dependencias de Flutter
+│       └── README.md                  # README del proyecto Flutter
 │
-├── tests/                              # Tests de nivel superior
-│   └── .gitkeep                        # Placeholder para mantener la carpeta
-├── .gitignore                          # Archivos ignorados por Git
-└── README.md                           # Documentación principal del proyecto
+├── tests/                             # Tests de nivel superior
+│   └── .gitkeep                       # Placeholder para mantener la carpeta
+│
+├── .gitignore                         # Archivos ignorados por Git (raíz)
+└── README.md                          # Documentación principal del proyecto
 ```
 
 ## Instalación del Proyecto
