@@ -25,23 +25,23 @@ class _CartScreenState extends State<CartScreen> {
         return Scaffold(
           appBar: AppBar(
             title: const Text('Mi Carrito'),
-            backgroundColor: const Color(0xFFC8102E),
+            backgroundColor: const Color.fromARGB(255, 131, 0, 41),
             foregroundColor: Colors.white,
           ),
           body: Column(
             children: [
               // Toggle Buttons: Servicios / Productos
               Container(
-                color: Colors.grey[100],
+                color: const Color.fromARGB(255, 255, 255, 255),
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: ToggleButtons(
                   isSelected: [_selectedTab == 0, _selectedTab == 1],
                   onPressed: (index) => setState(() => _selectedTab = index),
                   borderRadius: BorderRadius.circular(8),
                   selectedColor: Colors.white,
-                  fillColor: _selectedTab == 0 ? Colors.blue[600] : Colors.orange[600],
-                  borderColor: Colors.grey,
-                  selectedBorderColor: _selectedTab == 0 ? Colors.blue[600] : Colors.orange[600],
+                  fillColor: _selectedTab == 0 ? Colors.orange[600] : Colors.orange[600],
+                  borderColor: const Color.fromARGB(255, 129, 129, 129),
+                  selectedBorderColor: _selectedTab == 0 ? Colors.orange[600] : Colors.orange[600],
                   children: const [
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
@@ -102,13 +102,13 @@ class _CartScreenState extends State<CartScreen> {
                                   // Vendedor
                                   Text(
                                     item.service.name,
-                                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+                                    style: const TextStyle(fontSize: 14, color: Color.fromARGB(255, 255, 255, 255)),
                                   ),
                                   const SizedBox(height: 4),
                                   // Precio
                                   Text(
                                     '\$${item.service.price.toStringAsFixed(2)}',
-                                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFC8102E)),
+                                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 158, 6, 64)),
                                   ),
                                   const SizedBox(height: 8),
                                   // Comentario para servicios
@@ -117,7 +117,7 @@ class _CartScreenState extends State<CartScreen> {
                                       padding: const EdgeInsets.only(top: 4),
                                       child: Text(
                                         'Comentario: ${item.comment}',
-                                        style: const TextStyle(fontSize: 12, color: Colors.blue, fontStyle: FontStyle.italic),
+                                        style: const TextStyle(fontSize: 12, color: Color.fromARGB(255, 255, 128, 0), fontStyle: FontStyle.italic),
                                       ),
                                     ),
                                   // Row de botones
@@ -127,11 +127,11 @@ class _CartScreenState extends State<CartScreen> {
                                       Row(
                                         children: [
                                           IconButton(
-                                            icon: const Icon(Icons.edit, color: Colors.blue),
+                                            icon: const Icon(Icons.edit, color: Color.fromARGB(255, 255, 132, 0)),
                                             onPressed: () => _showEditDialog(context, cartProvider, item),
                                           ),
                                           IconButton(
-                                            icon: const Icon(Icons.delete, color: Colors.red),
+                                            icon: const Icon(Icons.delete, color: Color.fromARGB(255, 161, 4, 67)),
                                             onPressed: () {
                                               cartProvider.removeFromCart(item.service, product: item.product, serviceItem: item.serviceItem);
                                             },

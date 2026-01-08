@@ -6,13 +6,13 @@ import 'package:emprendeuidemovil/screens/emprendedor_taek/comentarios_servicios
 import 'package:emprendeuidemovil/screens/emprendedor_taek/configuracion_emprendedor.dart';
 import 'package:emprendeuidemovil/screens/emprendedor_taek/rating_servicios_emprendedor.dart';
 
-// Imports del modo cliente (ajusta si los nombres son diferentes)
+// Imports del modo cliente
 import '../screens/client_taek/reviews_screen.dart';
 import '../screens/client_taek/ratings_screen.dart';
 import '../screens/client_taek/orders_screen.dart';
 import '../screens/settings_screen.dart';
 
-// Import del provider (¡OBLIGATORIO!)
+// Import del provider
 import 'package:emprendeuidemovil/providers/user_role_provider.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -20,7 +20,6 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Escuchamos el rol directamente del provider
     return Consumer<UserRoleProvider>(
       builder: (context, roleProvider, child) {
         final currentRole = roleProvider.role;
@@ -29,9 +28,7 @@ class ProfileScreen extends StatelessWidget {
           backgroundColor: Colors.white,
           body: Column(
             children: [
-              // Barra superior
               _buildTopBar(),
-
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -40,15 +37,14 @@ class ProfileScreen extends StatelessWidget {
                       const SizedBox(height: 20),
                       _buildProfileInfo(),
                       const SizedBox(height: 24),
-
-                      // Switch de rol (actualiza el provider al tocar)
                       _buildRoleSwitcher(context, roleProvider, currentRole),
-
                       const SizedBox(height: 32),
 
-                      // Opciones según el rol
-                      if (currentRole == UserRole.emprendedor) ..._buildEmprendedorOptions(context)
-                      else ..._buildClienteOptions(context),
+                      // Opciones según el rol con diseño unificado
+                      if (currentRole == UserRole.emprendedor) 
+                        ..._buildEmprendedorOptions(context)
+                      else 
+                        ..._buildClienteOptions(context),
 
                       const SizedBox(height: 40),
                       _buildLogoutButton(context),
@@ -57,7 +53,7 @@ class ProfileScreen extends StatelessWidget {
                         "TAEK versión 1.0",
                         style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w500),
                       ),
-                      const SizedBox(height: 100), // Espacio para la bottom bar
+                      const SizedBox(height: 100),
                     ],
                   ),
                 ),
@@ -167,71 +163,93 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  // VISTA EMPRENDEDOR ACTUALIZADA (Ahora se parece al cliente)
   List<Widget> _buildEmprendedorOptions(BuildContext context) {
     return [
       _buildMenuOption(
         'Comentarios de mis Servicios / Productos',
+        icon: Icons.comment_outlined,
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ComentariosServiciosScreen())),
       ),
-      const SizedBox(height: 16),
+      const SizedBox(height: 12),
       _buildMenuOption(
         'Rating de mis Servicios / Productos',
+        icon: Icons.star_outline,
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RatingServiciosEmprendedorScreen())),
       ),
-      const SizedBox(height: 16),
+      const SizedBox(height: 12),
       _buildMenuOption(
         'Configuraciones',
+        icon: Icons.settings_outlined,
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ConfiguracionEmprendedorScreen())),
       ),
     ];
   }
 
+  // VISTA CLIENTE ACTUALIZADA (Para que use el mismo widget base)
   List<Widget> _buildClienteOptions(BuildContext context) {
     return [
-      ListTile(
-        leading: const Icon(Icons.rate_review, color: Color(0xFF83002A)),
-        title: const Text('Mis Reseñas'),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      _buildMenuOption(
+        'Mis Reseñas',
+        icon: Icons.rate_review_outlined,
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ReviewsScreen())),
       ),
-      ListTile(
-        leading: const Icon(Icons.star, color: Color(0xFF83002A)),
-        title: const Text('Rating de Servicios'),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      const SizedBox(height: 12),
+      _buildMenuOption(
+        'Rating de Servicios',
+        icon: Icons.stars_outlined,
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RatingsScreen())),
       ),
-      ListTile(
-        leading: const Icon(Icons.shopping_cart, color: Color(0xFF83002A)),
-        title: const Text('Mis Pedidos'),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      const SizedBox(height: 12),
+      _buildMenuOption(
+        'Mis Pedidos',
+        icon: Icons.shopping_bag_outlined,
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OrdersScreen())),
       ),
-      ListTile(
-        leading: const Icon(Icons.settings, color: Color(0xFF83002A)),
-        title: const Text('Configuraciones'),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      const SizedBox(height: 12),
+      _buildMenuOption(
+        'Configuraciones',
+        icon: Icons.settings_outlined,
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
       ),
     ];
   }
 
-  Widget _buildMenuOption(String title, {VoidCallback? onTap}) {
+  // WIDGET DE DISEÑO UNIFICADO
+  Widget _buildMenuOption(String title, {IconData? icon, VoidCallback? onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: Colors.grey.shade400),
+          borderRadius: BorderRadius.circular(15), // Diseño más limpio tipo Cliente
+          border: Border.all(color: Colors.grey.shade200),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            if (icon != null) ...[
+              Icon(icon, color: const Color(0xFF83002A), size: 24),
+              const SizedBox(width: 16),
+            ],
             Expanded(
-              child: Text(title, style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.w500)),
+              child: Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.black87,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
-            const Icon(Icons.chevron_right, color: Colors.black),
+            const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
           ],
         ),
       ),
@@ -240,22 +258,19 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildLogoutButton(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        // Tu lógica de logout
-        Navigator.pushReplacementNamed(context, "/");
-      },
+      onTap: () => Navigator.pushReplacementNamed(context, "/"),
       child: Container(
         width: 250,
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 255, 255, 255),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: const Color.fromARGB(255, 255, 33, 33), width: 1.5),
+          border: Border.all(color: const Color(0xFFFF2121), width: 1.5),
         ),
         alignment: Alignment.center,
         child: const Text(
           'CERRAR SESIÓN',
-          style: TextStyle(color: Color.fromARGB(255, 255, 33, 33), fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Color(0xFFFF2121), fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
     );

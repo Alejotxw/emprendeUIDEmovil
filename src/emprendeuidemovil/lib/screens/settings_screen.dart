@@ -58,7 +58,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           // Navega a pantalla de edición completa
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => EditProfileScreen()),  // Non-const para fix error
+                            MaterialPageRoute(builder: (context) => EditProfileScreen(
+                              currentName: 'Sebastián Chocho',
+                              currentPhone: '09931762',
+                            )),  // Non-const para fix error
                           );
                         },
                         label: const Text('Editar'),

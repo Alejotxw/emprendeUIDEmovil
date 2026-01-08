@@ -70,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
             preferredSize: const Size.fromHeight(140.0),
             child: Container(
               decoration: const BoxDecoration(
-                color: Color(0xFFC8102E),
+                color: Color.fromARGB(255, 131, 0, 41),
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(0),
                   bottomRight: Radius.circular(0),
@@ -164,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Text(
                         _searchQuery.isEmpty ? 'TOP Destacadas' : (hasExactResults ? 'Resultados de búsqueda ($_searchQuery)' : 'Opciones sugeridas'),
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFFC8102E)),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color.fromARGB(255, 131, 0, 41)),
                       ),
                       if (suggestionText.isNotEmpty)
                         Padding(
@@ -214,7 +214,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                     child: Text(
                       _searchQuery.isEmpty ? 'Todos los Emprendimientos' : 'Más resultados',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFFC8102E)),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color.fromARGB(255, 131, 0, 41)),
                     ),
                   ),
                 ),
@@ -282,12 +282,12 @@ class _HomeScreenState extends State<HomeScreen> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: const Color(0xFFF5E8E8),  // Fondo rojo claro
-              border: Border.all(color: const Color(0xFFC8102E), width: 1),  // Borde rojo
+              border: Border.all(color: const Color.fromARGB(255, 131, 0, 41), width: 1),  // Borde rojo
             ),
             child: Icon(
               icon,
               size: 24,
-              color: const Color(0xFFC8102E),
+              color: const Color.fromARGB(255, 131, 0, 41),
             ),
           ),
           const SizedBox(height: 4),  // Pegado abajo
@@ -295,7 +295,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Text(
             label,
             style: const TextStyle(
-              color: Color(0xFFC8102E),
+              color: Color.fromARGB(255, 131, 0, 41),
               fontWeight: FontWeight.w500,
               fontSize: 12,
             ),
