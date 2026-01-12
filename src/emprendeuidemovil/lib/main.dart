@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'providers/service_provider.dart';
 import 'providers/cart_provider.dart';
 import 'providers/user_role_provider.dart';
+import 'providers/auth_provider.dart';
+import 'screens/auth/login_screen.dart';
 
 // Pantallas modo Emprendedor
 import 'screens/emprendedor_taek/solicitudes.dart';
@@ -25,6 +27,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => ServiceProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => UserRoleProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: const MyApp(),
     ),
@@ -47,7 +50,15 @@ class MyApp extends StatelessWidget {
           foregroundColor: Colors.white,
         ),
       ),
-      home: const MainScreen(),
+      home: Consumer<AuthProvider>(
+        builder: (context, auth, _) {
+          if (auth.isLoggedIn) {
+            return const MainScreen();
+          } else {
+            return const LoginScreen();
+          }
+        },
+      ),
     );
   }
 }
@@ -87,10 +98,7 @@ class _MainScreenState extends State<MainScreen> {
         }
 
         return Scaffold(
-          body: IndexedStack(
-            index: _selectedIndex,
-            children: pages,
-          ),
+          body: IndexedStack(index: _selectedIndex, children: pages),
           bottomNavigationBar: isCliente
               ? _buildClienteBottomBar()
               : _buildEmprendedorBottomBar(),
@@ -110,7 +118,11 @@ class _MainScreenState extends State<MainScreen> {
           topRight: Radius.circular(30),
         ),
         boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -5)),
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: Offset(0, -5),
+          ),
         ],
       ),
       child: Row(
@@ -154,7 +166,11 @@ class _MainScreenState extends State<MainScreen> {
           topRight: Radius.circular(30),
         ),
         boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -5)),
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: Offset(0, -5),
+          ),
         ],
       ),
       child: Stack(
@@ -285,7 +301,8 @@ class UserIconPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = color  // ← Usa el color recibido
+      ..color =
+          color // ← Usa el color recibido
       ..style = PaintingStyle.fill;
 
     const double svgWidth = 181;
@@ -326,7 +343,8 @@ class UserIconPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant UserIconPainter oldDelegate) => oldDelegate.color != color;
+  bool shouldRepaint(covariant UserIconPainter oldDelegate) =>
+      oldDelegate.color != color;
 }
 
 class EditNoteIconPainter extends CustomPainter {
@@ -337,7 +355,8 @@ class EditNoteIconPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = color  // ← Ahora SÍ usa el color que le pasas
+      ..color =
+          color // ← Ahora SÍ usa el color que le pasas
       ..style = PaintingStyle.fill;
 
     const double svgWidth = 204;
@@ -420,5 +439,6 @@ class EditNoteIconPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant EditNoteIconPainter oldDelegate) => oldDelegate.color != color;
+  bool shouldRepaint(covariant EditNoteIconPainter oldDelegate) =>
+      oldDelegate.color != color;
 }
