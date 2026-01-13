@@ -21,11 +21,13 @@ class AuthProvider extends ChangeNotifier {
     return false;
   }
 
-  Future<bool> register(String name, String email, String password) async {
+  // 👇 CORREGIDO: ahora coincide con AuthService y RegisterScreen
+  Future<bool> register(String nombre, String email, String password) async {
     final result = await _authService.register(
-      name: name,
+      nombre: nombre,
       email: email,
       password: password,
+      rol: "comprador", // fijo aquí
     );
 
     if (result != null) {

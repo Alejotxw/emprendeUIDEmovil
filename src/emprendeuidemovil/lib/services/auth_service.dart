@@ -28,29 +28,31 @@ class AuthService {
   }
 
   Future<UserModel?> register({
+    required String nombre,
     required String email,
     required String password,
-    required String name,
+    required String rol,
   }) async {
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/auth/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'nombre': name,
-          'email': email,
-          'password': password,
-        }),
-      );
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/register'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        "nombre": nombre,
+        "email": email,
+        "password": password,
+        "rol": rol, // 👈 aquí va SÍ o SÍ
+      }),
+    );
 
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return UserModel.fromJson(data["user"]);
-      } else {
-        return null;
-      }
-    } catch (e) {
-      throw Exception("Error al registrar");
+    print("STATUS CODE: ${response.statusCode}");
+    print("BODY: ${response.body}");
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final data = jsonDecode(response.body);
+      return UserModel.fromJson(data["user"]);
+    } else {
+      final data = jsonDecode(response.body);
+      throw Exception(data["message"]);
     }
   }
 }
