@@ -43,7 +43,7 @@ class _DetailScreenState extends State<DetailScreen> {
                 Text('${widget.service.rating}'),
               ],
             ),
-            backgroundColor: const Color(0xFFC8102E),
+            backgroundColor: const Color(0xFF83002A),
             foregroundColor: Colors.white,
           ),
           body: SingleChildScrollView(
@@ -80,7 +80,7 @@ class _DetailScreenState extends State<DetailScreen> {
                           Chip(
                             label: Text(widget.service.category),
                             backgroundColor: Colors.orange[100],
-                            labelStyle: const TextStyle(color: Color(0xFFC8102E)),
+                            labelStyle: const TextStyle(color: Color(0xFF83002A)),
                           ),
                         ],
                       ),
@@ -99,7 +99,7 @@ class _DetailScreenState extends State<DetailScreen> {
                       // Información
                       const Text(
                         'Información',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFC8102E)),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF83002A)),
                       ),
                       const SizedBox(height: 16),
                       _buildInfoCard('Horario', 'Lun-Vie 10:00-16:00'),
@@ -118,7 +118,7 @@ class _DetailScreenState extends State<DetailScreen> {
                       // Servicios o Productos
                       Text(
                         widget.service.isService ? 'Servicios Disponibles' : 'Productos Disponibles',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFC8102E)),
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF83002A)),
                       ),
                       const SizedBox(height: 16),
                       if (widget.service.isService && widget.service.services.isNotEmpty)
@@ -311,7 +311,7 @@ class _DetailScreenState extends State<DetailScreen> {
             ),
             Text(item.description, style: const TextStyle(fontSize: 14, color: Colors.grey)),
             const SizedBox(height: 8),
-            Text('\$${item.price.toStringAsFixed(2)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFC8102E))),
+            Text('\$${item.price.toStringAsFixed(2)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF83002A))),
           ],
         ),
       ),
@@ -348,7 +348,7 @@ class _DetailScreenState extends State<DetailScreen> {
             ),
             Text(item.description, style: const TextStyle(fontSize: 14, color: Colors.grey)),
             const SizedBox(height: 8),
-            Text('\$${item.price.toStringAsFixed(2)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFC8102E))),
+            Text('\$${item.price.toStringAsFixed(2)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF83002A))),
           ],
         ),
       ),

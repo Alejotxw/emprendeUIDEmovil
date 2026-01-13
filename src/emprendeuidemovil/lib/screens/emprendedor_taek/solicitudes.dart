@@ -45,7 +45,7 @@ class SolicitudesScreen extends StatelessWidget {
                   context, // Pass context for navigation
                   tag: 'Web',
                   title: 'Diseño Web',
-                  description: 'Preparo postres y dulces.',
+                  description: 'Modelo Web.',
                   price: '5.00',
                   status: 'Aceptado',
                   statusColor: const Color(0xFF4CAF50),

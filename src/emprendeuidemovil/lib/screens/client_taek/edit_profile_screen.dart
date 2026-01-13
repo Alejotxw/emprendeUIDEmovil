@@ -23,7 +23,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mi Perfil'),
-        backgroundColor: const Color(0xFFC8102E),
+        backgroundColor: const Color(0xFF83002A),
         foregroundColor: Colors.white,
       ),
       body: Padding(
@@ -33,7 +33,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             // Avatar
             const CircleAvatar(
               radius: 50,
-              backgroundColor: Color(0xFFC8102E),
+              backgroundColor: Color(0xFF83002A),
               child: Icon(Icons.person, size: 50, color: Colors.white),
             ),
             const SizedBox(height: 16),

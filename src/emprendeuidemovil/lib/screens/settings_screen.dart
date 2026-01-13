@@ -24,7 +24,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text('Configuraciones'),
-        backgroundColor: const Color(0xFFC8102E),
+        backgroundColor: const Color(0xFF83002A),
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
@@ -82,13 +82,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       title: const Text('Recibe actualizaciones importantes'),
                       value: _generalNotifications,
                       onChanged: (value) => setState(() => _generalNotifications = value),
-                      activeColor: const Color(0xFFC8102E),
+                      activeColor: const Color(0xFF83002A),
                     ),
                     SwitchListTile(
                       title: const Text('Estado de tus solicitudes'),
                       value: _requestNotifications,
                       onChanged: (value) => setState(() => _requestNotifications = value),
-                      activeColor: const Color(0xFFC8102E),
+                      activeColor: const Color(0xFF83002A),
                     ),
                   ],
                 ),
@@ -110,7 +110,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Chip(
                           label: const Text('Español'),
                           backgroundColor: Colors.orange[100],
-                          labelStyle: const TextStyle(color: Color(0xFFC8102E)),
+                          labelStyle: const TextStyle(color: Color(0xFF83002A)),
                         ),
                       ],
                     ),
@@ -122,7 +122,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // Privacidad y Seguridad (navega a sub-pantalla)
             Card(
               child: ListTile(
-                leading: const Icon(Icons.privacy_tip, color: Color(0xFFC8102E)),
+                leading: const Icon(Icons.privacy_tip, color: Color(0xFF83002A)),
                 title: const Text('Privacidad y Seguridad'),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: () {
@@ -137,7 +137,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // Ayuda y Soporte (navega a sub-pantalla)
             Card(
               child: ListTile(
-                leading: const Icon(Icons.help_outline, color: Color(0xFFC8102E)),
+                leading: const Icon(Icons.help_outline, color: Color(0xFF83002A)),
                 title: const Text('Ayuda y Soporte'),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: () {
@@ -156,7 +156,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.warning, color: Colors.red, size: 24),
+                    const Icon(Icons.warning, color: Color.fromARGB(255, 120, 13, 5), size: 24),
                     const SizedBox(height: 8),
                     const Text('Acerca de UIDE V1', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),

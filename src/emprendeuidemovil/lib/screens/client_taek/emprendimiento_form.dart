@@ -172,7 +172,7 @@ class _CrearEmprendimientoScreenState extends State<CrearEmprendimientoScreen> {
           title: Text(s["nombre"]),
           subtitle: Text("${s["descripcion"]}\n\$${s["precio"]}"),
           trailing: IconButton(
-            icon: const Icon(Icons.close, color: Colors.red),
+            icon: const Icon(Icons.close, color: Color.fromARGB(255, 128, 19, 11)),
             onPressed: () => setState(() => servicios.removeAt(i)),
           ),
         ),

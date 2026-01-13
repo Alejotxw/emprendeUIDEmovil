@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../models/cart_item.dart';
 import '../../models/service_model.dart';
-import 'payment_screen.dart';  // Import para navegación a PaymentScreen
+import '../client_taek/payment_screen.dart';  // Import para navegación a PaymentScreen
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -25,23 +25,23 @@ class _CartScreenState extends State<CartScreen> {
         return Scaffold(
           appBar: AppBar(
             title: const Text('Mi Carrito'),
-            backgroundColor: const Color(0xFFC8102E),
+            backgroundColor: const Color(0xFF83002A),
             foregroundColor: Colors.white,
           ),
           body: Column(
             children: [
               // Toggle Buttons: Servicios / Productos
               Container(
-                color: Colors.grey[100],
+                color: const Color.fromARGB(255, 255, 255, 255),
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: ToggleButtons(
                   isSelected: [_selectedTab == 0, _selectedTab == 1],
                   onPressed: (index) => setState(() => _selectedTab = index),
                   borderRadius: BorderRadius.circular(8),
                   selectedColor: Colors.white,
-                  fillColor: _selectedTab == 0 ? Colors.blue[600] : Colors.orange[600],
+                  fillColor: _selectedTab == 0 ? Colors.orange[600] : Colors.orange[600],
                   borderColor: Colors.grey,
-                  selectedBorderColor: _selectedTab == 0 ? Colors.blue[600] : Colors.orange[600],
+                  selectedBorderColor: _selectedTab == 0 ? Colors.orange[600] : Colors.orange[600],
                   children: const [
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),

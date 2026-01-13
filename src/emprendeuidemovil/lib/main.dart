@@ -133,7 +133,7 @@ class _MainScreenState extends State<MainScreen> {
         padding: const EdgeInsets.all(12),
         child: Icon(
           icon,
-          size: 30,
+          size: 35,
           color: isSelected ? const Color(0xFF83002A) : Colors.grey,
         ),
       ),
