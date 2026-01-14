@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 import '../../providers/service_provider.dart';
 import '../../models/service_model.dart';
 import '../../widgets/service_card.dart';
-import 'detail_screen.dart';  // Import para navegación a detalle
+import 'detail_screen.dart'; // Import para navegación a detalle
+import '../../features/dashboard/data/repositories/dashboard_repository.dart';
+import '../../core/preferences/preferences_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,27 +16,68 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final List<String> _categories = [
-    'Comida', 'Tutorías', 'Portafolios', 'Consultas', 'Diseños', 'Libros',
-    'Plantillas', 'Idioma', 'Redacciones', 'Prototipos', 'Investigaciones',
-    'Arte', 'Presentaciones', 'Accesorios',
+    'Comida',
+    'Tutorías',
+    'Portafolios',
+    'Consultas',
+    'Diseños',
+    'Libros',
+    'Plantillas',
+    'Idioma',
+    'Redacciones',
+    'Prototipos',
+    'Investigaciones',
+    'Arte',
+    'Presentaciones',
+    'Accesorios',
   ];
 
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
+  // ===== Dashboard values =====
+  int totalServicios = 0;
+  double sumaPrecios = 0;
+  double promedioRating = 0;
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final provider = context.read<ServiceProvider>();
+      final repo = DashboardRepository(provider);
+
+      setState(() {
+        totalServicios = repo.getTotalServicios();
+        sumaPrecios = repo.getSumaPreciosServicios();
+        promedioRating = repo.getPromedioRating();
+      });
+
+      final prefs = PreferencesService();
+      await prefs.setDarkMode(true);
+    });
+  }
 
   // Sugerencias para autocomplete (categorías + nombres de servicios comunes)
   List<String> _getSuggestions(String query) {
     final lowerQuery = query.toLowerCase();
     final suggestions = <String>[];
     // Sugiere categorías que coincidan
-    suggestions.addAll(_categories.where((cat) => cat.toLowerCase().contains(lowerQuery)).toList());
+    suggestions.addAll(
+      _categories
+          .where((cat) => cat.toLowerCase().contains(lowerQuery))
+          .toList(),
+    );
     // Sugiere nombres de servicios (del provider)
     final provider = Provider.of<ServiceProvider>(context, listen: false);
-    suggestions.addAll(provider.allServices
-        .where((s) => s.name.toLowerCase().contains(lowerQuery))
-        .map((s) => s.name)
-        .take(5));  // Limita a 5 para no sobrecargar
-    return suggestions.isNotEmpty ? suggestions : ['No hay opciones exactas. Prueba con "${lowerQuery}" relacionado'];
+    suggestions.addAll(
+      provider.allServices
+          .where((s) => s.name.toLowerCase().contains(lowerQuery))
+          .map((s) => s.name)
+          .take(5),
+    ); // Limita a 5 para no sobrecargar
+    return suggestions.isNotEmpty
+        ? suggestions
+        : ['No hay opciones exactas. Prueba con "${lowerQuery}" relacionado'];
   }
 
   @override
@@ -53,8 +96,8 @@ class _HomeScreenState extends State<HomeScreen> {
           filteredServices = serviceProvider.allServices.where((service) {
             final query = _searchQuery.toLowerCase();
             return service.name.toLowerCase().contains(query) ||
-                   service.subtitle.toLowerCase().contains(query) ||
-                   service.category.toLowerCase().contains(query);
+                service.subtitle.toLowerCase().contains(query) ||
+                service.category.toLowerCase().contains(query);
           }).toList();
         }
 
@@ -94,7 +137,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       // Autocomplete para sugerencias
                       Autocomplete<String>(
                         optionsBuilder: (TextEditingValue textEditingValue) {
-                          if (textEditingValue.text.isEmpty) return const Iterable<String>.empty();
+                          if (textEditingValue.text.isEmpty)
+                            return const Iterable<String>.empty();
                           return _getSuggestions(textEditingValue.text);
                         },
                         onSelected: (String selection) {
@@ -103,34 +147,49 @@ class _HomeScreenState extends State<HomeScreen> {
                             _searchController.text = selection;
                           });
                         },
-                        fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-                          _searchController.text = _searchQuery;
-                          return TextField(
-                            controller: controller ?? _searchController,
-                            focusNode: focusNode,
-                            onChanged: (value) => setState(() => _searchQuery = value),
-                            onSubmitted: (value) => setState(() => _searchQuery = value),
-                            style: const TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
-                              hintText: _searchQuery.isEmpty
-                                  ? '¿Qué necesitas hoy? Busca servicios o emprendimientos'
-                                  : null,
-                              hintStyle: const TextStyle(color: Colors.white70, fontSize: 14),
-                              prefixIcon: const Icon(Icons.search, color: Colors.white70),
-                              suffixIcon: _searchQuery.isNotEmpty
-                                  ? IconButton(
-                                      icon: const Icon(Icons.clear, color: Colors.white70),
-                                      onPressed: () {
-                                        _searchController.clear();
-                                        setState(() => _searchQuery = '');
-                                      },
-                                    )
-                                  : null,
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                            ),
-                          );
-                        },
+                        fieldViewBuilder:
+                            (context, controller, focusNode, onFieldSubmitted) {
+                              _searchController.text = _searchQuery;
+                              return TextField(
+                                controller: controller ?? _searchController,
+                                focusNode: focusNode,
+                                onChanged: (value) =>
+                                    setState(() => _searchQuery = value),
+                                onSubmitted: (value) =>
+                                    setState(() => _searchQuery = value),
+                                style: const TextStyle(color: Colors.white),
+                                decoration: InputDecoration(
+                                  hintText: _searchQuery.isEmpty
+                                      ? '¿Qué necesitas hoy? Busca servicios o emprendimientos'
+                                      : null,
+                                  hintStyle: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 14,
+                                  ),
+                                  prefixIcon: const Icon(
+                                    Icons.search,
+                                    color: Colors.white70,
+                                  ),
+                                  suffixIcon: _searchQuery.isNotEmpty
+                                      ? IconButton(
+                                          icon: const Icon(
+                                            Icons.clear,
+                                            color: Colors.white70,
+                                          ),
+                                          onPressed: () {
+                                            _searchController.clear();
+                                            setState(() => _searchQuery = '');
+                                          },
+                                        )
+                                      : null,
+                                  border: InputBorder.none,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 12,
+                                  ),
+                                ),
+                              );
+                            },
                       ),
                     ],
                   ),
@@ -140,6 +199,50 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           body: CustomScrollView(
             slivers: [
+              SliverToBoxAdapter(
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF5E8E8),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFC8102E)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Column(
+                        children: [
+                          const Text(
+                            "Servicios",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(totalServicios.toString()),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          const Text(
+                            "Total \$",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(sumaPrecios.toStringAsFixed(2)),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          const Text(
+                            "Rating",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(promedioRating.toStringAsFixed(2)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
               // Categorías SIEMPRE visibles
               SliverToBoxAdapter(
                 child: Padding(
@@ -147,10 +250,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      children: _categories.map((category) => Padding(
-                        padding: const EdgeInsets.only(right: 12),
-                        child: _buildCategoryChip(category, () => _onCategoryTap(category)),
-                      )).toList(),
+                      children: _categories
+                          .map(
+                            (category) => Padding(
+                              padding: const EdgeInsets.only(right: 12),
+                              child: _buildCategoryChip(
+                                category,
+                                () => _onCategoryTap(category),
+                              ),
+                            ),
+                          )
+                          .toList(),
                     ),
                   ),
                 ),
@@ -163,15 +273,26 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _searchQuery.isEmpty ? 'TOP Destacadas' : (hasExactResults ? 'Resultados de búsqueda ($_searchQuery)' : 'Opciones sugeridas'),
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFFC8102E)),
+                        _searchQuery.isEmpty
+                            ? 'TOP Destacadas'
+                            : (hasExactResults
+                                  ? 'Resultados de búsqueda ($_searchQuery)'
+                                  : 'Opciones sugeridas'),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Color(0xFFC8102E),
+                        ),
                       ),
                       if (suggestionText.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 4),
                           child: Text(
                             suggestionText,
-                            style: const TextStyle(fontSize: 14, color: Colors.grey),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey,
+                            ),
                           ),
                         ),
                     ],
@@ -190,7 +311,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
-                      final servicesToShow = _searchQuery.isEmpty ? topServices : filteredServices;
+                      final servicesToShow = _searchQuery.isEmpty
+                          ? topServices
+                          : filteredServices;
                       if (index >= servicesToShow.length) return null;
                       final service = servicesToShow[index];
                       return ServiceCard(
@@ -198,12 +321,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => DetailScreen(service: service),
+                            builder: (context) =>
+                                DetailScreen(service: service),
                           ),
                         ),
                       );
                     },
-                    childCount: _searchQuery.isEmpty ? topServices.length : filteredServices.length,
+                    childCount: _searchQuery.isEmpty
+                        ? topServices.length
+                        : filteredServices.length,
                   ),
                 ),
               ),
@@ -213,8 +339,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                     child: Text(
-                      _searchQuery.isEmpty ? 'Todos los Emprendimientos' : 'Más resultados',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFFC8102E)),
+                      _searchQuery.isEmpty
+                          ? 'Todos los Emprendimientos'
+                          : 'Más resultados',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Color(0xFFC8102E),
+                      ),
                     ),
                   ),
                 ),
@@ -222,28 +354,36 @@ class _HomeScreenState extends State<HomeScreen> {
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 80),
                   sliver: SliverGrid(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.78,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.78,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                        ),
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
-                        int startIndex = _searchQuery.isEmpty ? topServices.length : 0;
-                        if (index + startIndex >= filteredServices.length) return null;
+                        int startIndex = _searchQuery.isEmpty
+                            ? topServices.length
+                            : 0;
+                        if (index + startIndex >= filteredServices.length)
+                          return null;
                         final service = filteredServices[index + startIndex];
                         return ServiceCard(
                           service: service,
                           onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => DetailScreen(service: service),
+                              builder: (context) =>
+                                  DetailScreen(service: service),
                             ),
                           ),
                         );
                       },
-                      childCount: _searchQuery.isNotEmpty ? filteredServices.length : (serviceProvider.allServices.length - topServices.length),
+                      childCount: _searchQuery.isNotEmpty
+                          ? filteredServices.length
+                          : (serviceProvider.allServices.length -
+                                topServices.length),
                     ),
                   ),
                 ),
@@ -256,7 +396,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         const Text('No se encontraron resultados exactos.'),
                         const SizedBox(height: 8),
-                        Text('Opciones sugeridas: ${_getSuggestions(_searchQuery).join(', ')}'),
+                        Text(
+                          'Opciones sugeridas: ${_getSuggestions(_searchQuery).join(', ')}',
+                        ),
                       ],
                     ),
                   ),
@@ -281,16 +423,15 @@ class _HomeScreenState extends State<HomeScreen> {
             height: 50,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFFF5E8E8),  // Fondo rojo claro
-              border: Border.all(color: const Color(0xFFC8102E), width: 1),  // Borde rojo
+              color: const Color(0xFFF5E8E8), // Fondo rojo claro
+              border: Border.all(
+                color: const Color(0xFFC8102E),
+                width: 1,
+              ), // Borde rojo
             ),
-            child: Icon(
-              icon,
-              size: 24,
-              color: const Color(0xFFC8102E),
-            ),
+            child: Icon(icon, size: 24, color: const Color(0xFFC8102E)),
           ),
-          const SizedBox(height: 4),  // Pegado abajo
+          const SizedBox(height: 4), // Pegado abajo
           // Nombre de categoría
           Text(
             label,
@@ -310,21 +451,36 @@ class _HomeScreenState extends State<HomeScreen> {
 
   IconData _getCategoryIcon(String category) {
     switch (category) {
-      case 'Comida': return Icons.restaurant_outlined;
-      case 'Tutorías': return Icons.school_outlined;
-      case 'Portafolios': return Icons.folder_outlined;
-      case 'Consultas': return Icons.chat_bubble_outline;
-      case 'Diseños': return Icons.design_services_outlined;
-      case 'Libros': return Icons.menu_book_outlined;
-      case 'Plantillas': return Icons.description_outlined;
-      case 'Idioma': return Icons.language_outlined;
-      case 'Redacciones': return Icons.edit_outlined;
-      case 'Prototipos': return Icons.build_outlined;
-      case 'Investigaciones': return Icons.search_outlined;
-      case 'Arte': return Icons.palette_outlined;
-      case 'Presentaciones': return Icons.slideshow_outlined;
-      case 'Accesorios': return Icons.shopping_bag_outlined;
-      default: return Icons.category_outlined;
+      case 'Comida':
+        return Icons.restaurant_outlined;
+      case 'Tutorías':
+        return Icons.school_outlined;
+      case 'Portafolios':
+        return Icons.folder_outlined;
+      case 'Consultas':
+        return Icons.chat_bubble_outline;
+      case 'Diseños':
+        return Icons.design_services_outlined;
+      case 'Libros':
+        return Icons.menu_book_outlined;
+      case 'Plantillas':
+        return Icons.description_outlined;
+      case 'Idioma':
+        return Icons.language_outlined;
+      case 'Redacciones':
+        return Icons.edit_outlined;
+      case 'Prototipos':
+        return Icons.build_outlined;
+      case 'Investigaciones':
+        return Icons.search_outlined;
+      case 'Arte':
+        return Icons.palette_outlined;
+      case 'Presentaciones':
+        return Icons.slideshow_outlined;
+      case 'Accesorios':
+        return Icons.shopping_bag_outlined;
+      default:
+        return Icons.category_outlined;
     }
   }
 
@@ -336,14 +492,37 @@ class _HomeScreenState extends State<HomeScreen> {
       _searchController.text = category;
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Mostrando ${filtered.length} servicios en $category')),
+      SnackBar(
+        content: Text('Mostrando ${filtered.length} servicios en $category'),
+      ),
     );
   }
 
   void _showServiceDetail(ServiceModel service) {
-    // Esta función ya no se usa directamente; navegación en onTap
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Detalles de ${service.name}')),
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Detalles de ${service.name}')));
+  }
+
+  // 👇 ESTA FUNCIÓN VA DENTRO DE LA CLASE
+  Widget _buildStat(String title, String value) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFFC8102E),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          title,
+          style: const TextStyle(fontSize: 12, color: Colors.black54),
+        ),
+      ],
     );
   }
 }
