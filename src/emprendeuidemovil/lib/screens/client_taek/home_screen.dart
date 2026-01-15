@@ -4,6 +4,8 @@ import '../../providers/service_provider.dart';
 import '../../models/service_model.dart';
 import '../../widgets/service_card.dart';
 import 'detail_screen.dart';  // Import para navegación a detalle
+import '../../widgets/dashboard_widget.dart';
+import '../../widgets/emprendimiento_servicio_list.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -140,6 +142,37 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           body: CustomScrollView(
             slivers: [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        'Resumen del Marketplace',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFC8102E),
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      DashboardWidget(),
+                      SizedBox(height: 16),
+                      Text(
+                        'Emprendimientos',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFC8102E),
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      EmprendimientoServicioList(),
+                    ],
+                  ),
+                ),
+              ),
               // Categorías SIEMPRE visibles
               SliverToBoxAdapter(
                 child: Padding(

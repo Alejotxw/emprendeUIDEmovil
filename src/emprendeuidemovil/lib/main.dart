@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'providers/service_provider.dart';
 import 'providers/cart_provider.dart';
 import 'providers/user_role_provider.dart';
+import 'providers/dashboard_provider.dart';
 
 // Pantallas modo Emprendedor
 import 'screens/emprendedor_taek/solicitudes.dart';
@@ -25,6 +26,12 @@ void main() {
         ChangeNotifierProvider(create: (_) => ServiceProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => UserRoleProvider()),
+        ChangeNotifierProxyProvider<ServiceProvider, DashboardProvider>(
+          create: (context) =>
+              DashboardProvider(context.read<ServiceProvider>()),
+          update: (context, serviceProvider, _) =>
+              DashboardProvider(serviceProvider),
+        ),
       ],
       child: const MyApp(),
     ),
