@@ -1,4 +1,4 @@
-Historia de usuario
+Historia de usuario - 
 Como usuario autenticado (cliente o emprendedor), quiero acceder a mi perfil para visualizar y editar información personal, ver mis reseñas y ratings, consultar pedidos, configurar notificaciones y privacidad, y contactar soporte vía chatbot integrado, para mantener control sobre mi cuenta y recibir asistencia rápida en la app.
 
 Criterios de Aceptación
@@ -61,3 +61,4 @@ Flujo de Trabajo (Git)
 Rama: Crear feature/perfil-usuario-gestion desde la rama develop.
 
 Pull Request: Al terminar, abrir un PR hacia develop para revisión de pares (No realizar merge directo).
+
