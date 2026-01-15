@@ -1,0 +1,7 @@
+# Mapa de Stakeholders – Emprende UIDE
+
+| Stakeholder | Interés / Necesidad principal | Cómo se ve afectado o beneficiado | Influencia | Nivel de interés | Estrategia sugerida |
+|--------------|--------------------------------|------------------------------------|-------------|------------------|----------------------|
+| Estudiantes / Docentes | Que puedan ofrecer productos y servicios y que otros miembros de la comunidad puedan contratarlos mediante la plataforma | Obtienen experiencia en emprendimiento y mejor gestión de sus ventas mediante una plataforma centralizada dentro de la UIDE – sede Loja | Media | Alto–Medio | Mantenerlos informados y recoger retroalimentación periódica sobre el uso de la plataforma |
+| Prorrector – Pablo Ruiz Aguirre | Fortalecer el sentido de pertenencia y la identidad institucional dentro de la universidad | Contribuye a la construcción de un mayor tejido social y fortalecimiento de la comunidad universitaria | Alta | Alto | Escuchar sus opiniones, involucrarlo en decisiones clave y presentar avances del proyecto |
+| Coordinador de Marketing – Alex Cárdenas | Apoyar a los estudiantes de la carrera de marketing en el desarrollo de sus emprendimientos | Beneficia a los estudiantes al facilitar la gestión, promoción y posicionamiento de sus emprendimientos | Alta | Alto | Consultar requerimientos relacionados con comunicación y validar estrategias de difusión mediante presentación de avances |
