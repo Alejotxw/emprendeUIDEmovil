@@ -11,7 +11,8 @@ import 'package:carousel_slider/carousel_slider.dart';
 import '../../providers/notification_provider.dart'; 
 import '../../providers/event_provider.dart';
 import 'dart:io';
-
+import '../../widgets/dashboard_widget.dart';
+import '../../widgets/emprendimiento_servicio_list.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -497,6 +498,36 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   );
                 },
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        'Resumen del Marketplace',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFC8102E),
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      DashboardWidget(),
+                      SizedBox(height: 16),
+                      Text(
+                        'Emprendimientos',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFC8102E),
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      EmprendimientoServicioList(),
+                    ],
+                  ),
+                ),
               ),
               // Categorías SIEMPRE visibles
               SliverToBoxAdapter(

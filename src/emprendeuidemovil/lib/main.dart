@@ -25,7 +25,7 @@ import 'providers/order_provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/event_provider.dart';
 import 'providers/review_provider.dart';
-
+import 'providers/dashboard_provider.dart';
 // Pantallas
 import 'screens/emprendedor_taek/solicitudes.dart';
 import 'screens/emprendedor_taek/mis_emprendimientos.dart';
@@ -83,6 +83,12 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => EventProvider()),
         ChangeNotifierProvider(create: (_) => ReviewProvider()),
+        ChangeNotifierProxyProvider<ServiceProvider, DashboardProvider>(
+          create: (context) =>
+              DashboardProvider(context.read<ServiceProvider>()),
+          update: (context, serviceProvider, _) =>
+              DashboardProvider(serviceProvider),
+        ),
       ],
       child: const MyApp(),
     ),
