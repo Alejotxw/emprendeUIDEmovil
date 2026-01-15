@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'providers/service_provider.dart';
 import 'providers/cart_provider.dart';
 import 'providers/user_role_provider.dart';
+import 'providers/settings_provider.dart';
 
 // Pantallas modo Emprendedor
 import 'screens/emprendedor_taek/solicitudes.dart';
@@ -25,6 +26,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => ServiceProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => UserRoleProvider()),
+        ChangeNotifierProvider(create: (_) => SettingsProvider()),
       ],
       child: const MyApp(),
     ),
@@ -36,18 +38,37 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'EmprendeUIDE',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.red,
-        scaffoldBackgroundColor: Colors.white,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFFC8102E),
-          foregroundColor: Colors.white,
-        ),
-      ),
-      home: const MainScreen(),
+    return Consumer<SettingsProvider>(
+      builder: (context, settings, child) {
+        return MaterialApp(
+          title: 'EmprendeUIDE',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            primarySwatch: Colors.red,
+            scaffoldBackgroundColor: Colors.white,
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Color(0xFFC8102E),
+              foregroundColor: Colors.white,
+            ),
+          ),
+          darkTheme: ThemeData.dark().copyWith(
+            primaryColor: const Color(0xFFC8102E),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Color(0xFFC8102E),
+              foregroundColor: Colors.white,
+            ),
+          ),
+          themeMode: settings.darkMode ? ThemeMode.dark : ThemeMode.light,
+          builder: (context, child) {
+            final scale = settings.largeFont ? 1.18 : 1.0;
+            return MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(scale)),
+              child: child!,
+            );
+          },
+          home: const MainScreen(),
+        );
+      },
     );
   }
 }
