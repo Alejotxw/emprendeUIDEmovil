@@ -1,5 +1,3 @@
-Aquí tienes la historia de usuario detallada y estructurada para la gestión integral de emprendimientos, siguiendo el formato técnico y funcional solicitado para el proyecto EmprendeUIDE.
-
 Historia de Usuario – Gestión de Emprendimientos (Borradores, Ubicación y Horarios)
 Como emprendedor autenticado del marketplace universitario
 
@@ -74,3 +72,4 @@ Cuando se confirma la acción
 Entonces el sistema encola la tarea mediante la persistencia de Firestore y muestra el mensaje: "Guardado localmente. Sincroniza al conectar".
 
 Y si decido eliminar un emprendimiento, el sistema solicita confirmación antes de borrar el documento y refresca la lista con una animación.
+
