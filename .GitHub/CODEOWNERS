@@ -1,8 +1,10 @@
 # Documentación
-/docs/ @Alejo.txw @Aidan-5 @maleorbea @luisramirezrv @santiiis 
+**/docs/** | @Alejo.txw @Aidan-5 @maleorbea @santiiis (@luisramirezrv)
 
-# Frontend
-/src/frontend/ @Alejo.txw @Aidan-5 @santiiis
+# Front-End
+**/src/frontend/** | @Alejo.txw @Aidan-5 @santiiis
 
-# Backend
-/src/backend/  @luisramirezrv @santiiis @KevinGiron
+# Back-End
+**/src/backend/** |  @santiiis @KevinGiron
+
+# Base de Datos
