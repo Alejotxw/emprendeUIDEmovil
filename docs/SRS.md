@@ -257,159 +257,105 @@ git push origin main
 
 ### Requerimientos Funcionales
 
-**RF1. Creación de emprendimiento**
-El sistema deberá mostrar un formulario donde el emprendedor pueda ingresar la información de su emprendimiento, como nombre, descripción, categoría, datos de contacto, imagen o logo y su estado.
-
-**RF2. Verificación de campos obligatorios**
-El sistema deberá comprobar que los campos importantes estén completos antes de permitir guardar o publicar un emprendimiento.
-
-**RF3. Acceso según tipo de usuario**
-Luego de iniciar sesión, el sistema deberá permitir que el usuario acceda según su rol, ya sea como cliente o como emprendedor, mostrándole el panel correspondiente.
-
-**RF4. Edición del perfil del usuario**
-El sistema permitirá que el usuario cambie su nombre y su foto desde la sección de perfil y configuraciones.
-
-**RF5. Actualización de información del perfil**
-El sistema deberá guardar el nombre actualizado del usuario y, si se cambia la foto, subirla y asociarla correctamente al perfil.
-
-**RF6. Visualización de emprendimientos propios**
-El sistema deberá mostrar al emprendedor todos los emprendimientos que tenga registrados.
-
-**RF7. Edición y eliminación de emprendimientos**
-El sistema permitirá modificar o eliminar emprendimientos, solicitando confirmación antes de guardar los cambios o borrar la información.
-
-**RF8. Visualización del catálogo de emprendimientos**
-El sistema deberá mostrar al usuario un listado de los emprendimientos que se encuentren activos.
-
-**RF9. Filtrado y acceso al detalle del emprendimiento**
-El sistema permitirá filtrar los emprendimientos por categoría y acceder a la información detallada de cada uno al seleccionarlo.
-
-**RF10. Visualización de estadísticas generales**
-El sistema mostrará al administrador información general como el número total de usuarios, emprendimientos y publicaciones.
-
-**RF11. Filtrado de estadísticas por fechas**
-El sistema permitirá ajustar las estadísticas según el rango de fechas seleccionado por el administrador.
-
-**RF12. Registro de calificaciones y comentarios**
-El sistema permitirá a los usuarios dejar una calificación y un comentario sobre un emprendimiento.
-
-**RF13. Control de calificaciones repetidas**
-El sistema evitará que un usuario califique más de una vez el mismo emprendimiento y mostrará un mensaje informativo.
-
-**RF14. Visualización de notificaciones**
-El sistema mostrará al emprendedor sus notificaciones ordenadas desde la más reciente hasta la más antigua.
-
-**RF15. Visualización de datos de contacto del emprendimiento**
-El sistema mostrará los datos de contacto del emprendimiento, como teléfono y correo electrónico, siempre que estén registrados.
-
-**RF16. Registro de nuevos usuarios**
-El sistema permitirá que nuevos usuarios se registren ingresando sus datos básicos.
-
-**RF17. Inicio y cierre de sesión**
-El sistema permitirá al usuario iniciar sesión y cerrarla cuando lo desee.
-
-**RF18. Recuperación de contraseña**
-El sistema permitirá al usuario recuperar su contraseña en caso de olvido.
-
-**RF19. Cambio de rol de usuario**
-El sistema permitirá que un usuario pueda cambiar su rol de cliente a emprendedor desde su perfil.
-
-**RF20. Publicación y despublicación de emprendimientos**
-El sistema permitirá al emprendedor activar o desactivar la visibilidad de su emprendimiento.
-
-**RF21. Visualización del estado del emprendimiento**
-El sistema mostrará si un emprendimiento se encuentra activo o inactivo.
-
-**RF22. Búsqueda por nombre del emprendimiento**
-El sistema permitirá buscar emprendimientos ingresando su nombre o parte de él.
-
-**RF23. Visualización de calificaciones promedio**
-El sistema mostrará el promedio de calificaciones de cada emprendimiento.
-
-**RF24. Acceso al historial de calificaciones**
-El sistema permitirá visualizar los comentarios y calificaciones realizadas por los usuarios.
-
-**RF25. Visualización de información básica del emprendedor**
-El sistema mostrará información básica del emprendedor asociada a cada emprendimiento.
-
-
-
-### Requerimientos No Funcionales (RNF)
-
-**RNF1. Validación de imágenes**
-El sistema solo permitirá subir imágenes en formato JPG o PNG y con un tamaño máximo de 5 MB.
-
-**RNF2. Longitud mínima de la descripción**
-La descripción del emprendimiento deberá tener al menos 50 caracteres.
-
-**RNF3. Seguridad de la sesión del usuario**
-El sistema deberá mantener la sesión del usuario de forma segura para evitar accesos no autorizados.
-
-**RNF4. Mensajes claros ante errores de inicio de sesión**
-Cuando las credenciales sean incorrectas, el sistema deberá mostrar un mensaje claro en pocos segundos.
-
-**RNF5. Consistencia de la información del perfil**
-Los datos del perfil deberán actualizarse correctamente sin errores ni diferencias entre la información guardada.
-
-**RNF6. Rapidez al actualizar la imagen de perfil**
-La foto de perfil deberá actualizarse en un tiempo corto sin afectar la experiencia del usuario.
-
-**RNF7. Confiabilidad en cambios de emprendimientos**
-Las acciones de editar o eliminar emprendimientos deberán realizarse sin pérdida de información.
-
-**RNF8. Tiempo de carga del listado de emprendimientos**
-El listado de emprendimientos deberá mostrarse en un tiempo razonable al ingresar a la aplicación.
-
-**RNF9. Rapidez en los filtros del catálogo**
-Los filtros del catálogo deberán aplicarse de forma rápida para facilitar la búsqueda.
-
-**RNF10. Orden del contenido mostrado**
-Los emprendimientos deberán mostrarse de forma ordenada según su categoría o relevancia.
-
-**RNF11. Rendimiento del panel de estadísticas**
-Las estadísticas del sistema deberán cargarse sin demoras perceptibles.
-
-**RNF12. Visualización clara de estadísticas**
-Las estadísticas deberán mostrarse mediante gráficos fáciles de entender y visualmente claros.
-
-**RNF13. Actualización del promedio de calificaciones**
-El promedio de calificaciones deberá actualizarse de forma rápida al recibir nuevas valoraciones.
-
-**RNF14. Respuesta inmediata del sistema de calificación**
-El sistema de calificación deberá reaccionar de inmediato al tocarlo, incluso en dispositivos normales.
-
-**RNF15. Rapidez en la entrega de notificaciones**
-Las notificaciones deberán llegar al usuario poco tiempo después de que ocurra el evento.
-
-**RNF16. Almacenamiento confiable de notificaciones**
-Las notificaciones deberán guardarse correctamente incluso si el usuario no tiene conexión en ese momento.
-
-**RNF17. Funcionamiento correcto de enlaces de contacto**
-Los enlaces para contactar al emprendimiento deberán abrirse sin errores.
-
-**RNF18. Presentación clara de los métodos de contacto**
-Los métodos de contacto deberán mostrarse de forma ordenada y fácil de identificar.
-
-**RNF19. Usabilidad del sistema**
-El sistema deberá ser fácil de usar y comprensible para usuarios sin conocimientos técnicos.
-
-**RNF20. Diseño adaptable a distintos dispositivos**
-El sistema deberá verse correctamente en celulares, tablets y computadoras.
-
-**RNF21. Disponibilidad del sistema**
-El sistema deberá estar disponible la mayor parte del tiempo sin interrupciones frecuentes.
-
-**RNF22. Protección de la información del usuario**
-Los datos personales del usuario deberán mantenerse protegidos.
-
-**RNF23. Mensajes claros y comprensibles**
-Los mensajes del sistema deberán ser claros y fáciles de entender para el usuario.
-
-**RNF24. Estabilidad del sistema**
-El sistema deberá funcionar sin cierres inesperados durante su uso normal.
-
-**RNF25. Experiencia fluida de navegación**
-La navegación entre pantallas deberá sentirse rápida y sin retrasos molestos.
-
-
-
+Requerimientos Funcionales (RF)
+RF1. Creación de emprendimiento
+Mostrar formulario para ingresar nombre, descripción, categoría, contacto, imagen/logo y estado.
+RF2. Verificación de campos obligatorios
+Comprobar campos completos antes de guardar/publicar.
+RF3. Acceso según tipo de usuario
+Permitir acceso por rol (cliente/emprendedor) post-login, mostrando panel correspondiente.
+RF4. Edición del perfil del usuario
+Permitir cambiar nombre y foto en sección de perfil.
+RF5. Actualización de información del perfil
+Guardar nombre actualizado y subir/asociar nueva foto.
+RF6. Visualización de emprendimientos propios
+Mostrar emprendimientos registrados al emprendedor.
+RF7. Edición y eliminación de emprendimientos
+Permitir modificar/eliminar con confirmación.
+RF8. Visualización del catálogo de emprendimientos
+Mostrar listado de emprendimientos activos.
+RF9. Filtrado y acceso al detalle del emprendimiento
+Filtrar por categoría y acceder a detalles.
+RF10. Visualización de estadísticas generales
+Mostrar total de usuarios, emprendimientos y publicaciones al admin.
+RF11. Filtrado de estadísticas por fechas
+Ajustar estadísticas por rango de fechas.
+RF12. Registro de calificaciones y comentarios
+Permitir calificación y comentario por emprendimiento.
+RF13. Control de calificaciones repetidas
+Evitar calificaciones repetidas y mostrar mensaje.
+RF14. Visualización de notificaciones
+Mostrar notificaciones ordenadas por fecha descendente.
+RF15. Visualización de datos de contacto del emprendimiento
+Mostrar teléfono y email si registrados.
+RF16. Registro de nuevos usuarios
+Permitir registro con datos básicos.
+RF17. Inicio y cierre de sesión
+Permitir login y logout.
+RF18. Recuperación de contraseña
+Permitir recuperación de contraseña.
+RF19. Cambio de rol de usuario
+Permitir cambio de cliente a emprendedor en perfil.
+RF20. Publicación y despublicación de emprendimientos
+Permitir activar/desactivar visibilidad.
+RF21. Visualización del estado del emprendimiento
+Mostrar estado activo/inactivo.
+RF22. Búsqueda por nombre del emprendimiento
+Buscar por nombre o parte.
+RF23. Visualización de calificaciones promedio
+Mostrar promedio de calificaciones.
+RF24. Acceso al historial de calificaciones
+Visualizar comentarios y calificaciones.
+RF25. Visualización de información básica del emprendedor
+Mostrar info básica asociada a emprendimiento.
+Requerimientos No Funcionales (RNF)
+RNF1. Validación de imágenes
+Permitir solo JPG/PNG hasta 5MB.
+RNF2. Longitud mínima de la descripción
+Descripción mínimo 50 caracteres.
+RNF3. Seguridad de la sesión del usuario
+Mantener sesión segura contra accesos no autorizados.
+RNF4. Mensajes claros ante errores de inicio de sesión
+Mostrar mensaje claro rápido por credenciales incorrectas.
+RNF5. Consistencia de la información del perfil
+Actualizar datos sin errores ni inconsistencias.
+RNF6. Rapidez al actualizar la imagen de perfil
+Actualizar foto rápidamente sin afectar UX.
+RNF7. Confiabilidad en cambios de emprendimientos
+Editar/eliminar sin pérdida de info.
+RNF8. Tiempo de carga del listado de emprendimientos
+Cargar listado rápidamente al ingresar.
+RNF9. Rapidez en los filtros del catálogo
+Aplicar filtros de forma rápida.
+RNF10. Orden del contenido mostrado
+Mostrar ordenado por categoría/relevancia.
+RNF11. Rendimiento del panel de estadísticas
+Cargar estadísticas sin demoras.
+RNF12. Visualización clara de estadísticas
+Mostrar con gráficos claros y fáciles.
+RNF13. Actualización del promedio de calificaciones
+Actualizar promedio rápidamente con nuevas valoraciones.
+RNF14. Respuesta inmediata del sistema de calificación
+Reaccionar inmediatamente al interactuar.
+RNF15. Rapidez en la entrega de notificaciones
+Entregar notificaciones poco después del evento.
+RNF16. Almacenamiento confiable de notificaciones
+Guardar notificaciones incluso offline.
+RNF17. Funcionamiento correcto de enlaces de contacto
+Abrir enlaces sin errores.
+RNF18. Presentación clara de los métodos de contacto
+Mostrar métodos ordenados y identificables.
+RNF19. Usabilidad del sistema
+Fácil de usar para no técnicos.
+RNF20. Diseño adaptable a distintos dispositivos
+Adaptable a móvil, tablet y PC.
+RNF21. Disponibilidad del sistema
+Disponible sin interrupciones frecuentes.
+RNF22. Protección de la información del usuario
+Proteger datos personales.
+RNF23. Mensajes claros y comprensibles
+Mensajes claros y entendibles.
+RNF24. Estabilidad del sistema
+Funcionamiento sin crashes en uso normal.
+RNF25. Experiencia fluida de navegación
+Navegación rápida sin retrasos.
