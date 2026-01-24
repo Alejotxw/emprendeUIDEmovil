@@ -17,13 +17,11 @@ app.use("/auth", authRoutes);
 app.use("/products", productRoutes);
 app.use("/reportes", reportesRoutes);
 
-<<<<<<< HEAD:backend/src/index.js
-=======
+
 // Rutas de notificaciones
 app.use("/notifications", notificationsRoutes);
 
 // Ruta de prueba
->>>>>>> main:src/backend/src/index.js
 app.get("/", (req, res) => {
   res.json({ message: "Backend del proyecto emprendeUIDE móvil funcionando" });
 });

@@ -8,7 +8,7 @@ EmprendeUIDE busca ser un Marketplace interno donde los estudiantes puedan ofrec
 * Mostrar un catálogo de productos/servicios centralizado.
 * Promover iniciativas emprendedoras dentro de la UIDE.
 * Conectar estudiantes, clientes internos y externos.
-
+EmprendeUIDE es una aplicación móvil desarrollada en Flutter para la comunidad de la Universidad Internacional del Ecuador (UIDE). Funciona como un marketplace interno donde estudiantes emprendedores pueden publicar y ofrecer servicios como diseño gráfico, tutorías, reparaciones, fotografía y más, mientras otros estudiantes y docentes los exploran, solicitan y contratan directamente.
 ## Integrantes del Equipo
 El equipo de desarrollo está compuesto por 5 miembros:
 * **Lander González** - Full Stack Developer - @santiiis
@@ -254,3 +254,6 @@ cp ruta/a/tu/documento.pdf docs/
 git add docs/
 git commit -m "docs: add initial Architecture or SRS document"
 git push origin main
+Clona el repositorio: git clone https://github.com/tu-grupo/emprendeuider_app.git
+Instala dependencias: flutter pub get
+Ejecuta: flutter run
