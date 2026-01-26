@@ -1,4 +1,4 @@
-# Característica: Integridad referencial en base de datos SQLite
+# Historia de Usuario - Integridad referencial en base de datos SQLite
 
 **Como** desarrollador del sistema  
 **Quiero** configurar la base de datos SQLite con integridad referencial  
@@ -27,3 +27,4 @@
 **Y** la tabla `products` debe referenciar a `entrepreneurships` mediante una clave foránea (**FK**).  
 **Y** la relación debe ser de **uno a muchos**.  
 **Y** al eliminar un emprendimiento, sus productos asociados deben eliminarse automáticamente mediante la instrucción `ON DELETE CASCADE`.
+
