@@ -1,66 +1,336 @@
-Prorector
-22 ene 2026, 15:51
-Prorector
-Play
+# Transcripción de Entrevista con Prorector
 
+**Participantes:** Sebastián Chocho (Estudiante) y Prorector  
 
-00:00
-00:46
-Mute
+---
 
-Settings
-(0:01) Primeramente, buenas tardes señor productor. Mi nombre es Sebastián Chocho, estudiante de Tecnologías aquí en la universidad. (0:09) Agradezco primeramente mucho por el tiempo que nos ha dado, bueno nos ha brindado para esta entrevista.
-(0:16) Le voy a dar un poco del contexto de lo que es el proyecto Yemprende Uyde, ahora denominado TAEC. (0:23) Propone crear un espacio interno en la universidad donde los estudiantes puedan ofrecer servicios, (0:28) por ejemplo, clases particulares, asesorías académicas o diseño gráfico, (0:34) y que otros estudiantes o docentes puedan contratarlos directamente. (0:38) La idea es canalizar entre iniciativas dentro del Uyde, en lugar de depender de redes sociales externas, (0:45) así y así conectar el aprendizaje con oportunidades reales de ingreso y networking.
-(0:52) Con este contexto quisiera hacerle las siguientes preguntas. (0:55) ¿Considera usted que sería adecuado implementar en el Uyde una aplicación o plataforma interna (1:01) que facilite el intercambio directo de servicios entre estudiantes y docentes? (1:05) Sí, como una comunidad Uyde. (1:07) ¿Por qué sí? (1:08) Porque creo que nos permitiría generar mucho más sentido de pertenencia, (1:12) y también podríamos generar dentro de los estudiantes que tengan un contexto de práctica real.
-(1:19) La siguiente pregunta. (1:20) Desde su perspectiva, ¿qué beneficios concretos podría generar esta iniciativa en la dinámica diaria del campus, (1:27) especialmente en la relación entre estudiantes y docentes? (1:30) Uno, creo que construcción de mayor tejido social entre todos, (1:33) eso implica que todos nos conozcamos con todos. (1:36) Dos, que todos podamos ver las fortalezas que tienen todos, (1:38) que normalmente no son las mismas que necesariamente están en el proceso de enseñanza-aprendizaje.
-(1:42) Y tres, que se rompa la verticalidad, que es poca en nuestra universidad, (1:46) pero la verticalidad de profesor-alumno, para que sea algo más horizontal. (1:49) Entonces, me parece chévere. (1:50) Ya.
-La siguiente pregunta. (1:52) Pensando en experiencias previas de la universidad o de otras universidades, (1:57) ¿qué características o elementos considera indispensables para que una plataforma de este tipo (2:01) tenga adopción amplia y sostenida? (2:06) Que sea, ¿cuál es la palabra que utilizan ustedes cuando dicen un o dos clics? (2:10) O sea, que todo sea muy rápido, que no tengas tanto proceso para llegar a un punto en las aplicaciones. (2:16) ¿Accesibilidad? (2:16) Que sea accesibilidad, no, intuitiva, que sea una aplicación bastante intuitiva.
-(2:24) Creo que te costaría un montón ver que la gente confíe en el otro, (2:30) esa es una de las barreras que nosotros significamos buenísimo, (2:32) es la aplicación del banco del tiempo, (2:34) pero creo que con el tiempo puedes ir construyendo esa cultura. (2:38) Ya. La siguiente.
-(2:40) ¿Qué desafíos o riesgos cree que podrían surgir al implementar este espacio? (2:44) Por ejemplo, temas delicados, previos de servicio, seguridad, regulación interna, (2:48) ¿y cómo se podría gestionar adecuadamente? (2:51) Habría que ver si es que los servicios tienen que estar registrados (2:55) o hay alguna regulación respecto de ser ahí, (2:59) porque como va a haber una transacción, (3:01) habría que ver si es que tienen que sacar los chicos factura, no factura, (3:05) para no tener problemas con la parte del Estado. (3:09) Ese creo que sería yo la barrera más grande. (3:13) ¿Y cómo podríamos gestionar eso adecuadamente? (3:17) O sea, si lo sacas con factura y todo el mundo saca Rook, (3:19) quien entra en la aplicación, yo creo que lo puede solventar.
-(3:23) Ya. (3:24) O sea, podría ser que un requisito para las personas que se inscriben es que tengan Rook, (3:27) los que vayan a ofertar sus servicios, (3:29) para que quien le pague se tribute lo que tenga que tributarse. (3:32) Ya.
-(3:35) Excepto que crees una moneda. (3:38) Ya. (3:40) ¿Así tipo como Bitcoin o algo así? (3:43) Y tengamos una moneda interna.
-(3:46) Pero eso es una idea más loca, (3:47) que tengamos una moneda dentro de la universidad (3:50) que te permite hacer intercambio con ciertas cosas. (3:52) Entonces, al menos entre los actores que estamos aquí, (3:56) es un servicio de aquí y eso que te sirve en la cafetería, (3:59) en la papelería, no sé, se me ocurre. (4:01) Pero eso está como más complejo, pero es interesante.
-(4:03) Ya. (4:07) Siguiente. (4:08) ¿De qué manera cree que la universidad podría articular este proyecto (4:12) con sus programas actuales de emprendimiento, (4:15) prácticas pre-profesionales o actividades estudiantiles? (4:17) Yo creo que se puede.
-(4:18) Podríamos conversar con la business, (4:20) para que la business con el director de marketing y la administración de empresas (4:22) les ayude a levantar el plan de negocios, el plan de marketing y el pitch. (4:26) Ya. (4:27) Siguiente pregunta.
-(4:28) Si el proyecto se pusiera en marcha, (4:30) ¿qué indicadores sencillos consideraría importantes para medir su éxito (4:34) en el fortalecimiento del espíritu emprendedor de los estudiantes? (4:37) Por ejemplo, número de usuarios activos, servicios ofrecidos, etc. (4:43) Usuarios que ofrecen servicios, transacciones diarias sería otro indicador, (4:48) o transacciones semanales o transacciones mensuales, (4:52) cantidad de dinero que mueves dentro de la aplicación, (4:56) calidad de los servicios también sería interesante. (4:58) Que tengas como una valoración de estos cuatro.
-(5:02) La siguiente. (5:04) ¿A mediano plazo imagina que una iniciativa como Emprende Uyden, (5:09) podría convertirse en un referente institucional (5:12) en temas de emprendimiento estudiantil dentro de la universidad? (5:15) Sí. (5:16) Creo que la podemos hacer, por las ventajas que ya te he explicado, (5:19) y de hecho creo que si tiene éxito lo podremos jalar con Loja Ciudad Universitaria, (5:23) entonces sería súper interesante meterla entre las tres universidades (5:25) y comenzará a tener una comunidad más grande solo entre estudiantes y universidades.
-(5:29) Sería bastante interesante. (5:30) Sí, sería súper chévere. (5:31) Pero hay que saber qué funciona primero aquí.
-(5:34) Sí, vamos a ver también lo que ya tenemos, (5:38) que es el diseño gráfico de la aplicación, (5:40) y ya lo estamos implementando también. (5:49) Sería lo que es el menú, (5:52) donde se registraría con el logotipo y con los colores institucionales también. (5:56) ¿Por qué se llama TAIC? (5:58) TAIC.
-(6:00) Es que no sabíamos qué ponerle de nombre, (6:02) y justo estaba pensando en el taekwondo y le puse TAIC. (6:06) La hincha de derecha. (6:07) Sí.
-(6:09) Bueno, ese sería el inicio de sesión. (6:11) También se podrían registrar con la cuenta institucional (6:16) y lo que son la parte de acá. (6:19) Lo que sería la casita, (6:23) donde se verían todos los productos y servicios.
-(6:26) La parte de mis favoritos, (6:28) donde se visualizaría el momento de ingresar a cualquiera de estas casetillas, (6:32) como se visualizaría el producto, (6:34) con ubicación en tiempo... (6:36) en tiempo... (6:38) Ah, sí, en Google Maps. (6:40) En vista de Google Maps. (6:43) También tenemos lo que es el carrito, (6:45) con dos tipos de transferencia, (6:46) lo que es el pago en físico, (6:50) que sería dentro de la universidad, (6:53) como punto seguro, (6:54) y pago por transferencia.
-(6:57) También tenemos lo que es el perfil, (6:59) donde los estudiantes pueden cambiar. (7:01) Si ya están en clientes, pueden cambiar a emprendedor, (7:04) para que no haya ese problema de volver a crear otra cuenta. (7:06) Un perfil si es que eres consumista o si es que abres el servicio.
-(7:09) Sí. (7:09) Eso, digamos, para un futuro, por ejemplo, (7:12) ya se registró solamente como consumista. (7:15) Solo cambia el rol.
-(7:16) Sí, solo se cambia el rol. (7:18) Ahí tenemos las reseñas del mismo cliente. (7:21) El rating de servicios.
-(7:23) Justo lo que te decía de las valoraciones en el sistema. (7:25) Los pedidos, que se pueden ver, digamos, de esa manera, (7:30) si son pendientes, (7:32) si el emprendedor lo aceptó o lo rechazó. (7:35) También las configuraciones, igualmente, (7:37) cuando a veces no les gustan las notificaciones, (7:41) entonces eso se cierra y no habría notificaciones.
-(7:45) Igualmente las solicitudes y lo que es la privacidad. (7:47) Y junto a la ayuda y soporte, (7:49) lo implementaremos con un chatbot. (7:52) Ahí tenemos también lo que es la parte de vista del emprendedor.
-(7:58) Igualmente tendría casi lo mismo, (8:00) pero desde una perspectiva diferente. (8:04) Es lo mismo. (8:05) Igualmente acá se puede crear un emprendimiento (8:09) y cuando ya se esté creando y, digamos, (8:11) es por alguna causalidad, (8:13) se cierra la aplicación.
-(8:14) Esto se puede guardar como borrador. (8:16) Se guardaría con todos los cambios. (8:18) Se crearía un emprendimiento con todo esto (8:20) de una forma más intuitiva.
-(8:23) Se podría crear lo que son servicios (8:25) y luego de crear todo, (8:26) se podría crear el emprendimiento (8:28) o se podría guardar como borrador. (8:31) Y esto sería como el borrador. (8:32) Tiene las mismas funciones, (8:35) solo que, bueno, es borrador.
-(8:39) De ahí tenemos lo que es las solicitudes. (8:42) Las solicitudes que le hacen por el servicio. (8:44) Y, digamos, aquí puede ingresar (8:46) a alguno de estos cuadros (8:48) y le saldría algo parecido aquí (8:50) con los servicios.
-(8:51) Y si se rechaza, se acepta. (8:54) Aparte de eso, (8:56) queríamos entender (8:57) qué categorías nos recomienda (8:59) para implementarlo. (9:03) Alimentación, aprendizaje.
-(9:04) Verás, el otro día yo estaba pensando (9:07) tú que eres de la generación centenial, (9:10) filosóficamente son más extraños. (9:12) Son, de hecho, más aislados. (9:14) Y, de hecho, pasan más en computadores (9:16) y toda la cosa.
-(9:20) Y yo quería, o en mi cabeza al menos tenía, (9:22) y les decía a la directora de psicología, (9:25) por ejemplo, (9:26) los jóvenes de ahora (9:27) tienen más problemas de salud mental (9:28) respecto a la ansiedad y la depresión. (9:30) Y tienen miedo, de hecho, (9:31) más miedo al contacto. (9:34) Si me ocurre que esta aplicación (9:36) podrías meterle, (9:37) te lo voto porque no tengo la cabeza.
-(9:39) Por ejemplo, (9:40) este domingo nos vamos a reunir (9:43) a cocinar en la casa de Chocho. (9:47) ¿Algo así como un evento? (9:49) Puede ser. (9:51) Puede ser como un evento.
-(9:53) ¿Me cachas? (9:53) Que solo sea propio de nuestra comunidad. (9:55) Entonces, yo, por ejemplo, (9:56) les decía a mí me encanta hacer trekking. (9:57) Y yo lo iba a probar por Instagram.
-(10:00) Los que quieran hacer trekking (10:01) me voy a subir dos veces el sánchez, (10:03) los que quieren se suben una, (10:04) los que no, necesitamos esto, esto, esto, (10:06) cuesta esto para que cada quien lleve esto, (10:07) pum, pa. (10:08) Y es algo, (10:09) porque su generación también es (10:11) de hacerlo en un momento y ya está. (10:14) No necesariamente de hacerlo algo periódico.
-(10:15) De manera general. (10:17) Entonces, hace el evento, (10:18) solo ese día se va a votar, se va a votar. (10:19) O parecido así como a la vista de este.
-(10:23) Sería un club súper chévere. (10:24) ¿Me cachas? (10:25) Aquí lo que generas es (10:27) lo que a mí me interesa que tengan ustedes, (10:29) tejidos sociales. (10:30) O sea, que se lleven con nosotros, (10:31) que se conozcan con nosotros, (10:32) que tengamos pertenencia con la U, (10:34) y eso te genera redes de apoyo.
-(10:36) Y si tienes redes de apoyo, (10:38) tienes mejor predisposición (10:39) a no tener tanta represión y ansiedad. (10:42) Entonces, creo que sería interesante (10:44) que lo trates. (10:44) Porque Sky tiene un transporte económico (10:46) súper chévere.
-(10:47) Pero podrías darle este transforma (10:49) como evento, si lo quieres poner, (10:50) como un transforma de cuidado (10:51) de salud mental, que sería bacán. (10:52) Ya. (10:54) Estaría súper chévere igualmente.
-(10:55) Sí, yo me lo había notado, de hecho, (10:56) porque dije, las ideas locas (10:58) que se me van ocurriendo. (11:00) Sí, salud mental. (11:03) App, silueta, montaña, sentidos.
-(11:05) Hay unas páginas, Cholo, (11:06) si les quieres revisar, (11:07) en Barcelona tiene esto. (11:08) Ya. (11:09) Este tipo de eventos, (11:09) porque lo quería meter en lojas (11:10) universitarias, pero los otros directores, (11:12) como son más viejitos, (11:13) todavía no me entienden la idea.
-(11:14) Pero eso sería bacancísimo. (11:15) Ya. (11:15) Y lo que hacen es reunir, (11:16) lo que te digo, (11:17) nos vamos a reunir los estudiantes (11:18) de las tres universidades en tal cosa.
-(11:20) Eso es en Barcelona, ya. (11:21) Se reúnen, un ratito están, (11:23) se comparten poesía, (11:24) comparten lo que hay dentro, (11:25) se pudo. (11:26) Ya.
-(11:27) Así de rápido. (11:30) No, sería interesante preguntarte. (11:32) Sería súper interesante, (11:33) porque normalmente ya nos gusta esto.
-(11:35) Por ejemplo, a mi generación (11:36) yo soy más viejo, (11:37) yo tengo 37. (11:37) Entonces, yo si te digo, (11:38) yo quiero un curso largo (11:39) de no sé cuánto. (11:41) Ya.
-(11:41) Tu generación es más de un click, (11:42) no de tantos procesos, (11:45) sino de las cosas rápidas, (11:46) de manera general. (11:47) Entonces, hoy vamos a hacer esto, (11:49) listo, se acabó. (11:50) Ya.
-(11:53) Piénsatelo en un evento, (11:54) sería súper chévere, (11:54) me encantaría. (12:06) Como eventos podría estar. (12:08) Y le das un valor (12:09) que no solo sea comercial, (12:10) sino también de filosóficamente (12:12) de autocuidado.
-(12:14) Podría ser. (12:16) Ya. (12:18) Eso me acabaron las preguntas.
-(12:20) Piénsalas más. (12:21) Ya, eso sería todo (12:23) por mi entrevista. (12:24) Antes de cortar la entrevista también, (12:26) quería solicitarle el permiso (12:27) para utilizar el audio (12:28) para lo que son documentación (12:30) y anexos para evidencia.
-(12:33) Eso sería todo. (12:35) Muchas gracias. (12:36) Cuídate mucho.
-(12:38) Igualmente. (12:38) ¿Cómo vas en los campeonatos? (12:40) Estoy bien, (12:40) me estoy yendo bien. (12:41) Bien.
-(12:42) Sí. (12:44) Ya. (12:53) Muchas gracias.
-(12:54) Cuídate mucho, (12:54) los quiero. (12:57) Igualmente. (12:58) Ya, ya.
-(13:00) Ya, gracias. (13:09) Gracias. (13:11) Que le vayan bien.
-(13:15) Gracias.
+(0:01) **Sebastián:** Primeramente, buenas tardes señor productor. Mi nombre es Sebastián Chocho, estudiante de Tecnologías aquí en la universidad.  
+(0:09) Agradezco primeramente mucho por el tiempo que nos ha dado, bueno nos ha brindado para esta entrevista.  
+(0:16) Le voy a dar un poco del contexto de lo que es el proyecto Yemprende Uyde, ahora denominado TAEC.  
+(0:23) Propone crear un espacio interno en la universidad donde los estudiantes puedan ofrecer servicios,  
+(0:28) por ejemplo, clases particulares, asesorías académicas o diseño gráfico,  
+(0:34) y que otros estudiantes o docentes puedan contratarlos directamente.  
+(0:38) La idea es canalizar entre iniciativas dentro del Uyde, en lugar de depender de redes sociales externas,  
+(0:45) así y así conectar el aprendizaje con oportunidades reales de ingreso y networking.  
+(0:52) Con este contexto quisiera hacerle las siguientes preguntas.  
+(0:55) ¿Considera usted que sería adecuado implementar en el Uyde una aplicación o plataforma interna  
+(1:01) que facilite el intercambio directo de servicios entre estudiantes y docentes?  
+(1:05) **Prorector:** Sí, como una comunidad Uyde.  
+(1:07) **Sebastián:** ¿Por qué sí?  
+(1:08) **Prorector:** Porque creo que nos permitiría generar mucho más sentido de pertenencia,  
+(1:12) y también podríamos generar dentro de los estudiantes que tengan un contexto de práctica real.  
+(1:19) **Sebastián:** La siguiente pregunta.  
+(1:20) Desde su perspectiva, ¿qué beneficios concretos podría generar esta iniciativa en la dinámica diaria del campus,  
+(1:27) especialmente en la relación entre estudiantes y docentes?  
+(1:30) **Prorector:** Uno, creo que construcción de mayor tejido social entre todos,  
+(1:33) eso implica que todos nos conozcamos con todos.  
+(1:36) Dos, que todos podamos ver las fortalezas que tienen todos,  
+(1:38) que normalmente no son las mismas que necesariamente están en el proceso de enseñanza-aprendizaje.  
+(1:42) Y tres, que se rompa la verticalidad, que es poca en nuestra universidad,  
+(1:46) pero la verticalidad de profesor-alumno, para que sea algo más horizontal.  
+(1:49) Entonces, me parece chévere.  
+(1:50) Ya.  
+(1:52) **Sebastián:** La siguiente pregunta.  
+(1:52) Pensando en experiencias previas de la universidad o de otras universidades,  
+(1:57) ¿qué características o elementos considera indispensables para que una plataforma de este tipo  
+(2:01) tenga adopción amplia y sostenida?  
+(2:06) **Prorector:** Que sea, ¿cuál es la palabra que utilizan ustedes cuando dicen un o dos clics?  
+(2:10) O sea, que todo sea muy rápido, que no tengas tanto proceso para llegar a un punto en las aplicaciones.  
+(2:16) ¿Accesibilidad?  
+(2:16) Que sea accesibilidad, no, intuitiva, que sea una aplicación bastante intuitiva.  
+(2:24) Creo que te costaría un montón ver que la gente confíe en el otro,  
+(2:30) esa es una de las barreras que nosotros significamos buenísimo,  
+(2:32) es la aplicación del banco del tiempo,  
+(2:34) pero creo que con el tiempo puedes ir construyendo esa cultura.  
+(2:38) Ya.  
+(2:40) **Sebastián:** La siguiente.  
+(2:40) ¿Qué desafíos o riesgos cree que podrían surgir al implementar este espacio?  
+(2:44) Por ejemplo, temas delicados, previos de servicio, seguridad, regulación interna,  
+(2:48) ¿y cómo se podría gestionar adecuadamente?  
+(2:51) **Prorector:** Habría que ver si es que los servicios tienen que estar registrados  
+(2:55) o hay alguna regulación respecto de ser ahí,  
+(2:59) porque como va a haber una transacción,  
+(3:01) habría que ver si es que tienen que sacar los chicos factura, no factura,  
+(3:05) para no tener problemas con la parte del Estado.  
+(3:09) Ese creo que sería yo la barrera más grande.  
+(3:13) **Sebastián:** ¿Y cómo podríamos gestionar eso adecuadamente?  
+(3:17) **Prorector:** O sea, si lo sacas con factura y todo el mundo saca Rook,  
+(3:19) quien entra en la aplicación, yo creo que lo puede solventar.  
+(3:23) Ya.  
+(3:24) **Sebastián:** O sea, podría ser que un requisito para las personas que se inscriben es que tengan Rook,  
+(3:27) los que vayan a ofertar sus servicios,  
+(3:29) para que quien le pague se tribute lo que tenga que tributarse.  
+(3:32) Ya.  
+(3:35) **Prorector:** Excepto que crees una moneda.  
+(3:38) Ya.  
+(3:40) **Sebastián:** ¿Así tipo como Bitcoin o algo así?  
+(3:43) **Prorector:** Y tengamos una moneda interna.  
+(3:46) Pero eso es una idea más loca,  
+(3:47) que tengamos una moneda dentro de la universidad  
+(3:50) que te permite hacer intercambio con ciertas cosas.  
+(3:52) Entonces, al menos entre los actores que estamos aquí,  
+(3:56) es un servicio de aquí y eso que te sirve en la cafetería,  
+(3:59) en la papelería, no sé, se me ocurre.  
+(4:01) Pero eso está como más complejo, pero es interesante.  
+(4:03) Ya.  
+(4:07) **Sebastián:** Siguiente.  
+(4:08) ¿De qué manera cree que la universidad podría articular este proyecto  
+(4:12) con sus programas actuales de emprendimiento,  
+(4:15) prácticas pre-profesionales o actividades estudiantiles?  
+(4:17) **Prorector:** Yo creo que se puede.  
+(4:18) Podríamos conversar con la business,  
+(4:20) para que la business con el director de marketing y la administración de empresas  
+(4:22) les ayude a levantar el plan de negocios, el plan de marketing y el pitch.  
+(4:26) Ya.  
+(4:27) **Sebastián:** Siguiente pregunta.  
+(4:28) Si el proyecto se pusiera en marcha,  
+(4:30) ¿qué indicadores sencillos consideraría importantes para medir su éxito  
+(4:34) en el fortalecimiento del espíritu emprendedor de los estudiantes?  
+(4:37) Por ejemplo, número de usuarios activos, servicios ofrecidos, etc.  
+(4:43) **Prorector:** Usuarios que ofrecen servicios, transacciones diarias sería otro indicador,  
+(4:48) o transacciones semanales o transacciones mensuales,  
+(4:52) cantidad de dinero que mueves dentro de la aplicación,  
+(4:56) calidad de los servicios también sería interesante.  
+(4:58) Que tengas como una valoración de estos cuatro.  
+(5:02) **Sebastián:** La siguiente.  
+(5:04) ¿A mediano plazo imagina que una iniciativa como Emprende Uyden,  
+(5:09) podría convertirse en un referente institucional  
+(5:12) en temas de emprendimiento estudiantil dentro de la universidad?  
+(5:15) **Prorector:** Sí.  
+(5:16) Creo que la podemos hacer, por las ventajas que ya te he explicado,  
+(5:19) y de hecho creo que si tiene éxito lo podremos jalar con Loja Ciudad Universitaria,  
+(5:23) entonces sería súper interesante meterla entre las tres universidades  
+(5:25) y comenzará a tener una comunidad más grande solo entre estudiantes y universidades.  
+(5:29) Sería bastante interesante.  
+(5:30) Sí, sería súper chévere.  
+(5:31) Pero hay que saber qué funciona primero aquí.  
+(5:34) **Sebastián:** Sí, vamos a ver también lo que ya tenemos,  
+(5:38) que es el diseño gráfico de la aplicación,  
+(5:40) y ya lo estamos implementando también.  
+(5:49) Sería lo que es el menú,  
+(5:52) donde se registraría con el logotipo y con los colores institucionales también.  
+(5:56) **Prorector:** ¿Por qué se llama TAIC?  
+(5:58) **Sebastián:** TAIC.  
+(6:00) Es que no sabíamos qué ponerle de nombre,  
+(6:02) y justo estaba pensando en el taekwondo y le puse TAIC.  
+(6:06) La hincha de derecha.  
+(6:07) Sí.  
+(6:09) Bueno, ese sería el inicio de sesión.  
+(6:11) También se podrían registrar con la cuenta institucional  
+(6:16) y lo que son la parte de acá.  
+(6:19) Lo que sería la casita,  
+(6:23) donde se verían todos los productos y servicios.  
+(6:26) La parte de mis favoritos,  
+(6:28) donde se visualizaría el momento de ingresar a cualquiera de estas casetillas,  
+(6:32) como se visualizaría el producto,  
+(6:34) con ubicación en tiempo...  
+(6:36) en tiempo...  
+(6:38) Ah, sí, en Google Maps.  
+(6:40) En vista de Google Maps.  
+(6:43) También tenemos lo que es el carrito,  
+(6:45) con dos tipos de transferencia,  
+(6:46) lo que es el pago en físico,  
+(6:50) que sería dentro de la universidad,  
+(6:53) como punto seguro,  
+(6:54) y pago por transferencia.  
+(6:57) También tenemos lo que es el perfil,  
+(6:59) donde los estudiantes pueden cambiar.  
+(7:01) Si ya están en clientes, pueden cambiar a emprendedor,  
+(7:04) para que no haya ese problema de volver a crear otra cuenta.  
+(7:06) Un perfil si es que eres consumista o si es que abres el servicio.  
+(7:09) Sí.  
+(7:09) Eso, digamos, para un futuro, por ejemplo,  
+(7:12) ya se registró solamente como consumista.  
+(7:15) Solo cambia el rol.  
+(7:16) Sí, solo se cambia el rol.  
+(7:18) Ahí tenemos las reseñas del mismo cliente.  
+(7:21) El rating de servicios.  
+(7:23) Justo lo que te decía de las valoraciones en el sistema.  
+(7:25) Los pedidos, que se pueden ver, digamos, de esa manera,  
+(7:30) si son pendientes,  
+(7:32) si el emprendedor lo aceptó o lo rechazó.  
+(7:35) También las configuraciones, igualmente,  
+(7:37) cuando a veces no les gustan las notificaciones,  
+(7:41) entonces eso se cierra y no habría notificaciones.  
+(7:45) Igualmente las solicitudes y lo que es la privacidad.  
+(7:47) Y junto a la ayuda y soporte,  
+(7:49) lo implementaremos con un chatbot.  
+(7:52) Ahí tenemos también lo que es la parte de vista del emprendedor.  
+(7:58) Igualmente tendría casi lo mismo,  
+(8:00) pero desde una perspectiva diferente.  
+(8:04) Es lo mismo.  
+(8:05) Igualmente acá se puede crear un emprendimiento  
+(8:09) y cuando ya se esté creando y, digamos,  
+(8:11) es por alguna causalidad,  
+(8:13) se cierra la aplicación.  
+(8:14) Esto se puede guardar como borrador.  
+(8:16) Se guardaría con todos los cambios.  
+(8:18) Se crearía un emprendimiento con todo esto  
+(8:20) de una forma más intuitiva.  
+(8:23) Se podría crear lo que son servicios  
+(8:25) y luego de crear todo,  
+(8:26) se podría crear el emprendimiento  
+(8:28) o se podría guardar como borrador.  
+(8:31) Y esto sería como el borrador.  
+(8:32) Tiene las mismas funciones,  
+(8:35) solo que, bueno, es borrador.  
+(8:39) De ahí tenemos lo que es las solicitudes.  
+(8:42) Las solicitudes que le hacen por el servicio.  
+(8:44) Y, digamos, aquí puede ingresar  
+(8:46) a alguno de estos cuadros  
+(8:48) y le saldría algo parecido aquí  
+(8:50) con los servicios.  
+(8:51) Y si se rechaza, se acepta.  
+(8:54) Aparte de eso,  
+(8:56) queríamos entender  
+(8:57) qué categorías nos recomienda  
+(8:59) para implementarlo.  
+(9:03) **Prorector:** Alimentación, aprendizaje.  
+(9:04) Verás, el otro día yo estaba pensando  
+(9:07) tú que eres de la generación centenial,  
+(9:10) filosóficamente son más extraños.  
+(9:12) Son, de hecho, más aislados.  
+(9:14) Y, de hecho, pasan más en computadores  
+(9:16) y toda la cosa.  
+(9:20) Y yo quería, o en mi cabeza al menos tenía,  
+(9:22) y les decía a la directora de psicología,  
+(9:25) por ejemplo,  
+(9:26) los jóvenes de ahora  
+(9:27) tienen más problemas de salud mental  
+(9:28) respecto a la ansiedad y la depresión.  
+(9:30) Y tienen miedo, de hecho,  
+(9:31) más miedo al contacto.  
+(9:34) Si me ocurre que esta aplicación  
+(9:36) podrías meterle,  
+(9:37) te lo voto porque no tengo la cabeza.  
+(9:39) Por ejemplo,  
+(9:40) este domingo nos vamos a reunir  
+(9:43) a cocinar en la casa de Chocho.  
+(9:47) **Sebastián:** ¿Algo así como un evento?  
+(9:49) **Prorector:** Puede ser.  
+(9:51) Puede ser como un evento.  
+(9:53) ¿Me cachas?  
+(9:53) Que solo sea propio de nuestra comunidad.  
+(9:55) Entonces, yo, por ejemplo,  
+(9:56) les decía a mí me encanta hacer trekking.  
+(9:57) Y yo lo iba a probar por Instagram.  
+(10:00) Los que quieran hacer trekking  
+(10:01) me voy a subir dos veces el sánchez,  
+(10:03) los que quieren se suben una,  
+(10:04) los que no, necesitamos esto, esto, esto,  
+(10:06) cuesta esto para que cada quien lleve esto,  
+(10:07) pum, pa.  
+(10:08) Y es algo,  
+(10:09) porque su generación también es  
+(10:11) de hacerlo en un momento y ya está.  
+(10:14) No necesariamente de hacerlo algo periódico.  
+(10:15) De manera general.  
+(10:17) Entonces, hace el evento,  
+(10:18) solo ese día se va a votar, se va a votar.  
+(10:19) O parecido así como a la vista de este.  
+(10:23) Sería un club súper chévere.  
+(10:24) ¿Me cachas?  
+(10:25) Aquí lo que generas es  
+(10:27) lo que a mí me interesa que tengan ustedes,  
+(10:29) tejidos sociales.  
+(10:30) O sea, que se lleven con nosotros,  
+(10:31) que se conozcan con nosotros,  
+(10:32) que tengamos pertenencia con la U,  
+(10:34) y eso te genera redes de apoyo.  
+(10:36) Y si tienes redes de apoyo,  
+(10:38) tienes mejor predisposición  
+(10:39) a no tener tanta represión y ansiedad.  
+(10:42) Entonces, creo que sería interesante  
+(10:44) que lo trates.  
+(10:44) Porque Sky tiene un transporte económico  
+(10:46) súper chévere.  
+(10:47) Pero podrías darle este transforma  
+(10:49) como evento, si lo quieres poner,  
+(10:50) como un transforma de cuidado  
+(10:51) de salud mental, que sería bacán.  
+(10:52) Ya.  
+(10:54) **Sebastián:** Estaría súper chévere igualmente.  
+(10:55) Sí, yo me lo había notado, de hecho,  
+(10:56) porque dije, las ideas locas  
+(10:58) que se me van ocurriendo.  
+(11:00) Sí, salud mental.  
+(11:03) App, silueta, montaña, sentidos.  
+(11:05) **Prorector:** Hay unas páginas, Cholo,  
+(11:06) si les quieres revisar,  
+(11:07) en Barcelona tiene esto.  
+(11:08) Ya.  
+(11:09) Este tipo de eventos,  
+(11:09) porque lo quería meter en lojas  
+(11:10) universitarias, pero los otros directores,  
+(11:12) como son más viejitos,  
+(11:13) todavía no me entienden la idea.  
+(11:14) Pero eso sería bacancísimo.  
+(11:15) Ya.  
+(11:15) Y lo que hacen es reunir,  
+(11:16) lo que te digo,  
+(11:17) nos vamos a reunir los estudiantes  
+(11:18) de las tres universidades en tal cosa.  
+(11:20) Eso es en Barcelona, ya.  
+(11:21) Se reúnen, un ratito están,  
+(11:23) se comparten poesía,  
+(11:24) comparten lo que hay dentro,  
+(11:25) se pudo.  
+(11:26) Ya.  
+(11:27) Así de rápido.  
+(11:30) **Sebastián:** No, sería interesante preguntarte.  
+(11:32) Sería súper interesante,  
+(11:33) porque normalmente ya nos gusta esto.  
+(11:35) **Prorector:** Por ejemplo, a mi generación  
+(11:36) yo soy más viejo,  
+(11:37) yo tengo 37.  
+(11:37) Entonces, yo si te digo,  
+(11:38) yo quiero un curso largo  
+(11:39) de no sé cuánto.  
+(11:41) Ya.  
+(11:41) Tu generación es más de un click,  
+(11:42) no de tantos procesos,  
+(11:45) sino de las cosas rápidas,  
+(11:46) de manera general.  
+(11:47) Entonces, hoy vamos a hacer esto,  
+(11:49) listo, se acabó.  
+(11:50) Ya.  
+(11:53) Piénsatelo en un evento,  
+(11:54) sería súper chévere,  
+(11:54) me encantaría.  
+(12:06) **Sebastián:** Como eventos podría estar.  
+(12:08) **Prorector:** Y le das un valor  
+(12:09) que no solo sea comercial,  
+(12:10) sino también de filosóficamente  
+(12:12) de autocuidado.  
+(12:14) **Sebastián:** Podría ser.  
+(12:16) Ya.  
+(12:18) Eso me acabaron las preguntas.  
+(12:20) **Prorector:** Piénsalas más.  
+(12:21) **Sebastián:** Ya, eso sería todo  
+(12:23) por mi entrevista.  
+(12:24) Antes de cortar la entrevista también,  
+(12:26) quería solicitarle el permiso  
+(12:27) para utilizar el audio  
+(12:28) para lo que son documentación  
+(12:30) y anexos para evidencia.  
+(12:33) Eso sería todo.  
+(12:35) Muchas gracias.  
+(12:36) Cuídate mucho.  
+(12:38) **Prorector:** Igualmente.  
+(12:38) ¿Cómo vas en los campeonatos?  
+(12:40) **Sebastián:** Estoy bien,  
+(12:40) me estoy yendo bien.  
+(12:41) Bien.  
+(12:42) Sí.  
+(12:44) Ya.  
+(12:53) Muchas gracias.  
+(12:54) **Prorector:** Cuídate mucho,  
+(12:54) los quiero.  
+(12:57) **Sebastián:** Igualmente.  
+(12:58) Ya, ya.  
+(13:00) Ya, gracias.  
+(13:09) Gracias.  
+(13:11) Que le vayan bien.  
+(13:15) **Prorector:** Gracias.  
+
+---
