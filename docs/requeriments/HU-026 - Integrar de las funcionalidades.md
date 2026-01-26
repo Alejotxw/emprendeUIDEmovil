@@ -1,4 +1,4 @@
-# Historia de Usuario: Integración y consolidación del proyecto
+# Historia de Usuario - Integración y consolidación del proyecto
 
 **Como** equipo desarrollador  
 **Quiero** demostrar la integración de todas las tareas completadas  
@@ -29,3 +29,4 @@
 **Y** la configuración de idiomas debe aplicarse correctamente.  
 **Y** la aplicación no debe presentar errores ni regresiones.  
 **Y** las transiciones entre vistas deben ser fluidas.
+
