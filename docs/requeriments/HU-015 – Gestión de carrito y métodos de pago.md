@@ -1,251 +1,70 @@
-Historia de Usuario – Gestión de Carrito y Pago
-
-Como usuario autenticado
-Quiero gestionar mi carrito con los ítems agregados, ajustar cantidades, remover elementos y seleccionar un método de pago (efectivo o transferencia)
-Para finalizar mis compras de manera segura y sencilla, con una confirmación que me devuelva al carrito actualizado (vacío si aplica).
-
-Criterios de Aceptación (Gherkin)
-Escenario: Visualización del carrito
-
-Dado que el usuario accede al carrito desde la navegación inferior o después de agregar ítems
-Cuando se carga la pantalla
-Entonces el sistema debe mostrar:
-
-Título “Mi Carrito”
-
-Lista de ítems (ej.: “Comida Casera” por “Rommy Ríos” – $3.25)
-
-Por cada ítem:
-
-Checkbox (seleccionar / deseleccionar)
-
-Ícono de eliminar (basura)
-
-Botones + / - para cantidad
-
-Subtotal por ítem
-
-Total general del carrito
-
-Si el carrito está vacío, mostrar el mensaje:
-
-“Tu carrito está vacío”
-con un botón para Explorar emprendimientos
-
-Escenario: Ajuste de cantidad de un ítem
-
-Dado que el carrito contiene ítems
-Cuando el usuario presiona + / - en un ítem
-Entonces el sistema debe:
-
-Actualizar la cantidad en tiempo real
-
-Recalcular el subtotal del ítem
-
-Recalcular el total general
-
-Validar límites (mínimo 1, máximo stock disponible)
-
-Escenario: Eliminación de ítems del carrito
-
-Dado que el usuario visualiza un ítem en el carrito
-Cuando presiona el ícono de basura
-Entonces el sistema debe solicitar confirmación (opcional)
-Y remover el ítem de la lista
-Y actualizar el total general del carrito.
-
-Escenario: Selección y deselección de ítems
-
-Dado que el carrito contiene múltiples ítems
-Cuando el usuario selecciona o deselecciona un ítem mediante el checkbox
-Entonces el sistema debe actualizar el estado visual
-Y solo incluir los ítems seleccionados en el cálculo del total.
-
-Escenario: Navegación a métodos de pago
-
-Dado que el carrito contiene ítems seleccionados
-Cuando el usuario presiona “Tipo de Pago” o “Método de Pago”
-Entonces el sistema debe navegar a la pantalla de pago
-Y mostrar el subtotal y total calculados previamente.
-
-Escenario: Visualización de métodos de pago
-
-Dado que el usuario accede a la pantalla de métodos de pago
-Cuando la vista se carga
-Entonces el sistema debe mostrar:
-
-Opción Pago en físico (ícono personas, radio button)
-
-Opción Pago por transferencia (ícono tarjeta, radio button)
-
-Subtotal y total
-
-Botón Solicitar o Pagar
-
-Para pago en físico: mapa con ubicación del emprendimiento
-
-Para transferencia: campos
-
-Número de cuenta
-
-Fecha de vencimiento
-
-Código de seguridad (CVV)
-
-Escenario: Pago en físico
-
-Dado que el usuario selecciona Pago en físico
-Cuando confirma la opción
-Entonces el sistema debe:
-
-Ocultar los campos de transferencia
-
-Mostrar el mapa con marcador de ubicación
-
-Habilitar el botón Solicitar
-
-Generar una orden de retiro (pickup)
-
-Escenario: Pago por transferencia
-
-Dado que el usuario selecciona Pago por transferencia
-Cuando interactúa con los campos
-Entonces el sistema debe:
-
-Mostrar los campos de pago
-
-Validar en tiempo real:
-
-Número de cuenta (16 dígitos)
-
-Fecha (MM/AA)
-
-CVV (3 dígitos)
-
-Deshabilitar Pagar si los datos son inválidos
-
-Mostrar errores inline
-
-Escenario: Confirmación de pago
-
-Dado que el usuario completa correctamente el método de pago
-Cuando presiona Solicitar o Pagar
-Entonces el sistema debe:
-
-Procesar el pago (simulado o real)
-
-Crear la orden en el backend
-
-Mostrar mensaje de confirmación:
-
-“¡Pago exitoso!”
-
-Redirigir al carrito
-
-Mostrar el carrito vacío o con los ítems restantes
-
-Escenario: Error en el proceso de pago
-
-Dado que ocurre un error (campos inválidos o red)
-Cuando el usuario intenta pagar
-Entonces el sistema debe:
-
-Mostrar un mensaje de error (snackbar)
-
-No navegar fuera de la pantalla
-
-Permitir reintentar la acción
-
-Escenario: Navegación hacia atrás
-
-Dado que el usuario se encuentra en la pantalla de pago
-Cuando presiona el botón Regresar
-Entonces debe volver al carrito
-Y mantener el estado original sin cambios.
-
-Escenario: Acceso indebido a pago sin ítems
-
-Dado que el carrito no tiene ítems
-Cuando el usuario intenta acceder directamente a métodos de pago
-Entonces el sistema debe:
-
-Mostrar un mensaje de error:
-
-“Agrega ítems al carrito primero”
-
-O redirigir al dashboard principal.
-
-Notas Técnicas
-Firebase
-
-Firestore
-
-Subcolección usuarios/{userId}/carrito:
-
-itemId
-
-cantidad
-
-seleccionado
-
-timestamp
-
-Colección ordenes:
-
-items
-
-metodoPago
-
-subtotal
-
-total
-
-status (pendiente / confirmado)
-
-createdAt
-
-Auth
-
-Uso de userId autenticado
-
-Pagos
-
-Simulado o integración opcional con Stripe
-
-Flutter
-
-ListView.builder para carrito
-
-CheckboxListTile para selección
-
-IconButton para + / -
-
-Dismissible para swipe-to-delete
-
-Pantalla de pago con Form y TextFormField
-
-RadioListTile para métodos de pago
-
-GoogleMapsFlutter para pago en físico
-
-Manejo de estado global con Provider o Riverpod
-
-Navegación con Navigator.push / pop
-
-Diseño (Figma)
-
-Colores institucionales
-
-Botones/accentos en naranja #FFA500
-
-Cards con sombras
-
-Diseño responsive
-
-Soporte para modo oscuro si aplica
-
-Flujo de Trabajo (Git)
-
-Rama: feature/carrito-pago
-
-Pull Request: hacia develop
+# Historia de Usuario – Gestión de Carrito y Pago
+
+**Como** usuario autenticado  
+**Quiero** gestionar mi carrito con los ítems agregados, ajustar cantidades, remover elementos y seleccionar un método de pago (efectivo o transferencia)  
+**Para** finalizar mis compras de manera segura y sencilla, con una confirmación que me devuelva al carrito actualizado (vacío si aplica).
+
+---
+
+## Criterios de Aceptación (Gherkin)
+
+### Escenario: Visualización del carrito
+**Dado** que el usuario accede al carrito desde la navegación inferior o tras agregar ítems  
+**Cuando** se carga la pantalla  
+**Entonces** el sistema debe mostrar:
+* Lista de ítems con checkbox, ícono de basura, botones +/- y subtotal.
+* Total general del carrito.
+* Si está vacío, mostrar el mensaje: “Tu carrito está vacío” con un botón para "Explorar emprendimientos".
+
+### Escenario: Ajuste de cantidad y selección
+**Dado** que el carrito contiene ítems  
+**Cuando** el usuario modifica la cantidad o selecciona/deselecciona mediante el checkbox  
+**Entonces** el sistema debe actualizar el subtotal del ítem y recalcular el total general en tiempo real, validando stock y mínimos.
+
+### Escenario: Eliminación de ítems
+**Dado** que el usuario visualiza un ítem en el carrito  
+**Cuando** presiona el ícono de basura  
+**Entonces** el sistema debe solicitar confirmación, remover el ítem y actualizar el total general.
+
+### Escenario: Navegación y Visualización de Métodos de Pago
+**Dado** que el usuario tiene ítems seleccionados y presiona “Método de Pago”  
+**Cuando** se carga la pantalla de pago  
+**Entonces** el sistema debe mostrar las opciones:
+* **Pago en físico:** Mapa con ubicación del emprendimiento y botón "Solicitar".
+* **Pago por transferencia:** Campos para número de cuenta (16 dígitos), fecha (MM/AA) y CVV (3 dígitos).
+
+### Escenario: Procesamiento de Pago (Físico/Transferencia)
+**Dado** que el usuario selecciona un método de pago  
+**Cuando** completa la información y presiona el botón de acción  
+**Entonces** el sistema debe:
+* Validar datos en tiempo real (si es transferencia).
+* Generar la orden en el backend.
+* Mostrar mensaje de “¡Pago exitoso!” y redirigir al carrito (vacío o con ítems restantes).
+
+### Escenario: Manejo de errores y navegación
+**Dado** que el carrito está vacío o ocurre un error de red  
+**Cuando** el usuario intenta proceder al pago  
+**Entonces** el sistema debe impedir el acceso o mostrar un snackbar de error permitiendo reintentar.
+
+---
+
+## Notas Técnicas
+
+### Firebase (Firestore & Auth)
+* **Subcolección `usuarios/{userId}/carrito`:** Campos de `itemId`, `cantidad`, `seleccionado` y `timestamp`.
+* **Colección `ordenes`:** Registro de `items`, `metodoPago`, `subtotal`, `total`, `status` (pendiente/confirmado) y `createdAt`.
+
+### Flutter Implementation
+* **Carrito:** `ListView.builder`, `CheckboxListTile`, `IconButton` y `Dismissible` para gestos de eliminación.
+* **Pago:** `Form` con `TextFormField` para validaciones bancarias, `RadioListTile` para selección de método y `GoogleMapsFlutter` para pago físico.
+* **Estado:** Gestión global mediante `Provider` o `Riverpod`.
+
+### Diseño (Figma)
+* **Estética:** Colores institucionales con acentos en naranja (#FFA500).
+* **UI:** Cards con sombras para profundidad y diseño responsive (Mobile/Tablet).
+
+---
+
+## Flujo de Trabajo (Git)
+* **Rama:** `feature/carrito-pago` (desde `develop`).
+* **Pull Request:** Hacia la rama `develop` para revisión de código.
