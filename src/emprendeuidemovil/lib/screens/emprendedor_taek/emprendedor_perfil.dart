@@ -1,11 +1,20 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:emprendeuidemovil/screens/comentarios_servicios.dart';
-import 'package:emprendeuidemovil/screens/configuracion_emprendedor.dart';
-import 'package:emprendeuidemovil/screens/rating_servicios_emprendedor.dart';
-// import 'package:emprendeuidemovil/screens/configuration_screen.dart'; // File missing
+import 'package:emprendeuidemovil/screens/emprendedor_taek/comentarios_servicios.dart';
+import 'package:emprendeuidemovil/screens/emprendedor_taek/configuracion_emprendedor.dart';
+import 'package:emprendeuidemovil/screens/emprendedor_taek/rating_servicios_emprendedor.dart';
 
-class EmprendedorPerfilScreen extends StatelessWidget {
+class EmprendedorPerfilScreen extends StatefulWidget {
   const EmprendedorPerfilScreen({super.key});
+
+  @override
+  State<EmprendedorPerfilScreen> createState() => _EmprendedorPerfilScreenState();
+}
+
+class _EmprendedorPerfilScreenState extends State<EmprendedorPerfilScreen> {
+  String _name = 'Sebastián Chocho';
+  String _phone = '096 933 1762'; // Default phone
+  File? _imageFile;
 
   @override
   Widget build(BuildContext context) {
@@ -56,13 +65,27 @@ class EmprendedorPerfilScreen extends StatelessWidget {
                     },
                   ),
                   const SizedBox(height: 16),
-                  _buildMenuOption('Configuraciones', onTap: () {
-                     Navigator.push(
+                  _buildMenuOption('Configuraciones', onTap: () async {
+                     final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const ConfiguracionEmprendedorScreen(),
+                          builder: (context) => ConfiguracionEmprendedorScreen(
+                            currentName: _name,
+                            currentPhone: _phone,
+                            currentImage: _imageFile,
+                          ),
                         ),
                       );
+
+                      if (result != null && result is Map) {
+                        setState(() {
+                          _name = result['name'] ?? _name;
+                          _phone = result['phone'] ?? _phone;
+                          if (result['image'] != null) {
+                            _imageFile = result['image'];
+                          }
+                        });
+                      }
                   }),
 
                   const SizedBox(height: 40),
@@ -119,16 +142,25 @@ class EmprendedorPerfilScreen extends StatelessWidget {
         Container(
           width: 100,
           height: 100,
-          decoration: const BoxDecoration(
-            color: Color(0xFF83002A),
+          decoration: BoxDecoration(
+            color: const Color(0xFF83002A),
             shape: BoxShape.circle,
+            image: _imageFile != null
+                ? DecorationImage(
+                    image: FileImage(_imageFile!),
+                    fit: BoxFit.cover,
+                  )
+                : null,
           ),
+           child: _imageFile == null
+              ? const Icon(Icons.person, size: 60, color: Colors.white)
+              : null,
         ),
         const SizedBox(height: 16),
         // Name
-        const Text(
-          'Sebastián Chocho',
-          style: TextStyle(
+        Text(
+          _name,
+          style: const TextStyle(
             color: Color(0xFF83002A),
             fontSize: 20,
             fontWeight: FontWeight.bold,
