@@ -92,9 +92,34 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
     }
   }
 
+  void _saveAndExit({bool isDraft = false}) {
+    final data = {
+      'title': _nameController.text.isNotEmpty ? _nameController.text : 'Borrador',
+      'subtitle': _descriptionController.text,
+      'category': _selectedCategory,
+      'isDraft': isDraft,
+    };
+
+    if (!isDraft && _nameController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Ingresa el nombre del emprendimiento")));
+      return;
+    }
+
+    Navigator.pop(context, {
+      'action': widget.entrepreneurship != null ? 'update' : 'create',
+      'data': data,
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
+        _saveAndExit(isDraft: true);
+        return false;
+      },
+      child: Scaffold(
       backgroundColor: Colors.white,
       body: Column(
         children: [
@@ -171,19 +196,27 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                    const Text("Ubicación", style: TextStyle(fontWeight: FontWeight.bold)),
                    const SizedBox(height: 8),
                    Container(
-                     height: 150,
                      width: double.infinity,
+                     padding: const EdgeInsets.all(16),
                      decoration: BoxDecoration(
+                       color: Colors.grey.shade100,
                        borderRadius: BorderRadius.circular(15),
-                       color: Colors.grey.shade200,
-                       image: const DecorationImage(
-                         image: NetworkImage("https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Google_Maps_Logo_2020.svg/2275px-Google_Maps_Logo_2020.svg.png"), // Placeholder or nice map image assets
-                         fit: BoxFit.cover,
-                         opacity: 0.6,
-                       ),
+                       border: Border.all(color: Colors.grey.shade300),
                      ),
-                     child: Center(
-                       child: Icon(Icons.location_on, color: const Color(0xFF83002A), size: 40),
+                     child: Row(
+                       children: [
+                         const Icon(Icons.location_on, color: Color(0xFF83002A), size: 30),
+                         const SizedBox(width: 12),
+                         const Expanded(
+                           child: Text(
+                             "Sede Loja Universidad Internacional del Ecuador",
+                             style: TextStyle(
+                                 fontSize: 14,
+                                 fontWeight: FontWeight.bold,
+                                 color: Colors.black87),
+                           ),
+                         ),
+                       ],
                      ),
                    ),
                    const SizedBox(height: 20),
@@ -230,8 +263,8 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                    Row(
                      children: [
                        Expanded(
-                         child: OutlinedButton(
-                           onPressed: () {},
+                          child: OutlinedButton(
+                            onPressed: () => _saveAndExit(isDraft: true),
                            style: OutlinedButton.styleFrom(
                              padding: const EdgeInsets.symmetric(vertical: 16),
                              side: const BorderSide(color: Color(0xFF83002A)),
@@ -242,28 +275,8 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                        ),
                        const SizedBox(width: 12),
                        Expanded(
-                         child: ElevatedButton(
-                           onPressed: () {
-                              if (_nameController.text.isNotEmpty) {
-                                final data = {
-                                  'title': _nameController.text,
-                                  'subtitle': _descriptionController.text.isNotEmpty 
-                                      ? _descriptionController.text 
-                                      : 'Nuevo emprendimiento',
-                                  'category': _selectedCategory,
-                                  'isDraft': false, 
-                                };
-
-                                Navigator.pop(context, {
-                                  'action': widget.entrepreneurship != null ? 'update' : 'create',
-                                  'data': data,
-                                });
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text("Ingresa el nombre del emprendimiento"))
-                                );
-                              }
-                           },
+                          child: ElevatedButton(
+                            onPressed: () => _saveAndExit(isDraft: false),
                            style: ElevatedButton.styleFrom(
                              padding: const EdgeInsets.symmetric(vertical: 16),
                              backgroundColor: const Color(0xFF83002A),
@@ -316,6 +329,7 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
           ),
         ],
       ),
+      ),
     );
   }
 
@@ -334,7 +348,7 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
         children: [
           IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => _saveAndExit(isDraft: true),
           ),
           const SizedBox(width: 8),
           const Expanded(
