@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/settings_provider.dart';
 import 'client_taek/edit_profile_screen.dart';  // Import para navegación a edición
 import 'client_taek/support_screen.dart';
 import 'client_taek/privacy_screen.dart';
-import 'product_registration_screen.dart'; // Nueva pantalla de registro de producto
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -72,42 +69,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            // Apariencia
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Apariencia', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    Consumer<SettingsProvider>(
-                      builder: (context, settings, child) {
-                        return Column(
-                          children: [
-                            SwitchListTile(
-                              title: const Text('Modo oscuro'),
-                              subtitle: const Text('Cambiar entre tema claro y oscuro'),
-                              value: settings.darkMode,
-                              onChanged: (value) => settings.setDarkMode(value),
-                              activeColor: const Color(0xFFC8102E),
-                            ),
-                            SwitchListTile(
-                              title: const Text('Fuente grande'),
-                              subtitle: const Text('Aumentar el tamaño del texto'),
-                              value: settings.largeFont,
-                              onChanged: (value) => settings.setLargeFont(value),
-                              activeColor: const Color(0xFFC8102E),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
             // Notificaciones generales
             Card(
               child: Padding(
@@ -152,40 +113,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           labelStyle: const TextStyle(color: Color(0xFFC8102E)),
                         ),
                       ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Registro de Producto
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Gestión de Productos', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    const Text('Registra nuevos productos para tu emprendimiento'),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        icon: const Icon(Icons.add, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF83002A),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const ProductRegistrationScreen()),
-                          );
-                        },
-                        label: const Text('Registrar Producto'),
-                      ),
                     ),
                   ],
                 ),
