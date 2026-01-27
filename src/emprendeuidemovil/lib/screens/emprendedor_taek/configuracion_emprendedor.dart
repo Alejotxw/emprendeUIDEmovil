@@ -5,7 +5,16 @@ import 'package:emprendeuidemovil/screens/emprendedor_taek/privacidad_seguridad.
 import 'package:emprendeuidemovil/screens/emprendedor_taek/ayuda_soporte.dart';
 
 class ConfiguracionEmprendedorScreen extends StatefulWidget {
-  const ConfiguracionEmprendedorScreen({super.key});
+  final String currentName;
+  final String currentPhone;
+  final File? currentImage;
+
+  const ConfiguracionEmprendedorScreen({
+    super.key,
+    this.currentName = "Sebastián Chocho",
+    this.currentPhone = "096 933 1762",
+    this.currentImage,
+  });
 
   @override
   State<ConfiguracionEmprendedorScreen> createState() => _ConfiguracionEmprendedorScreenState();
@@ -15,10 +24,17 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
   bool _notificationsEnabled = true;
   bool _solicitudesEnabled = true;
 
-  // Local state for profile info
-  String _name = "Sebastián Chocho";
-  String _phone = "096 933 1762";
+  late String _name;
+  late String _phone;
   File? _imageFile;
+
+  @override
+  void initState() {
+    super.initState();
+    _name = widget.currentName;
+    _phone = widget.currentPhone;
+    _imageFile = widget.currentImage;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +91,11 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
         children: [
           IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context, {
+              'name': _name,
+              'phone': _phone,
+              'image': _imageFile,
+            }),
           ),
           const SizedBox(width: 8),
           const Expanded(
