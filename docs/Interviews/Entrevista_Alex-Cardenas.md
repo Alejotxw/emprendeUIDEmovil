@@ -1,0 +1,143 @@
+# Transcripción de Entrevista con Andrea - Arquitectura
+
+**Participantes:** Sebastián Chocho (Entrevistador) y Alex-Cardenas (Docente)  
+
+---
+
+(0:01) **Sebastián:** Le voy grabando, ya realizamos lo que es el diseño y ya también ya lo estamos  
+(0:07) implementando en lo que es Flutter más o menos, tendríamos dos vistas y la  
+(0:14) primera lo que es, bueno primeramente lo que es el iniciar sesión, el cual no  
+(0:19) registraríamos lo que es uno para emprendimiento y el otro para clientes  
+(0:23) simplemente estaría adentro de la aplicación misma para poder cambiar  
+(0:27) más o menos ese sería el resultado de la parte de clientes donde se podría  
+(0:31) pagar, igualmente visualizar los productos y lo que es la parte de  
+(0:38) emprendedores, lo que son para crear productos ya sean servicios o lo que  
+(0:43) sea productos, el pago del cliente también tiene diferencias, por ejemplo si  
+(0:49) es el producto hay una forma de pagar, la forma de pagar es diferente, el producto  
+(0:55) es más o menos así, más bien la vista, eso y quería preguntarle sobre qué categorías más o  
+(1:07) menos nos recomienda para utilizar en esto, ya puedes ponerla para usar  
+(1:12) o sea ponla como presentación para interactuar  
+(1:35) no es una Flutter así, es la parte del cliente  
+(1:44) por ahí posee una categoría de ejemplos  
+(1:59) qué diseños, diseños en particular serían para web, para móvil, para alguna  
+(2:08) diseño de propaganda o algo así  
+(2:16) **Asesor:** libros con la biblioteca, qué redacciones, redacciones de informes o a veces  
+(2:26) a veces redacciones para  
+(2:29) los de la carrera de  
+(2:33) para los abogados, para los de derecho  
+(2:43) arte, qué significa, arte es más para  
+(2:47) el otro día le hablamos a un docente de arquitectura  
+(2:51) que quería subir emprendimiento de arte, de dibujos, de vender así  
+(3:04) pero en la entrevista yo les había hablado que debe ser una aplicación que  
+(3:08) tenga un objetivo o sea como una forma de generar un social network porque como  
+(3:16) te digo una aplicación de productos, hicieron el levantamiento de entrevistas  
+(3:24) en los estudiantes, eso es muy importante porque ahorita está tal como es una  
+(3:31) aplicación para vender y comprar entonces la idea es entender si el  
+(3:35) estudiante quisiera una aplicación de este tipo, por ahí se debe empezar para  
+(3:41) determinar la viabilidad del proyecto, porque este, eso les había dicho en la  
+(3:48) entrevista anterior que clip está cerrando su módulo de e-commerce porque  
+(3:54) no tiene resultado, mira por más que es en un mundo real no tiene resultado en  
+(4:01) el sentido de que muy poca gente entra a comprar un producto en su aplicación  
+(4:07) y eso no le genera una sostenibilidad entonces aquí el miedo es que tú  
+(4:14) hagas la aplicación pero nadie la vea usable  
+(4:18) porque recuerda que hay un mundo más interconectado que son el  
+(4:25) instagram o el facebook o el tiktok, entonces el chico en el tiktok obtiene  
+(4:30) entretenimiento y a la par dice quiero comprar un chocolate, compra, en instagram  
+(4:35) obtiene entretenimiento e interacción y dice quiero comprar tal cosa busca y  
+(4:41) paga, en cambio aquí es como quiero comprar  
+(4:44) algo y tiene que ser quiero comprar algo a alguien de la UID para entrar aquí  
+(4:49) te das cuenta, todavía más complejo y para que los estudiantes digan quiero  
+(4:57) comprar algo para alguien de la UID significa que en el estudiante debe  
+(5:01) haber sentido de pertenencia, orgullo de la UID, tiene que haber mucha calidad en  
+(5:08) los emprendedores y nosotros todavía estamos validando con  
+(5:13) productos entonces eso tienes que considerar aparte de eso para que ésta  
+(5:19) sea fuerte tienes que ofrecer que hay un catálogo completo como por ejemplo hoy  
+(5:24) tengo que darle un regalo a mi pelada entonces tengo que encontrar aquí porque  
+(5:29) el rato que no encuentras esa opción de accesorios, de souvenirs, de detalles la  
+(5:34) aplicación pierde el impacto, por ejemplo tú te vas a la tienda del barrio y no  
+(5:41) encuentras leche ya no la ves como una opción de compra, dices prefiero comprar  
+(5:46) en el centro porque ahí si hay leche y de paso ya vienes comprando las demás  
+(5:50) cosas entonces si es importante que le des un  
+(5:55) fin de acción a la plataforma para que no se convierta en uno público  
+(6:02) compro, público compro entonces ahí pierdes sentido, las aplicaciones que  
+(6:08) menos acciones tienen son las que más pronto fracasan, por ejemplo la de un  
+(6:14) banco es muy simple es parecida a esta pero no fracasas porque tienes  
+(6:19) tu plata, te das cuenta? y porque no quieres ya andar a tener dinero en el  
+(6:26) bolsillo entonces mi recomendación es que se va a ver la aplicación muy  
+(6:31) saturada en cuanto a ofertas pero el tema es que tú logres demostrar un  
+(6:39) impacto, aquí el resultado está ni siquiera en la experiencia o sea en lo  
+(6:45) visual y a veces un informático quiere hacer como visualmente algo muy lindo, yo  
+(6:51) te sugiero que pienses centrado en un usuario, en un estudiante y piensa en el  
+(6:58) estudiante más vago, eso es lo que es UX y AIX que es lo que  
+(7:04) ustedes estudian, si ves por ejemplo ahorita no sé si sabes el banco de  
+(7:08) pichincha ya sólo con agregar el número de celular de una persona  
+(7:13) automáticamente le haces la transferencia, te das cuenta? eso se llama  
+(7:18) UX, yo siempre claro ustedes técnicamente lo dicen entender el usuario, hacer que  
+(7:24) facilitar su interacción, disminuir su complejidad, todo eso pero yo siempre lo  
+(7:30) digo desde mi perspectiva no muy técnica, lo digo hay que diseñar algo o  
+(7:36) hacer algo para el usuario más vago, siempre piensa en el más vago, el más  
+(7:42) vago es el que por poco y quiere entender aquí, no mucho texto, muy pocas  
+(7:48) opciones que estén súper claros los portafolios y tener súper claro esto  
+(7:53) porque por ejemplo yo aquí en libros entiendo que es para entrar a la  
+(7:56) biblioteca, entonces mejor ponle biblioteca, por ejemplo aquí en idiomas  
+(8:03) qué impacto te beneficia eso, hay estudiantes que quieren de verdad tienen  
+(8:09) configurado su idioma, sus plataformas, sus dispositivos en otro idioma,  
+(8:16) todo esto para que tomes estas decisiones  
+(8:21) evalúalas, o sea por ejemplo habla con los estudiantes, hola Víctor como estás  
+(8:27) buenos días, entonces habla con los estudiantes y  
+(8:31) consultales ahí qué es lo más viable para ellos porque recuerda que esta  
+(8:35) aplicación es para ellos, entonces son ellos los que te van a dar un feedback  
+(8:40) todavía mucho más importante, más poderoso, como por ejemplo redacciones no  
+(8:46) se entiende qué es, prototipos tampoco se entiende para qué pones, el tema de  
+(8:52) investigaciones mucho menos, presentaciones, arte, accesorios, yo  
+(8:59) suprimiría, dejaría, igual le quitaría, es que aquí tienes que entender dos  
+(9:05) cosas, tienes que tener o agruparlas por módulos, también dependiendo del  
+(9:11) objetivo que te puso el docente, si te dijo quiero una aplicación para que el  
+(9:15) estudiante haga su vida por la aplicación, perfecto, entonces pon al  
+(9:19) inicio tres módulos, academia, donde el estudiante da clic ahí, entra tutorías,  
+(9:25) entra biblioteca, entra plantillas o investigaciones y presentaciones,  
+(9:34) social network, que es como más una red social muy sencilla, más sencilla que  
+(9:39) facebook, entonces entran ahí los chicos y empiezan a servirse, hacerse match,  
+(9:45) interactuar, darse like, etcétera, y luego de eso viene el tema de otras  
+(9:51) cosas, como con apoyo a emprendedores UID y ahí entras y dentro de eso  
+(9:58) encuentras golosinas, souvenirs, postres, etcétera, entonces tienes que dejarlo  
+(10:05) entrada súper claro, porque ese fue uno de los problemas de CLIP, CLIP tenía  
+(10:10) todos los módulos sueltos, entonces tú entrabas a ver un taxi y  
+(10:15) encontrabas alimentación, medicina, todo y la gente, tú más que nadie que  
+(10:21) estudias informática debes saber que la evolución de las aplicaciones no  
+(10:27) es estar saturados, sino estar más livianos y a un clic, listo, entonces eso  
+(10:35) eso es importantísimo, que lo puedas configurar y como te digo podrías  
+(10:41) incluso poner otro, eventos UID, entonces ya tienes cuatro módulos generales y  
+(10:48) dentro de esos módulos, sub módulos, que ahí se ve visualmente más fácil, más  
+(10:53) rápido y todo eso, ahora si te metes a solucionar el tema de la biblioteca  
+(10:59) tienes que lograr que tu interfaz sea mucho más viable que la página, entonces  
+(11:04) si no lo puedes en este momento, no lo ofrezcas, acuérdate, menos es más, entonces  
+(11:11) hay que ofrecer un montón de posibilidades que estén a tu alcance, pero  
+(11:15) que logres solucionarlas de una manera rápida, ya, entonces eso con  
+(11:21) respecto a la aplicación, pero vuelvo a decirte y recuerda lo que te mostré en  
+(11:26) cuanto a Strava, Strava es una aplicación con un propósito, están sólo los  
+(11:32) deportistas, los que hacen un tipo de deporte, fitness, runners, todo eso, acaban  
+(11:39) de estar sólo los de la UID, pero la gente interactúa en esta de Strava, se  
+(11:44) comenta, se da like, se siguen, se felicitan, se piden consejos, lo mismo puede  
+(11:50) suceder acá, tienes que hacer que en esta aplicación hay un mundo, y acuérdate  
+(11:56) del funcionamiento de los algoritmos de las redes, que quiere Instagram, Instagram  
+(12:01) quiere que sus usuarios pasen conectados a su aplicación, no quieren que suban  
+(12:07) contenido y lo dejen ahí para que alguien más lo vea, no, y entre más contenido  
+(12:12) creas, más interactúas, más respondes, más comentas, es mejor para ti con el  
+(12:16) algoritmo, ya, eso, ya entonces, con eso estaremos realizando un diseño, ya, ya le  
+(12:24) presentaremos de igual manera, y eso sería todo, ya, cheverazo, pero eso vuelvo a  
+(12:30) decirte, para integrar módulos, para mí está, todavía falta encontrar el enfoque,  
+(12:36) ya, porque se te digo, honestamente el enfoque de decir voy a hacer la  
+(12:41) aplicación para que los estudiantes emprendedores de la UID vendan, y los  
+(12:44) chicos, estudiantes, clientes compren, no es muy viable, ya, en el sentido de que  
+(12:51) tienes un montón ya de aplicaciones, pero si quieres hacer que la aplicación se  
+(12:58) convierta en un medio de vida, en una acción, un espacio para la comunidad UID, hay que  
+(13:04) cambiarle un poco su enfoque, y ahí sí cumples ese objetivo, sí, entonces  
+(13:08) acuérdate, Facebook fue una red social para sólo los de la universidad al  
+(13:13) inicio, ajá, investiga un poco el inicio de las redes sociales, te vas a dar  
+(13:19) cuenta como Facebook, y otra más, fueron sólo el inicio de sus universidades, y  
+(13:26) luego que tuvieron ese humo, ese enfoque, esa usabilidad, y testearon, iteraron, y todo  
+(13:31) eso, lanzan al mercado, ya, chévere, brother, entonces nos estamos viendo el otro año, ya.  
+(13:40) **Sebastián:** Ya, muchas gracias, gracias a ti, gracias por tu tiempo, igualmente.  
+
+---

@@ -1,0 +1,31 @@
+# Transcripción de Entrevista con Jhoan - Estudiante
+
+**Participantes:** Luis Ramírez (Entrevistador) y Johan Anthony (Estudiante)  
+
+---
+
+**Luis:** Buenas tardes Johan Anthony, mi nombre es Luis Ramírez y en la Asignatura de Tecnologías de la Información de la Universidad Internacional del Ecuador, estamos desarrollando el proyecto Emprende UID, una plataforma marketplace interna para conectar emprendimientos y servicios estudiantiles. Hemos identificado que como estudiante de la UID eres un posible stakeholder, clave para ya que podrías ser tanto emprendedor como cliente en esta comunidad. ¿Te gustaría participar en una breve entrevista de unos 10-15 minutos para darnos tu opinión sobre las funcionalidades que estamos diseñando? Tus insights nos ayudarían mucho a mejorar nuestro proyecto.  
+**Johan:** Claro que sí Luis, pregúntame nomás.  
+**Luis:** ¿Cómo prefieres registrarte en una app como esta, con correo institucional de la UID, número de teléfono o redes sociales como Instagram y por qué?  
+**Johan:** El correo institucional UID es mi método de registro preferido, ya que garantiza la seguridad y exclusividad al verificar mi pertenencia a la universidad, manteniendo mis datos personales separados por motivos de privacidad.  
+**Luis:** A ver, te hago la siguiente pregunta. ¿Qué tan importante es para ti un proceso de login rápido y seguro? ¿Has tenido problemas con contraseñas o verificación en otras apps?  
+**Johan:** El proceso de login rápido y seguro es esencial. Siendo una herramienta digital, valoro la eficiencia para el acceso inmediato y la confianza para proteger mis datos. Si he tenido problemas, los sistemas lentos o las verificaciones que tardan en llegar son la principal frustración que me haría abandonar una aplicación.  
+**Luis:** Listo, te hago la siguiente pregunta. ¿Te gustaría una opción de login único con tu cuenta de UID? Por ejemplo, vía portal estudiantil. ¿Qué ventajas ves en esto?  
+**Johan:** Sí, me encantaría el login único con UID. La principal ventaja sería la simplicidad y la seguridad, ya que solo necesito una contraseña para todos los servicios, reduciendo el riesgo de olvidos y centralizando la protección.  
+**Luis:** Listo, siguiente pregunta. ¿Qué datos básicos incluirías en tu perfil y cuáles te parecen innecesarios o invasivos?  
+**Johan:** Solo incluiría nombre, carrera y semestre. La foto sería opcional. Cualquier dato personal como el teléfono o redes sociales lo considero invasivo e innecesario para el uso académico.  
+**Luis:** ¿Te identificarías principalmente como emprendedor, cliente o ambos? ¿Por qué y cómo ayudaría esto a la app?  
+**Johan:** Identificaría como ambos. Soy emprendedor al ofrecer el valor y cliente al buscarlo. Esto transforma la app en un ecosistema colaborativo de doble vía, incentivando la participación activa de toda la comunidad.  
+**Luis:** ¿Cómo te gustaría ver el listado inicial en tarjetas, listas simple o mapas si aplica a servicios locales y por qué?  
+**Johan:** Mi preferencia depende del contenido. Si la información es variada, las tarjetas son ideales para su atractivo visual y su resumen rápido. Sin embargo, si la aplicación trata sobre servicios o eventos de una ubicación física o dentro o cerca del campus, el mapa sería esencial para ofrecer contexto geográfico inmediato.  
+**Luis:** ¿Qué orden de visualización prefieres? ¿Por fecha, relevancia o aleatorio para descubrir nuevos? Si prefiero una combinación, mi orden de visualización principal debe ser de relevancia, pero debe haber una opción fácil de cambiar la fecha o una sección.  
+**Johan:** Con contenido aleatorio para el descubrimiento de cosas nuevas y evitar burbujas de filtro.  
+**Luis:** ¿Cuáles son los filtros más útiles para ti? ¿Categoría, precio o popularidad? ¿Agregarías otros como ubicación en Quito o calificación?  
+**Johan:** Los esenciales son categoría y popularidad. Sin embargo, es fundamental agregar calificación para evaluar la calidad del servicio y ubicación es vital para la convivencia de los seres físicos.  
+**Luis:** ¿Cómo definirías popularidad? ¿Número de solicitudes o reseñas? ¿Te motivaría ver emprendedores top?  
+**Johan:** Definiría popularidad cambiando el número de reseñas positivas y la tasa de finalización exitosa de las solicitudes. Si me motivaría ver emprendedores top porque genera confianza y actúa como una prueba social de calidad.  
+**Luis:** ¿Qué información del emprendedor es esencial en el detalle? ¿Foto, reseña, contacto o directo? ¿Qué evitarías por privacidad?  
+**Johan:** Es esencial ver reseñas, calificación, promedio, nombre o carreras. Método de contacto directo o por privacidad evitaría el número de teléfono personal o enlaces a redes sociales privadas del emprendedor, a menos de que él decida compartirlos.  
+**Luis:** Listo amigo Johan, muchas gracias por tu tiempo. Ten buen día.  
+
+---
