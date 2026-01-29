@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SettingsProvider extends ChangeNotifier {
+class SettingsProvider with ChangeNotifier {
   bool _darkMode = false;
   bool _largeFont = false;
 
@@ -19,17 +19,17 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setDarkMode(bool value) async {
-    _darkMode = value;
+  void setDarkMode(bool isDark) async {
+    _darkMode = isDark;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('pref_dark_mode', value);
+    await prefs.setBool('pref_dark_mode', isDark);
     notifyListeners();
   }
 
-  Future<void> setLargeFont(bool value) async {
-    _largeFont = value;
+  void setLargeFont(bool isLarge) async {
+    _largeFont = isLarge;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('pref_large_font', value);
+    await prefs.setBool('pref_large_font', isLarge);
     notifyListeners();
   }
 }

@@ -32,9 +32,10 @@ class _CartScreenState extends State<CartScreen> {
             children: [
               // Toggle Buttons: Servicios / Productos
               Container(
-                color: Colors.grey[100],
+                color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[900] : Colors.grey[100],
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: ToggleButtons(
+                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
                   isSelected: [_selectedTab == 0, _selectedTab == 1],
                   onPressed: (index) => setState(() => _selectedTab = index),
                   borderRadius: BorderRadius.circular(8),

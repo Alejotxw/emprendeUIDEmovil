@@ -211,8 +211,8 @@ class _MainScreenState extends State<MainScreen> {
   Widget _buildClienteBottomBar() {
     return Container(
       height: 80,
-      decoration: const BoxDecoration(
-        color: Color(0xFFF0F0F0),
+      decoration: BoxDecoration(
+        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : const Color(0xFFF0F0F0),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(30),
           topRight: Radius.circular(30),
@@ -242,7 +242,7 @@ class _MainScreenState extends State<MainScreen> {
         child: Icon(
           icon,
           size: 30,
-          color: isSelected ? const Color(0xFF83002A) : Colors.grey,
+          color: isSelected ? const Color(0xFF83002A) : (Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.grey),
         ),
       ),
     );
@@ -251,12 +251,12 @@ class _MainScreenState extends State<MainScreen> {
   // ================== BARRA EMPRENDEDOR (con colores dinámicos) ==================
   Widget _buildEmprendedorBottomBar() {
     const Color activeColor = Color(0xFF83002A);
-    const Color inactiveColor = Colors.grey;
+    final Color inactiveColor = Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.grey;
 
     return Container(
       height: 80,
-      decoration: const BoxDecoration(
-        color: Color(0xFFF0F0F0),
+      decoration: BoxDecoration(
+        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : const Color(0xFFF0F0F0),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(30),
           topRight: Radius.circular(30),

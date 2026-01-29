@@ -27,7 +27,7 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF121212) : Colors.white,
       body: Column(
         children: [
           // Top Bar
@@ -141,9 +141,9 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade400),
+        border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : Colors.grey.shade400),
       ),
       child: Column(
         children: [
@@ -179,10 +179,10 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
           // Title
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
             ),
           ),
 
@@ -191,7 +191,7 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
             subtitle,
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey.shade600,
+              color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade400 : Colors.grey.shade600,
             ),
           ),
 

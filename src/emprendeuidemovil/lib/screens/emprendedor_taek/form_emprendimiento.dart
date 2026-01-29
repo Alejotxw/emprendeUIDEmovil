@@ -120,7 +120,7 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
         return false;
       },
       child: Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF121212) : Colors.white,
       body: Column(
         children: [
           _buildTopBar(context),
@@ -131,9 +131,9 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                    // Information Header
-                   const Text(
+                   Text(
                      "Información Basica",
-                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
                    ),
                    const SizedBox(height: 16),
 
@@ -142,7 +142,10 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                    const SizedBox(height: 8),
                    TextField(
                      controller: _nameController,
+                     style: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
                      decoration: InputDecoration(
+                       filled: true,
+                       fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
                        hintText: 'Ej. Delicias Caseras',
                        hintStyle: TextStyle(color: Colors.grey.shade400),
                        border: OutlineInputBorder(
@@ -199,7 +202,7 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                      width: double.infinity,
                      padding: const EdgeInsets.all(16),
                      decoration: BoxDecoration(
-                       color: Colors.grey.shade100,
+                       color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.grey.shade100,
                        borderRadius: BorderRadius.circular(15),
                        border: Border.all(color: Colors.grey.shade300),
                      ),
@@ -207,13 +210,13 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                        children: [
                          const Icon(Icons.location_on, color: Color(0xFF83002A), size: 30),
                          const SizedBox(width: 12),
-                         const Expanded(
+                         Expanded(
                            child: Text(
                              "Sede Loja Universidad Internacional del Ecuador",
                              style: TextStyle(
                                  fontSize: 14,
                                  fontWeight: FontWeight.bold,
-                                 color: Colors.black87),
+                                 color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87),
                            ),
                          ),
                        ],
@@ -368,6 +371,7 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
 
   Widget _buildCategoryItem(String name, IconData icon) {
     bool isSelected = _selectedCategory == name;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -381,15 +385,15 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
             height: 60,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: isSelected ? Colors.grey.shade100 : Colors.white,
+              color: isSelected ? (isDark ? Colors.grey.shade800 : Colors.grey.shade100) : (isDark ? const Color(0xFF1E1E1E) : Colors.white),
               border: Border.all(
-                color: isSelected ? const Color(0xFF83002A) : Colors.black,
+                color: isSelected ? const Color(0xFF83002A) : (isDark ? Colors.grey : Colors.black),
                 width: isSelected ? 2 : 1,
               ),
             ),
             child: Icon(
               icon,
-              color: isSelected ? const Color(0xFF83002A) : Colors.black,
+              color: isSelected ? const Color(0xFF83002A) : (isDark ? Colors.white : Colors.black),
             ),
           ),
           const SizedBox(height: 8),
@@ -463,7 +467,7 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.grey.shade100,
+          color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: Colors.grey.shade300),
         ),
@@ -473,7 +477,7 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
             const SizedBox(height: 4),
             Text(
               time.format(context),
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
             ),
           ],
         ),
@@ -486,7 +490,7 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: const Color(0xFF83002A), width: 1),
       ),
@@ -518,7 +522,7 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                   children: [
                     Text(
                       service['name']!,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
                     ),
                     InkWell(
                       onTap: () {
@@ -610,9 +614,10 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
     return TextField(
       controller: controller,
       keyboardType: keyboardType,
+      style: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
       decoration: InputDecoration(
         filled: true,
-        fillColor: Colors.white,
+        fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
         hintText: hint,
         hintStyle: TextStyle(color: Colors.grey.shade500),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),

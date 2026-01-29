@@ -67,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
             : '';
 
         return Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           appBar: PreferredSize(
             preferredSize: const Size.fromHeight(140.0),
             child: Container(

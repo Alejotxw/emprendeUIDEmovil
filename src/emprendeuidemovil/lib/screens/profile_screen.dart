@@ -26,7 +26,7 @@ class ProfileScreen extends StatelessWidget {
         final currentRole = roleProvider.role;
 
         return Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: Column(
             children: [
               // Barra superior
@@ -124,7 +124,7 @@ class ProfileScreen extends StatelessWidget {
               margin: const EdgeInsets.only(right: 12),
               height: 45,
               decoration: BoxDecoration(
-                color: currentRole == UserRole.cliente ? const Color(0xFFFFA600) : Colors.white,
+                color: currentRole == UserRole.cliente ? const Color(0xFFFFA600) : (Theme.of(context).brightness == Brightness.dark ? Colors.transparent : Colors.white),
                 borderRadius: BorderRadius.circular(25),
                 border: Border.all(color: const Color(0xFFFFA600), width: 1),
               ),
@@ -132,7 +132,7 @@ class ProfileScreen extends StatelessWidget {
               child: Text(
                 'Cliente',
                 style: TextStyle(
-                  color: currentRole == UserRole.cliente ? Colors.white : Colors.black,
+                  color: currentRole == UserRole.cliente ? Colors.white : (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -147,7 +147,7 @@ class ProfileScreen extends StatelessWidget {
               margin: const EdgeInsets.only(left: 12),
               height: 45,
               decoration: BoxDecoration(
-                color: currentRole == UserRole.emprendedor ? const Color(0xFFFFA600) : Colors.white,
+                color: currentRole == UserRole.emprendedor ? const Color(0xFFFFA600) : (Theme.of(context).brightness == Brightness.dark ? Colors.transparent : Colors.white),
                 borderRadius: BorderRadius.circular(25),
                 border: Border.all(color: const Color(0xFFFFA600), width: 1),
               ),
@@ -155,7 +155,7 @@ class ProfileScreen extends StatelessWidget {
               child: Text(
                 'Emprendedor',
                 style: TextStyle(
-                  color: currentRole == UserRole.emprendedor ? Colors.white : Colors.black,
+                  color: currentRole == UserRole.emprendedor ? Colors.white : (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -170,16 +170,19 @@ class ProfileScreen extends StatelessWidget {
   List<Widget> _buildEmprendedorOptions(BuildContext context) {
     return [
       _buildMenuOption(
+        context,
         'Comentarios de mis Servicios / Productos',
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ComentariosServiciosScreen())),
       ),
       const SizedBox(height: 16),
       _buildMenuOption(
+        context,
         'Rating de mis Servicios / Productos',
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RatingServiciosEmprendedorScreen())),
       ),
       const SizedBox(height: 16),
       _buildMenuOption(
+        context,
         'Configuraciones',
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ConfiguracionEmprendedorScreen())),
       ),
@@ -215,23 +218,23 @@ class ProfileScreen extends StatelessWidget {
     ];
   }
 
-  Widget _buildMenuOption(String title, {VoidCallback? onTap}) {
+  Widget _buildMenuOption(BuildContext context, String title, {VoidCallback? onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
           borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: Colors.grey.shade400),
+          border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : Colors.grey.shade400),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              child: Text(title, style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.w500)),
+              child: Text(title, style: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black, fontSize: 15, fontWeight: FontWeight.w500)),
             ),
-            const Icon(Icons.chevron_right, color: Colors.black),
+            Icon(Icons.chevron_right, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
           ],
         ),
       ),
@@ -248,7 +251,7 @@ class ProfileScreen extends StatelessWidget {
         width: 250,
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 255, 255, 255),
+          color: Theme.of(context).brightness == Brightness.dark ? Colors.transparent : const Color.fromARGB(255, 255, 255, 255),
           borderRadius: BorderRadius.circular(30),
           border: Border.all(color: const Color.fromARGB(255, 255, 33, 33), width: 1.5),
         ),
