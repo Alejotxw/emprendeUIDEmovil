@@ -163,15 +163,28 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                    // Categories
                    const Text("Categoria", style: TextStyle(fontWeight: FontWeight.bold)),
                    const SizedBox(height: 12),
-                   Row(
-                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                     children: [
-                       _buildCategoryItem("Comida", Icons.restaurant),
-                       _buildCategoryItem("Tecnologia", Icons.computer),
-                       _buildCategoryItem("DiseÃ±o", Icons.brush),
-                       _buildCategoryItem("Artesanias", Icons.cut),
-                     ],
-                   ),
+                    // First row - 5 categories
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildCategoryItem("Bienestar", Icons.spa),
+                        _buildCategoryItem("Eventos", Icons.event),
+                        _buildCategoryItem("Mascotas", Icons.pets),
+                        _buildCategoryItem("Tecnologia", Icons.computer),
+                        _buildCategoryItem("Gastronomia", Icons.restaurant),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    // Second row - 4 categories
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildCategoryItem("Moda", Icons.checkroom),
+                        _buildCategoryItem("Diseño", Icons.brush),
+                        _buildCategoryItem("Educación", Icons.school),
+                        _buildCategoryItem("Movilidad", Icons.directions_car),
+                      ],
+                    ),
                    const SizedBox(height: 20),
 
                    // Description

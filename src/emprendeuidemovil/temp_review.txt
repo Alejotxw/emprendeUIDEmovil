@@ -1,0 +1,45 @@
+16:  
+17:  // Service Controllers
+18:  final TextEditingController _serviceNameController = TextEditingController();
+19:  final TextEditingController _serviceDescController = TextEditingController();
+20:  final TextEditingController _servicePriceController = TextEditingController();
+21:
+22:  // State
+23:  String _selectedCategory = 'Comida';
+24:  List<Map<String, String>> _services = [];
+25:
+26:  // Schedule State
+27:  final List<String> _days = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
+28:  final Set<String> _selectedDays = {'Lun', 'Mar', 'Mie', 'Jue', 'Vie'};
+29:  TimeOfDay _openTime = const TimeOfDay(hour: 9, minute: 0);
+30:  TimeOfDay _closeTime = const TimeOfDay(hour: 18, minute: 0);
+31:
+32:  @override
+33:  void initState() {
+34:    super.initState();
+35:    _nameController = TextEditingController(text: widget.entrepreneurship?['title'] ?? '');
+36:    _descriptionController = TextEditingController(text: widget.entrepreneurship?['subtitle'] ?? '');
+37:    _selectedCategory = widget.entrepreneurship?['category'] ?? 'Comida';
+38:    
+39:    // Initialize services if present (you'd need to parse them if they were passed, 
+40:    // but for now, we'll just start with the default or empty if not provided logic 
+41:    // or keep the dummy data if creating new)
+42:    if (widget.entrepreneurship != null) {
+43:       // In a real app we would parse services from the passed object
+44:       // For this demo, we'll just keep the list empty or minimal to avoid complex parsing errors 
+45:       // unless we change the data structure in MisEmprendimientosScreen
+46:       _services = [
+47:          {'name': 'Ejemplo Servicio', 'description': 'DescripciÃ³n ejemplo', 'price': '10.00'}
+48:       ]; 
+49:    } else {
+50:      _services = [
+51:        {
+52:          'name': 'Postres',
+53:          'description': 'Sabrosos',
+54:          'price': '5.00',
+55:        },
+56:        {
+57:          'name': 'Sopas',
+58:          'description': 'Almuerzos',
+59:          'price': '3.00',
+60:        }
