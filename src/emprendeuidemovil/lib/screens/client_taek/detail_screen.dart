@@ -93,7 +93,7 @@ class _DetailScreenState extends State<DetailScreen> {
                       // Descripción
                       Text(
                         widget.service.subtitle,
-                        style: const TextStyle(fontSize: 16, color: Colors.black87),
+                        style: TextStyle(fontSize: 16, color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.black87),
                       ),
                       const SizedBox(height: 24),
                       // Información
@@ -104,16 +104,7 @@ class _DetailScreenState extends State<DetailScreen> {
                       const SizedBox(height: 16),
                       _buildInfoCard('Horario', 'Lun-Vie 10:00-16:00'),
                       _buildInfoCard('Ubicación', 'Dirección mock, Quito, Ecuador'),
-                      // Mapa placeholder
-                      Container(
-                        height: 150,
-                        margin: const EdgeInsets.symmetric(vertical: 8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: Colors.grey[300],
-                        ),
-                        child: const Center(child: Text('Mapa Placeholder')),
-                      ),
+                      const SizedBox(height: 0), // Mapa removido
                       const SizedBox(height: 24),
                       // Servicios o Productos
                       Text(
@@ -267,14 +258,14 @@ class _DetailScreenState extends State<DetailScreen> {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[800] : Colors.grey[50],
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         children: [
           Icon(title == 'Horario' ? Icons.schedule : Icons.location_on, color: Colors.orange),
           const SizedBox(width: 8),
-          Expanded(child: Text('$title: $value', style: const TextStyle(fontWeight: FontWeight.w500))),
+          Expanded(child: Text('$title: $value', style: TextStyle(fontWeight: FontWeight.w500, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black))),
         ],
       ),
     );
@@ -294,7 +285,7 @@ class _DetailScreenState extends State<DetailScreen> {
         decoration: BoxDecoration(
           color: isSelected ? Colors.orange[50] : Colors.transparent,  // Naranja clarito al seleccionar
           border: Border.all(
-            color: isSelected ? Colors.orange : Colors.grey[300]!,
+            color: isSelected ? Colors.orange : (Theme.of(context).brightness == Brightness.dark ? Colors.grey[700]! : Colors.grey[300]!),
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(8),
@@ -331,7 +322,7 @@ class _DetailScreenState extends State<DetailScreen> {
         decoration: BoxDecoration(
           color: isSelected ? Colors.orange[50] : Colors.transparent,
           border: Border.all(
-            color: isSelected ? Colors.orange : Colors.grey[300]!,
+            color: isSelected ? Colors.orange : (Theme.of(context).brightness == Brightness.dark ? Colors.grey[700]! : Colors.grey[300]!),
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(8),

@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:emprendeuidemovil/providers/settings_provider.dart';
 import 'package:emprendeuidemovil/screens/emprendedor_taek/edit_perfil_emprendedor.dart';
 import 'package:emprendeuidemovil/screens/emprendedor_taek/privacidad_seguridad.dart';
 import 'package:emprendeuidemovil/screens/emprendedor_taek/ayuda_soporte.dart';
@@ -39,7 +41,7 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
         children: [
           _buildTopBar(context),
@@ -48,7 +50,11 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
-                   // 1. Mi Perfil
+                   // 1. Apariencia
+                  _buildAppearanceSection(),
+                  const SizedBox(height: 20),
+
+                   // 2. Mi Perfil
                   _buildProfileSection(),
                   const SizedBox(height: 20),
                   
@@ -118,9 +124,9 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade400),
+        border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[800]! : Colors.grey.shade400),
       ),
       child: child,
     );
@@ -134,12 +140,12 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 "Mi perfil",
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
                 ),
               ),
               Container(
@@ -175,7 +181,7 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
                       child: Text(
                         "Editar",
                         style: TextStyle(
-                          color: Colors.black,
+                          color: Colors.black, // Keep black text on light button
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -208,7 +214,7 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Nombre", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text("Nombre", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black)),
                   Text(_name, style: const TextStyle(color: Colors.grey, fontSize: 14)),
                 ],
               )
@@ -222,7 +228,7 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Telefono", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text("Telefono", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black)),
                   Text(_phone, style: const TextStyle(color: Colors.grey, fontSize: 14)),
                 ],
               )
@@ -238,12 +244,12 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Notificaciones",
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
             ),
           ),
           const SizedBox(height: 16),
@@ -255,9 +261,9 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
                Expanded(
                  child: Column(
                    crossAxisAlignment: CrossAxisAlignment.start,
-                   children: const [
-                     Text("Notificaciones generales", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                     Text("Recibe actualizaciones importantes", style: TextStyle(color: Colors.grey, fontSize: 12)),
+                   children: [
+                     Text("Notificaciones generales", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black)),
+                     Text("Recibe actualizaciones importantes", style: const TextStyle(color: Colors.grey, fontSize: 12)),
                    ],
                  ),
                ),
@@ -282,9 +288,9 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
                Expanded(
                  child: Column(
                    crossAxisAlignment: CrossAxisAlignment.start,
-                   children: const [
-                     Text("Solicitudes", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                     Text("Estado de tus solicitudes", style: TextStyle(color: Colors.grey, fontSize: 12)),
+                   children: [
+                     Text("Solicitudes", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black)),
+                     Text("Estado de tus solicitudes", style: const TextStyle(color: Colors.grey, fontSize: 12)),
                    ],
                  ),
                ),
@@ -311,7 +317,7 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
+            children: [
               Icon(Icons.translate, color: Color(0xFF83002A), size: 28),
               SizedBox(width: 12),
               Text(
@@ -319,7 +325,7 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
                 ),
               ),
             ],
@@ -337,12 +343,12 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
               Container(
                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                  decoration: BoxDecoration(
-                   color: Colors.grey.shade200,
+                  color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : Colors.grey.shade200,
                    borderRadius: BorderRadius.circular(20),
                  ),
-                 child: const Text(
+                 child: Text(
                    "Español",
-                   style: TextStyle(fontWeight: FontWeight.bold),
+                   style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
                  ),
               )
             ],
@@ -371,9 +377,9 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
                  Expanded(
                    child: Column(
                      crossAxisAlignment: CrossAxisAlignment.start,
-                     children: const [
-                       Text("Privacidad y Seguridad", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                       Text("Protege tu información", style: TextStyle(color: Colors.grey, fontSize: 14)),
+                     children: [
+                       Text("Privacidad y Seguridad", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black)),
+                       const Text("Protege tu información", style: TextStyle(color: Colors.grey, fontSize: 14)),
                      ],
                    ),
                  ),
@@ -400,9 +406,9 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
                  Expanded(
                    child: Column(
                      crossAxisAlignment: CrossAxisAlignment.start,
-                     children: const [
-                       Text("Ayuda y Soporte", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                       Text("Estamos aquí para ayudarte", style: TextStyle(color: Colors.grey, fontSize: 14)),
+                     children: [
+                       Text("Ayuda y Soporte", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black)),
+                       const Text("Estamos aquí para ayudarte", style: TextStyle(color: Colors.grey, fontSize: 14)),
                      ],
                    ),
                  ),
@@ -444,6 +450,61 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
                ],
              ),
            )
+        ],
+      ),
+    );
+  }
+  Widget _buildAppearanceSection() {
+    return _buildSectionContainer(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.dark_mode, color: Color(0xFF83002A), size: 28),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Apariencia",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Modo Oscuro", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black)),
+                    const Text("Cambiar entre tema claro y oscuro", style: TextStyle(color: Colors.grey, fontSize: 12)),
+                  ],
+                ),
+              ),
+              Consumer<SettingsProvider>(
+                builder: (context, settings, child) {
+                  return Switch(
+                    value: settings.darkMode,
+                    activeColor: Colors.white,
+                    activeTrackColor: const Color(0xFF83002A),
+                    onChanged: (value) => settings.setDarkMode(value),
+                  );
+                },
+              ),
+            ],
+          ),
         ],
       ),
     );
