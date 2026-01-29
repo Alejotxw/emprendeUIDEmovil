@@ -9,6 +9,7 @@ import 'providers/dashboard_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/ratings_provider.dart';
+import 'providers/chat_provider.dart'; // Agregado
 
 // Pantallas modo Emprendedor
 import 'screens/emprendedor_taek/solicitudes.dart';
@@ -19,7 +20,7 @@ import 'screens/client_taek/home_screen.dart';
 import 'screens/client_taek/favorites_screen.dart';
 import 'screens/client_taek/cart_screen.dart';
 
-// Pantalla de perfil unificada
+// Pantalla de perfil unificada y Chat
 import 'screens/profile_screen.dart';
 // 🔹 Localización
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -31,6 +32,7 @@ import 'providers/cart_provider.dart';
 
 // 🔹 Widgets
 import 'widgets/bottom_navigation.dart';
+import 'screens/chat_screen.dart'; // Agregado
 
 void main() {
   runApp(
@@ -51,6 +53,9 @@ void main() {
 
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
         ChangeNotifierProvider(create: (_) => RatingsProvider()),
+        ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider(create: (_) => RatingsProvider()),
+        ChangeNotifierProvider(create: (_) => ChatProvider()), // Agregado
       ],
       child: const MyApp(),
     ),
@@ -149,7 +154,9 @@ class MyApp extends StatelessWidget {
           builder: (context, child) {
             final scale = settings.largeFont ? 1.18 : 1.0;
             return MediaQuery(
-              data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(scale)),
+              data: MediaQuery.of(context).copyWith(
+                textScaler: TextScaler.linear(scale),
+              ),
               child: child!,
             );
           },
@@ -177,6 +184,7 @@ class _MainScreenState extends State<MainScreen> {
         final role = roleProvider.role;
         final isCliente = role == UserRole.cliente;
 
+        // Definición de páginas según el rol
         final List<Widget> pages = isCliente
             ? [
                 const HomeScreen(),
@@ -190,6 +198,7 @@ class _MainScreenState extends State<MainScreen> {
                 const ProfileScreen(),
               ];
 
+        // Seguridad por si el índice queda fuera de rango al cambiar de rol
         if (_selectedIndex >= pages.length) {
           _selectedIndex = 0;
         }
@@ -202,6 +211,17 @@ class _MainScreenState extends State<MainScreen> {
           bottomNavigationBar: isCliente
               ? _buildClienteBottomBar()
               : _buildEmprendedorBottomBar(),
+          floatingActionButton: FloatingActionButton(
+            heroTag: 'chat_fab',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ChatScreen()),
+              );
+            },
+            backgroundColor: const Color.fromARGB(255, 127, 0, 2),
+            child: const Icon(Icons.support_agent, color: Colors.white),
+          ),
         );
       },
     );
@@ -209,15 +229,16 @@ class _MainScreenState extends State<MainScreen> {
 
   // ================== BARRA CLIENTE ==================
   Widget _buildClienteBottomBar() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       height: 80,
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : const Color(0xFFF0F0F0),
-        borderRadius: BorderRadius.only(
+        color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF0F0F0),
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(30),
           topRight: Radius.circular(30),
         ),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -5)),
         ],
       ),
@@ -235,6 +256,8 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _buildClienteNavItem({required IconData icon, required int index}) {
     final bool isSelected = _selectedIndex == index;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return GestureDetector(
       onTap: () => setState(() => _selectedIndex = index),
       child: Container(
@@ -242,26 +265,31 @@ class _MainScreenState extends State<MainScreen> {
         child: Icon(
           icon,
           size: 30,
-          color: isSelected ? const Color(0xFF83002A) : (Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.grey),
+          color: isSelected 
+              ? const Color(0xFF83002A) 
+              : (isDark ? Colors.white70 : Colors.grey),
         ),
       ),
     );
   }
 
-  // ================== BARRA EMPRENDEDOR (con colores dinámicos) ==================
+  // ================== BARRA EMPRENDEDOR ==================
   Widget _buildEmprendedorBottomBar() {
     const Color activeColor = Color(0xFF83002A);
-    final Color inactiveColor = Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.grey;
+    final Color inactiveColor = Theme.of(context).brightness == Brightness.dark 
+        ? Colors.white70 
+        : Colors.grey;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       height: 80,
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : const Color(0xFFF0F0F0),
-        borderRadius: BorderRadius.only(
+        color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF0F0F0),
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(30),
           topRight: Radius.circular(30),
         ),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -5)),
         ],
       ),
@@ -272,7 +300,7 @@ class _MainScreenState extends State<MainScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              // Solicitudes (izquierda)
+              // Solicitudes (Izquierda) - Índice 0
               GestureDetector(
                 onTap: () => setState(() => _selectedIndex = 0),
                 child: SizedBox(
@@ -287,8 +315,7 @@ class _MainScreenState extends State<MainScreen> {
                 ),
               ),
               const SizedBox(width: 60),
-
-              // Perfil (derecha)
+              // Perfil (Derecha) - Índice 2
               GestureDetector(
                 onTap: () => setState(() => _selectedIndex = 2),
                 child: SizedBox(
@@ -304,8 +331,7 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ],
           ),
-
-          // Botón central flotante (+)
+          // Botón central flotante (+) - Índice 1
           Positioned(
             top: -30,
             child: GestureDetector(
@@ -334,6 +360,8 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 }
+
+// ... (Aquí van tus clases PlusIconPainter, UserIconPainter y EditNoteIconPainter que ya tienes definidas)
 
 // ==================== CUSTOM PAINTERS CORREGIDOS ====================
 
