@@ -1,8 +1,74 @@
 import 'package:flutter/material.dart';
 import 'package:emprendeuidemovil/screens/emprendedor_taek/detalle_solicitud.dart';
 
-class SolicitudesScreen extends StatelessWidget {
+class SolicitudesScreen extends StatefulWidget {
   const SolicitudesScreen({super.key});
+
+  @override
+  State<SolicitudesScreen> createState() => _SolicitudesScreenState();
+}
+
+class _SolicitudesScreenState extends State<SolicitudesScreen> {
+  // Lista de solicitudes con estado mutable
+  final List<Map<String, dynamic>> _solicitudes = [
+    {
+      'tag': 'Web',
+      'title': 'Diseño Web',
+      'description': 'Preparo postres y dulces.',
+      'price': '5.00',
+      'status': 'Aceptado',
+      'statusColor': const Color(0xFF4CAF50),
+      'notificationCount': 0,
+      'requesterName': 'Juan Perez',
+      'items': [
+        {'name': 'Landing Page', 'detail': 'HTML/CSS', 'price': '5.00'}
+      ],
+      'paymentMethod': 'fisico',
+    },
+    {
+      'tag': 'Diseño',
+      'title': 'Diseño Grafico',
+      'description': 'Publicidad',
+      'price': '10.00',
+      'status': 'Pendiente',
+      'statusColor': Colors.grey,
+      'notificationCount': 0,
+      'requesterName': 'Maria Lopez',
+      'items': [
+        {'name': 'Logo Design', 'detail': 'Vector', 'price': '10.00'}
+      ],
+      'paymentMethod': 'fisico',
+    },
+    {
+      'tag': 'Movil',
+      'title': 'Comida Casera',
+      'description': 'Postre',
+      'price': '3.25',
+      'status': 'Ver pedido',
+      'statusColor': const Color(0xFFFFA600),
+      'notificationCount': 1,
+      'requesterName': 'Kevin Giron',
+      'items': [
+        {'name': 'Web', 'detail': 'React', 'price': '2.50'},
+        {'name': 'Movil', 'detail': 'Flutter', 'price': '2.50'}
+      ],
+      'paymentMethod': 'fisico',
+    },
+    {
+      'tag': 'Web',
+      'title': 'Comida Casera',
+      'description': 'Postre',
+      'price': '6.50',
+      'status': 'Ver pedido',
+      'statusColor': const Color(0xFFFFA600),
+      'notificationCount': 2,
+      'requesterName': 'Ana Smith',
+      'items': [
+        {'name': 'Pastel', 'detail': 'Chocolate', 'price': '6.50'}
+      ],
+      'paymentMethod': 'fisico',
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -34,72 +100,32 @@ class SolicitudesScreen extends StatelessWidget {
           ),
           
           Expanded(
-            child: GridView.count(
+            child: GridView.builder(
               padding: const EdgeInsets.all(16),
-              crossAxisCount: 2,
-              childAspectRatio: 0.70, // Adjust for card height
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              children: [
-                _buildSolicitudCard(
-                  context, // Pass context for navigation
-                  tag: 'Web',
-                  title: 'Diseño Web',
-                  description: 'Preparo postres y dulces.',
-                  price: '5.00',
-                  status: 'Aceptado',
-                  statusColor: const Color(0xFF4CAF50),
-                  notificationCount: 0,
-                  requesterName: 'Juan Perez', // Dummy data
-                  items: [
-                     {'name': 'Landing Page', 'detail': 'HTML/CSS', 'price': '5.00'}
-                  ],
-                ),
-                _buildSolicitudCard(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.70,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+              ),
+              itemCount: _solicitudes.length,
+              itemBuilder: (context, index) {
+                final solicitud = _solicitudes[index];
+                return _buildSolicitudCard(
                   context,
-                  tag: 'Diseño',
-                  title: 'Diseño Grafico',
-                  description: 'Publicidad',
-                  price: '10.00',
-                  status: 'Pendiente',
-                  statusColor: Colors.grey,
-                  notificationCount: 0,
-                  requesterName: 'Maria Lopez',
-                  items: [
-                     {'name': 'Logo Design', 'detail': 'Vector', 'price': '10.00'}
-                  ],
-                ),
-                _buildSolicitudCard(
-                  context,
-                  tag: 'Movil',
-                  title: 'Comida Casera',
-                  description: 'Postre',
-                  price: '3.25',
-                  status: 'Ver pedido',
-                  statusColor: const Color(0xFFFFA600),
-                  notificationCount: 1,
-                  requesterName: 'Kevin Giron',
-                   items: [
-                     {'name': 'Web', 'detail': 'React', 'price': '2.50'}, // Matching image content just for demo despite "Comida" title
-                     {'name': 'Movil', 'detail': 'Flutter', 'price': '2.50'}
-                  ],
-                  // Override title/tag to match image if needed, but keeping card data for now
-                ),
-                _buildSolicitudCard(
-                  context,
-                  tag: 'Web',
-                  title: 'Comida Casera',
-                  description: 'Postre',
-                  price: '6.50',
-                  status: 'Ver pedido',
-                  statusColor: const Color(0xFFFFA600),
-                  notificationCount: 2,
-                  requesterName: 'Ana Smith',
-                  items: [
-                     {'name': 'Pastel', 'detail': 'Chocolate', 'price': '6.50'}
-                  ],
-                ),
-              ],
+                  index: index,
+                  tag: solicitud['tag'],
+                  title: solicitud['title'],
+                  description: solicitud['description'],
+                  price: solicitud['price'],
+                  status: solicitud['status'],
+                  statusColor: solicitud['statusColor'],
+                  notificationCount: solicitud['notificationCount'],
+                  requesterName: solicitud['requesterName'],
+                  items: solicitud['items'],
+                  paymentMethod: solicitud['paymentMethod'],
+                );
+              },
             ),
           ),
           
@@ -112,6 +138,7 @@ class SolicitudesScreen extends StatelessWidget {
 
   Widget _buildSolicitudCard(
     BuildContext context, {
+    required int index,
     required String tag,
     required String title,
     required String description,
@@ -121,10 +148,12 @@ class SolicitudesScreen extends StatelessWidget {
     required int notificationCount,
     required String requesterName,
     required List<Map<String, String>> items,
+    required String paymentMethod,
   }) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
+      onTap: () async {
+        // Navegar y esperar el resultado
+        final result = await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => DetalleSolicitudScreen(
@@ -132,11 +161,23 @@ class SolicitudesScreen extends StatelessWidget {
               requesterName: requesterName,
               tag: tag,
               items: items,
-              paymentMethod: 'fisico', // Default for demo
+              paymentMethod: paymentMethod,
               description: description,
             ),
           ),
         );
+
+        // Si hay resultado, actualizar el estado
+        if (result != null && mounted) {
+          setState(() {
+            _solicitudes[index]['status'] = result;
+            if (result == 'Aceptado') {
+              _solicitudes[index]['statusColor'] = const Color(0xFF4CAF50); // Verde
+            } else if (result == 'Rechazado') {
+              _solicitudes[index]['statusColor'] = const Color(0xFFD50000); // Rojo
+            }
+          });
+        }
       },
       child: Container(
         decoration: BoxDecoration(
