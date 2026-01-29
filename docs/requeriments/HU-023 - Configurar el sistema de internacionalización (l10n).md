@@ -1,35 +1,37 @@
-Historia de usuario
+Historia de Usuario
 
-Como usuario de la aplicación, quiero que la interfaz se adapte automáticamente al modo claro u oscuro y pueda cambiarlo manualamente, para tener una experiencia visual cómoda y consistente en cualquier condición de luz.
+Como desarrollador de la aplicación,
+quiero configurar el sistema nativo de localización de Flutter con soporte inicial para español e inglés,
+para separar los textos del código y preparar la aplicación para múltiples idiomas.
 
 Criterios de Aceptación
 
-Dado que el usuario tiene configurado el modo claro u oscuro en su dispositivo
-Cuando abre la aplicación
-Entonces la interfaz debe adaptarse automáticamente al modo del sistema utilizando theme y darkTheme configurados en la aplicación.
+Dado que el proyecto se configura por primera vez con localización
+Cuando se ejecuta flutter pub get y flutter gen-l10n
+Entonces deben generarse automáticamente las clases AppLocalizations sin errores.
 
-Dado que el usuario presiona el botón de cambio de tema
-Cuando selecciona el modo opuesto (claro ↔ oscuro)
-Entonces toda la interfaz debe actualizarse inmediatamente, incluyendo fondos, textos, botones y colores, garantizando legibilidad y coherencia visual.
+Dado que el MaterialApp se inicializa
+Cuando se configura la aplicación
+Entonces debe incluir localizationsDelegates, supportedLocales y permitir el uso de AppLocalizations.of(context) en los widgets.
 
-Dado que existen widgets con estilos personalizados
-Cuando se renderizan en modo claro y modo oscuro
-Entonces no deben utilizarse colores fijos (ej. Colors.blue, #FF0000), sino únicamente los definidos en Theme.of(context).colorScheme (primary, surface, onSurface, etc.).
+Dado que existen los archivos app_es.arb y app_en.arb
+Cuando se agrega una nueva clave en ambos archivos
+Entonces al ejecutar flutter gen-l10n debe actualizarse la clase generada con el nuevo método correspondiente.
 
-Dado que el usuario navega entre diferentes pantallas
-Cuando cambia el modo de tema
-Entonces todas las pantallas deben mantener el nuevo tema sin problemas de contraste o textos ilegibles.
+Dado que el dispositivo está configurado en español o inglés
+Cuando se abre la aplicación
+Entonces debe cargarse automáticamente el idioma correspondiente según la configuración del sistema.
 
-Dado que la aplicación se reinicia
-Cuando se abre nuevamente
-Entonces debe recordarse el último modo seleccionado por el usuario, independientemente del modo del sistema.
+Dado que no existe soporte para un idioma no configurado (por ejemplo, francés)
+Cuando el dispositivo utiliza ese idioma
+Entonces la aplicación debe utilizar el idioma por defecto configurado (español o inglés).
 
 Notas Técnicas
 
-Flutter: Configurar ThemeData y DarkThemeData en MaterialApp, utilizando colorScheme para definir paletas de colores. Implementar un ThemeProvider o ChangeNotifier para gestionar el estado del tema. Usar Provider, Riverpod o Bloc para propagar cambios de tema en toda la aplicación.
+Flutter: Configurar el archivo pubspec.yaml con la sección flutter: generate: true y habilitar el paquete flutter_localizations. Crear los archivos de localización en la carpeta lib/l10n/ (app_es.arb, app_en.arb). Ejecutar flutter gen-l10n para generar las clases de localización.
 
-Persistencia: Guardar la preferencia del usuario utilizando SharedPreferences o Hive, recuperando el modo seleccionado al iniciar la aplicación.
+Arquitectura: Centralizar todos los textos visibles de la aplicación en los archivos .arb y evitar el uso de strings directamente en los widgets. Utilizar AppLocalizations.of(context) para acceder a los textos localizados.
 
-Arquitectura: Evitar el uso de colores fijos en widgets y centralizar los estilos en el sistema de temas. Implementar un botón o switch de cambio de tema en la UI (ej. AppBar o Settings).
+Compatibilidad: Definir un idioma por defecto mediante localeResolutionCallback o configuración de supportedLocales, garantizando fallback automático cuando el idioma del dispositivo no esté soportado.
 
-GitHub: Crear branch hacia developer feature/(su tarea HU), y realizar un Pull Request (NO HACER MERGE).
+GitHub: Crear branch hacia developer feature/(su tarea HU) y realizar un Pull Request (NO HACER MERGE).
