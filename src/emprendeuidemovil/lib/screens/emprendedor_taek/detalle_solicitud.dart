@@ -37,12 +37,12 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF121212) : Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -58,10 +58,10 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
                 Expanded(
                   child: Text(
                     widget.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
                     ),
                   ),
                 ),
@@ -95,14 +95,14 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
 
             const SizedBox(height: 24),
             // Section Title
-            const Center(
+            Center(
               child: Text(
                 'Producto/Servicio Elegido',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   decoration: TextDecoration.underline,
-                  color: Color(0xFF001F54), // Dark blueish
+                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white : const Color(0xFF001F54),
                 ),
               ),
             ),
@@ -115,7 +115,7 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: const Color(0xFF83002A), width: 1.0),
                   ),
@@ -127,10 +127,10 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
                         children: [
                           Text(
                             item['name'] ?? '',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                              color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -165,12 +165,12 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
             }),
 
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'Metodo de Pago',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
               ),
             ),
             const SizedBox(height: 12),
@@ -191,12 +191,12 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
             ),
 
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'Descripción',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
               ),
             ),
             const SizedBox(height: 8),
@@ -212,8 +212,7 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      // Handle Reject
-                      Navigator.pop(context);
+                      Navigator.pop(context, 'Rechazado');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFD50000), // Red
@@ -236,8 +235,7 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      // Handle Accept
-                      Navigator.pop(context);
+                      Navigator.pop(context, 'Aceptado');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2E7D32), // Green
@@ -271,12 +269,17 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
     required bool isSelected,
     bool isCustomIcon = false,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black;
+    final bgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final borderColor = isDark ? Colors.grey.shade700 : Colors.grey.shade400;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: bgColor,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.grey.shade400),
+        border: Border.all(color: borderColor),
       ),
       child: Row(
         children: [
@@ -286,17 +289,17 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
             height: 40,
             alignment: Alignment.center,
             child: isCustomIcon 
-              ? const Icon(Icons.handshake_outlined, size: 30, color: Colors.black) // Better match for handshake
-              : const Icon(Icons.payments_outlined, size: 30, color: Colors.black),
+              ? Icon(Icons.handshake_outlined, size: 30, color: textColor)
+              : Icon(Icons.payments_outlined, size: 30, color: textColor),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: textColor,
               ),
             ),
           ),
@@ -307,16 +310,16 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: Colors.black,
+                color: textColor,
                 width: 2,
               ),
             ),
             padding: const EdgeInsets.all(3),
             child: isSelected
                 ? Container(
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.black,
+                      color: textColor,
                     ),
                   )
                 : null,
