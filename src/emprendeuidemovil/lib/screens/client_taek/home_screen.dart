@@ -16,9 +16,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final List<String> _categories = [
-    'Comida', 'Tutorías', 'Portafolios', 'Consultas', 'Diseños', 'Libros',
-    'Plantillas', 'Idioma', 'Redacciones', 'Prototipos', 'Investigaciones',
-    'Arte', 'Presentaciones', 'Accesorios',
+    'Bienestar', 'Eventos', 'Mascotas', 'Tecnologia', 'Gastronomia',
+    'Moda', 'Diseño', 'Educación', 'Hogar', 'Movilidad',
   ];
 
   String _searchQuery = '';
@@ -343,20 +342,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   IconData _getCategoryIcon(String category) {
     switch (category) {
-      case 'Comida': return Icons.restaurant_outlined;
-      case 'Tutorías': return Icons.school_outlined;
-      case 'Portafolios': return Icons.folder_outlined;
-      case 'Consultas': return Icons.chat_bubble_outline;
-      case 'Diseños': return Icons.design_services_outlined;
-      case 'Libros': return Icons.menu_book_outlined;
-      case 'Plantillas': return Icons.description_outlined;
-      case 'Idioma': return Icons.language_outlined;
-      case 'Redacciones': return Icons.edit_outlined;
-      case 'Prototipos': return Icons.build_outlined;
-      case 'Investigaciones': return Icons.search_outlined;
-      case 'Arte': return Icons.palette_outlined;
-      case 'Presentaciones': return Icons.slideshow_outlined;
-      case 'Accesorios': return Icons.shopping_bag_outlined;
+      case 'Bienestar': return Icons.spa_outlined;
+      case 'Eventos': return Icons.event_outlined;
+      case 'Mascotas': return Icons.pets_outlined;
+      case 'Tecnologia': return Icons.computer_outlined;
+      case 'Gastronomia': return Icons.restaurant_outlined;
+      case 'Moda': return Icons.checkroom_outlined;
+      case 'Diseño': return Icons.brush_outlined;
+      case 'Educación': return Icons.school_outlined;
+      case 'Hogar': return Icons.home_outlined;
+      case 'Movilidad': return Icons.directions_car_outlined;
       default: return Icons.category_outlined;
     }
   }
