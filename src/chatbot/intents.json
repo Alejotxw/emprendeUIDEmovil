@@ -1,0 +1,47 @@
+{
+  "intents": [
+    {
+      "tag": "saludo",
+      "patterns": ["hola", "buenos dias", "buenas tardes", "hey", "hola bot"],
+      "responses": [
+        "¡Hola! 👋 ¿En qué puedo ayudarte?",
+        "Hola 😊 dime, ¿qué necesitas?",
+        "¡Bienvenido! Estoy aquí para ayudarte."
+      ]
+    },
+    {
+      "tag": "despedida",
+      "patterns": ["adios", "chao", "hasta luego", "nos vemos"],
+      "responses": [
+        "¡Hasta luego! 👋",
+        "Cuídate, vuelve pronto 😊",
+        "Nos vemos, fue un gusto ayudarte."
+      ]
+    },
+    {
+      "tag": "ayuda",
+      "patterns": ["ayuda", "necesito ayuda", "puedes ayudarme", "soporte"],
+      "responses": [
+        "Claro 👍 dime qué problema tienes.",
+        "Estoy aquí para ayudarte, cuéntame más."
+      ]
+    },
+    {
+      "tag": "info_proyecto",
+      "patterns": ["que es este proyecto", "de que trata el sistema", "informacion del proyecto"],
+      "responses": [
+        "Este sistema incluye un chatbot para asistir a los usuarios.",
+        "Es un proyecto académico con funcionalidades automatizadas."
+      ]
+    },
+    {
+      "tag": "default",
+      "patterns": [],
+      "responses": [
+        "Lo siento 🤔 no entendí tu mensaje.",
+        "¿Podrías explicarlo de otra forma?",
+        "Aún estoy aprendiendo, intenta con otra pregunta."
+      ]
+    }
+  ]
+}

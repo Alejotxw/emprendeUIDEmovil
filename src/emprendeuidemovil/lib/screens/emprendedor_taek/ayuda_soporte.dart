@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/chat_provider.dart';
 
 class AyudaSoporteScreen extends StatefulWidget {
   const AyudaSoporteScreen({super.key});
@@ -38,13 +40,19 @@ class _AyudaSoporteScreenState extends State<AyudaSoporteScreen> {
             child: Container(
               color: Colors.white,
               padding: const EdgeInsets.all(20),
-              child: ListView(
-                children: [
-                  _buildChatBubble(
-                    "¡Hola! Soy tu asistente virtual de EmprendeUIDE. ¿En qué puedo ayudarte?",
-                    isMe: false
-                  ),
-                ],
+              child: Consumer<ChatProvider>(
+                builder: (context, chatProvider, child) {
+                  return ListView.builder(
+                    itemCount: chatProvider.messages.length,
+                    itemBuilder: (context, index) {
+                      final message = chatProvider.messages[index];
+                      return _buildChatBubble(
+                        message.text,
+                        isMe: message.isUser,
+                      );
+                    },
+                  );
+                },
               ),
             ),
           ),
@@ -175,13 +183,21 @@ class _AyudaSoporteScreenState extends State<AyudaSoporteScreen> {
             ),
           ),
           const SizedBox(width: 12),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: const BoxDecoration(
-              color: Color(0xFFFFA600),
-              shape: BoxShape.circle,
+          GestureDetector(
+            onTap: () {
+              if (_messageController.text.trim().isNotEmpty) {
+                context.read<ChatProvider>().sendMessage(_messageController.text);
+                _messageController.clear();
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: const BoxDecoration(
+                color: Color(0xFFFFA600),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.send, color: Colors.white, size: 24),
             ),
-            child: const Icon(Icons.send, color: Colors.white, size: 24),
           ),
         ],
       ),

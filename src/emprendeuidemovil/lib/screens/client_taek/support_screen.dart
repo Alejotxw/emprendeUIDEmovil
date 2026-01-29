@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/chat_provider.dart';
+import '../../models/chat_message.dart';
 
 class SupportScreen extends StatefulWidget {
   const SupportScreen({super.key});
@@ -9,9 +12,6 @@ class SupportScreen extends StatefulWidget {
 
 class _SupportScreenState extends State<SupportScreen> {
   final TextEditingController _messageController = TextEditingController();
-  final List<String> _messages = [
-    'Hola soy tu asistente virtual de Emprende UIDE. ¿En qué puedo ayudarte?',
-  ];  // Mock chat
 
   @override
   void dispose() {
@@ -56,20 +56,30 @@ class _SupportScreenState extends State<SupportScreen> {
             const SizedBox(height: 16),
             // Chat area (mock messages)
             Expanded(
-              child: ListView.builder(
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  return Align(
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      margin: const EdgeInsets.symmetric(vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(_messages[index]),
-                    ),
+              child: Consumer<ChatProvider>(
+                builder: (context, chatProvider, child) {
+                  return ListView.builder(
+                    itemCount: chatProvider.messages.length,
+                    itemBuilder: (context, index) {
+                      final message = chatProvider.messages[index];
+                      final isUser = message.isUser;
+                      return Align(
+                        alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          margin: const EdgeInsets.symmetric(vertical: 4),
+                          constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
+                          decoration: BoxDecoration(
+                            color: isUser ? Colors.orange : Colors.grey[200],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            message.text,
+                            style: TextStyle(color: isUser ? Colors.white : Colors.black87),
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
               ),
@@ -91,16 +101,8 @@ class _SupportScreenState extends State<SupportScreen> {
                   icon: const Icon(Icons.send, color: Colors.orange),
                   onPressed: () {
                     if (_messageController.text.isNotEmpty) {
-                      setState(() {
-                        _messages.add(_messageController.text);
-                      });
+                      context.read<ChatProvider>().sendMessage(_messageController.text);
                       _messageController.clear();
-                      // Mock respuesta
-                      Future.delayed(const Duration(seconds: 1), () {
-                        setState(() {
-                          _messages.add('Gracias por tu mensaje. Te responderemos pronto.');
-                        });
-                      });
                     }
                   },
                 ),

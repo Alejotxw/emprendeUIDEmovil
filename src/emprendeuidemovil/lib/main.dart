@@ -19,6 +19,8 @@ import 'screens/client_taek/cart_screen.dart';
 
 // Pantalla de perfil unificada
 import 'screens/profile_screen.dart';
+import 'screens/chat_screen.dart'; // Import Chat Screen
+import 'providers/chat_provider.dart'; // Import Chat Provider
 
 void main() {
   runApp(
@@ -29,6 +31,7 @@ MultiProvider(
     ChangeNotifierProvider(create: (_) => UserRoleProvider()),
     ChangeNotifierProvider(create: (_) => SettingsProvider()),
     ChangeNotifierProvider(create: (_) => RatingsProvider()),
+    ChangeNotifierProvider(create: (_) => ChatProvider()), // Chat Provider
   ],
   child: const MyApp(),
 ),
@@ -117,6 +120,17 @@ class _MainScreenState extends State<MainScreen> {
           bottomNavigationBar: isCliente
               ? _buildClienteBottomBar()
               : _buildEmprendedorBottomBar(),
+          floatingActionButton: FloatingActionButton(
+            heroTag: 'chat_fab', // Unique tag to avoid conflicts
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ChatScreen()),
+              );
+            },
+            backgroundColor: Colors.indigo,
+            child: const Icon(Icons.support_agent, color: Colors.white),
+          ),
         );
       },
     );
