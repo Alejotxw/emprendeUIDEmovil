@@ -1,5 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../providers/service_provider.dart';
 import '../providers/user_role_provider.dart';
@@ -17,51 +22,144 @@ class _AdminScreenState extends State<AdminScreen> {
 
   final _formKey = GlobalKey<FormState>();
   String _eventTitle = '';
-  String _eventDate = '';
+  DateTime? _eventDateTime;
   String _eventDesc = '';
+  String _contactMethods = '';
+  XFile? _pickedImage;
+  final ImagePicker _picker = ImagePicker();
 
   void _showCreateEventDialog() {
     _eventTitle = '';
-    _eventDate = '';
+    _eventDateTime = null;
     _eventDesc = '';
+    _contactMethods = '';
+    _pickedImage = null;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Crear Evento'),
-        content: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Título'),
-                onSaved: (v) => _eventTitle = v ?? '',
-                validator: (v) => (v == null || v.isEmpty) ? 'Ingrese un título' : null,
+        content: StatefulBuilder(
+          builder: (context, setStateDialog) => Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    decoration: const InputDecoration(labelText: 'Título'),
+                    onSaved: (v) => _eventTitle = v ?? '',
+                    validator: (v) => (v == null || v.isEmpty) ? 'Ingrese un título' : null,
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(_eventDateTime == null ? 'Seleccione fecha y hora' : '${_eventDateTime!.toLocal()}'),
+                      ),
+                      TextButton(
+                        child: const Text('Pick'),
+                        onPressed: () async {
+                          final date = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(2020),
+                            lastDate: DateTime(2100),
+                          );
+                          if (date == null) return;
+                          final time = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay.now(),
+                          );
+                          if (time == null) return;
+                          setStateDialog(() {
+                            _eventDateTime = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                  TextFormField(
+                    decoration: const InputDecoration(labelText: 'Descripción'),
+                    onSaved: (v) => _eventDesc = v ?? '',
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    decoration: const InputDecoration(labelText: 'Formas de contacto (teléfono, email, link)'),
+                    onSaved: (v) => _contactMethods = v ?? '',
+                  ),
+                  const SizedBox(height: 8),
+                  if (_pickedImage != null) ...[
+                    Image.file(File(_pickedImage!.path), height: 120),
+                    const SizedBox(height: 8),
+                  ],
+                  Row(
+                    children: [
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.photo),
+                        label: const Text('Seleccionar imagen'),
+                        onPressed: () async {
+                          final picked = await _picker.pickImage(source: ImageSource.gallery, maxWidth: 1200);
+                          if (picked != null) {
+                            setStateDialog(() => _pickedImage = picked);
+                          }
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      if (_pickedImage != null)
+                        TextButton(
+                          child: const Text('Quitar'),
+                          onPressed: () => setStateDialog(() => _pickedImage = null),
+                        ),
+                    ],
+                  ),
+                ],
               ),
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Fecha'),
-                onSaved: (v) => _eventDate = v ?? '',
-              ),
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Descripción'),
-                onSaved: (v) => _eventDesc = v ?? '',
-              ),
-            ],
+            ),
           ),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
+                String? imageUrl;
+                if (_pickedImage != null) {
+                  try {
+                    final file = File(_pickedImage!.path);
+                    final ref = FirebaseStorage.instance.ref().child('events/${DateTime.now().millisecondsSinceEpoch}_${_pickedImage!.name}');
+                    await ref.putFile(file);
+                    imageUrl = await ref.getDownloadURL();
+                  } catch (e) {
+                    // ignore upload error for now
+                  }
+                }
+
+                final map = {
+                  'title': _eventTitle,
+                  'datetime': _eventDateTime?.toIso8601String() ?? DateTime.now().toIso8601String(),
+                  'description': _eventDesc,
+                  'contact': _contactMethods,
+                  if (imageUrl != null) 'image': imageUrl,
+                };
+
+                // Save to Firestore
+                try {
+                  await FirebaseFirestore.instance.collection('events').add(map);
+                } catch (e) {
+                  // ignore Firestore error for now
+                }
+
                 setState(() {
-                  _events.add({
+                  final local = <String, String>{
                     'title': _eventTitle,
-                    'date': _eventDate,
+                    'date': _eventDateTime?.toString() ?? '',
                     'desc': _eventDesc,
-                  });
+                    'contact': _contactMethods,
+                    'image': imageUrl ?? '',
+                  };
+                  _events.add(local);
                 });
                 Navigator.pop(context);
               }
