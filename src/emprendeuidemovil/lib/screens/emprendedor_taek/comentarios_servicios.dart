@@ -7,7 +7,7 @@ class ComentariosServiciosScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
         children: [
           _buildTopBar(context),
@@ -20,6 +20,7 @@ class ComentariosServiciosScreen extends StatelessWidget {
                   userName: "Romny Rios",
                   time: "12:00",
                   comment: "Estuvieron Buenas, el problema es que se demora mucho",
+                  rating: 3,
                 ),
                 SizedBox(height: 16),
                 CommentCard(
@@ -27,6 +28,7 @@ class ComentariosServiciosScreen extends StatelessWidget {
                   userName: "Romny Rios",
                   time: "12:00",
                   comment: "Estuvieron Buenas, el problema es que se demora mucho",
+                  rating: 5,
                 ),
                 SizedBox(height: 16),
                 CommentCard(
@@ -34,6 +36,7 @@ class ComentariosServiciosScreen extends StatelessWidget {
                   userName: "Romny Rios",
                   time: "12:00",
                   comment: "Estuvieron Buenas, el problema es que se demora mucho",
+                  rating: 4,
                 ),
               ],
             ),
@@ -63,7 +66,7 @@ class ComentariosServiciosScreen extends StatelessWidget {
           const SizedBox(width: 8),
           const Expanded(
             child: Text(
-              'Comentarios de mis Servicios / Productos',
+              'Reseñas',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
@@ -84,6 +87,7 @@ class CommentCard extends StatefulWidget {
   final String userName;
   final String time;
   final String comment;
+  final int rating;
 
   const CommentCard({
     super.key,
@@ -91,6 +95,7 @@ class CommentCard extends StatefulWidget {
     required this.userName,
     required this.time,
     required this.comment,
+    required this.rating,
   });
 
   @override
@@ -123,12 +128,14 @@ class _CommentCardState extends State<CommentCard> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade400),
+        border: Border.all(color: isDark ? Colors.grey.shade800 : Colors.grey.shade400),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,10 +145,10 @@ class _CommentCardState extends State<CommentCard> {
             children: [
               Text(
                 widget.serviceName,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: isDark ? Colors.white : Colors.black,
                 ),
               ),
               GestureDetector(
@@ -172,7 +179,7 @@ class _CommentCardState extends State<CommentCard> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Colors.grey.shade700,
+                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
                 ),
               ),
               const SizedBox(width: 8),
@@ -181,17 +188,28 @@ class _CommentCardState extends State<CommentCard> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Colors.grey.shade700,
+                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
+          // Star Rating Row
+          Row(
+            children: List.generate(5, (index) {
+              return Icon(
+                index < widget.rating ? Icons.star : Icons.star_border,
+                color: const Color(0xFFFFA600),
+                size: 20,
+              );
+            }),
+          ),
+          const SizedBox(height: 12),
           Text(
             widget.comment,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
-              color: Colors.black,
+              color: isDark ? Colors.white70 : Colors.black,
               fontWeight: FontWeight.w400,
             ),
           ),
@@ -201,14 +219,14 @@ class _CommentCardState extends State<CommentCard> {
               padding: const EdgeInsets.all(12),
               width: double.infinity,
               decoration: BoxDecoration(
-                color: Colors.grey.shade100,
+                color: isDark ? const Color(0xFF2C2C2C) : Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade300),
+                border: Border.all(color: isDark ? Colors.grey.shade700 : Colors.grey.shade300),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                   const Text(
                     "Tu respuesta:",
                     style: TextStyle(
                       fontSize: 12,
@@ -219,9 +237,9 @@ class _CommentCardState extends State<CommentCard> {
                   const SizedBox(height: 4),
                   Text(
                     _reply!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: Colors.black87,
+                      color: isDark ? Colors.white70 : Colors.black87,
                     ),
                   ),
                 ],
