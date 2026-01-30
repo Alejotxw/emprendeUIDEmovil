@@ -1,39 +1,55 @@
-Historia de Usuario
+# Historia de Usuario: Integración Final y Entrega del Proyecto
 
-Como equipo de desarrollo,
-quiero tener todas las nuevas características integradas, probadas y documentadas,
-para entregar un proyecto profesional, escalable y con evidencia clara de trabajo colaborativo.
+**Como** equipo de desarrollo,  
+**quiero** tener todas las nuevas características integradas, probadas y documentadas,  
+**para** entregar un proyecto profesional, escalable y con evidencia clara de trabajo colaborativo.
 
-Criterios de Aceptación
+---
 
-Dado que todas las ramas individuales han sido integradas en la rama principal
-Cuando se ejecuta la aplicación completa
-Entonces deben funcionar correctamente el cambio de tema, el cambio de idioma y la carga de recursos sin errores ni regresiones.
+## ✅ Criterios de Aceptación (Gherkin)
 
-Dado que el usuario prueba las combinaciones de tema e idioma
-Cuando cambia entre modo claro/oscuro y español/inglés
-Entonces debe visualizar la misma pantalla con textos correctos y colores legibles en las cuatro combinaciones posibles.
+### Escenario: Estabilidad e Integración
+* **Dado** que todas las ramas individuales han sido integradas en la rama principal.
+* **Cuando** se ejecuta la aplicación completa.
+* **Entonces** deben funcionar correctamente el cambio de tema, idioma y recursos sin errores ni regresiones.
 
-Dado que se revisa el repositorio del proyecto
-Cuando el docente accede al repositorio
-Entonces debe evidenciarse la participación de los integrantes del equipo mediante commits visibles en el historial y en la sección de colaboradores.
+### Escenario: Matriz de combinaciones visuales
+* **Dado** que el usuario alterna entre las configuraciones de la interfaz.
+* **Cuando** se combinan los estados (Claro/Español, Oscuro/Español, Claro/Inglés, Oscuro/Inglés).
+* **Entonces** los textos y colores deben ser legibles y coherentes en las cuatro combinaciones.
 
-Dado que se prepara el entregable del proyecto
-Cuando se genera el documento final en PDF
-Entonces debe incluir: enlace al repositorio, capturas del tablero de tareas, evidencias de commits y colaboradores, y al menos cuatro capturas de pantalla con las combinaciones de tema e idioma.
+### Escenario: Evidencia de colaboración
+* **Dado** que el docente o revisor accede al repositorio.
+* **Cuando** consulta el historial de commits y la sección de colaboradores.
+* **Entonces** debe visualizarse una participación equitativa y significativa de todos los integrantes.
 
-Dado que existen conflictos o errores de integración
-Cuando se realiza la integración final de las ramas
-Entonces los conflictos deben resolverse antes de considerar la historia de usuario como completada, garantizando la estabilidad de la aplicación.
+### Escenario: Documentación del entregable
+* **Dado** que se genera el documento final en PDF.
+* **Cuando** se prepara el archivo para entrega.
+* **Entonces** debe incluir: enlace al repo, capturas de tableros de tareas, historial de commits y capturas de las 4 combinaciones de UI.
 
-Notas Técnicas
+---
 
-Integración: Utilizar GitFlow o una estrategia de ramas basada en feature, develop y main para organizar el trabajo colaborativo.
+## 🛠️ Notas Técnicas
 
-Pruebas: Verificar manualmente y mediante pruebas básicas el funcionamiento del cambio de tema, idioma y carga de recursos en diferentes escenarios.
+### 🌳 Estrategia de Git (GitFlow)
+* **Main/Master:** Rama de producción, solo código estable.
+* **Develop:** Rama de integración para pruebas de equipo.
+* **Feature branches:** `feature/*` para cada funcionalidad individual.
+* **Resolución de conflictos:** No se permiten merges con conflictos pendientes.
 
-Documentación: Registrar evidencias del trabajo colaborativo y funcionamiento de la aplicación mediante capturas de pantalla y registros del repositorio.
+### 🧪 Pruebas y QA
+* **Manual Testing:** Verificación de flujo de usuario punta a punta.
+* **Regression Testing:** Asegurar que la implementación de una característica (ej. idioma) no rompió una previa (ej. assets).
 
-Control de versiones: Garantizar que cada integrante del equipo realice commits significativos y descriptivos en su respectiva rama.
+### 📄 Registro de Evidencias
+* **GitHub Insights:** Uso de gráficos de contribución para validar el trabajo colaborativo.
+* **Naming Conventions:** Commits descriptivos bajo el estándar de *Conventional Commits*.
 
-GitHub: Crear ramas feature/* por cada funcionalidad implementada y realizar Pull Requests hacia develop y posteriormente hacia main.
+---
+
+## 🚀 Flujo de Cierre (GitHub)
+
+1. **Feature to Develop:** Pull Requests individuales con revisión de código.
+2. **Develop to Main:** Integración final tras pruebas de estabilidad.
+3. **Pull Request Final:** No realizar merge a la rama principal hasta que todos los criterios de aceptación estén marcados como completados.
