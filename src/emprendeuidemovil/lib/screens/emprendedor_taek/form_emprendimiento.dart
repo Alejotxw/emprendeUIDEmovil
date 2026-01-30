@@ -18,10 +18,12 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
   final TextEditingController _serviceNameController = TextEditingController();
   final TextEditingController _serviceDescController = TextEditingController();
   final TextEditingController _servicePriceController = TextEditingController();
+  final TextEditingController _serviceStockController = TextEditingController();
 
   // State
   String _selectedCategory = 'Comida';
   List<Map<String, String>> _services = [];
+  String _newItemType = 'service'; // 'service' | 'product'
 
   // Schedule State
   final List<String> _days = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
@@ -36,33 +38,28 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
     _descriptionController = TextEditingController(text: widget.entrepreneurship?['subtitle'] ?? '');
     _selectedCategory = widget.entrepreneurship?['category'] ?? 'Comida';
     
-    // Initialize services if present (you'd need to parse them if they were passed, 
-    // but for now, we'll just start with the default or empty if not provided logic 
-    // or keep the dummy data if creating new)
-    if (widget.entrepreneurship != null) {
-       // In a real app we would parse services from the passed object
-       // For this demo, we'll just keep the list empty or minimal to avoid complex parsing errors 
-       // unless we change the data structure in MisEmprendimientosScreen
-       _services = [
-          {'name': 'Ejemplo Servicio', 'description': 'DescripciÃ³n ejemplo', 'price': '10.00'}
-       ]; 
+    if (widget.entrepreneurship != null && widget.entrepreneurship!['services'] != null) {
+       _services = List<Map<String, String>>.from(widget.entrepreneurship!['services'].map((item) {
+         // Ensure type cast is correct and map keys match
+         return Map<String, String>.from(item);
+       }));
     } else {
       _services = [
         {
           'name': 'Postres',
           'description': 'Sabrosos',
           'price': '5.00',
+          'type': 'product'
         },
         {
           'name': 'Sopas',
           'description': 'Almuerzos',
           'price': '3.00',
+          'type': 'product'
         }
       ];
     }
   }
-
-
 
   Future<void> _selectTime(BuildContext context, bool isOpenTime) async {
     final TimeOfDay? picked = await showTimePicker(
@@ -97,6 +94,7 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
       'title': _nameController.text.isNotEmpty ? _nameController.text : 'Borrador',
       'subtitle': _descriptionController.text,
       'category': _selectedCategory,
+      'services': _services,
       'isDraft': isDraft,
     };
 
@@ -180,8 +178,8 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         _buildCategoryItem("Moda", Icons.checkroom),
-                        _buildCategoryItem("Diseño", Icons.brush),
-                        _buildCategoryItem("Educación", Icons.school),
+                        _buildCategoryItem("Diseo", Icons.brush),
+                        _buildCategoryItem("Educacin", Icons.school),
                         _buildCategoryItem("Movilidad", Icons.directions_car),
                       ],
                     ),
@@ -533,10 +531,31 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      service['name']!,
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+                    Expanded(
+                      child: Text(
+                        service['name']!,
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
+                    const SizedBox(width: 8),
+                    Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                            color: service['type'] == 'product' ? Colors.blue.shade100 : Colors.green.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: service['type'] == 'product' ? Colors.blue : Colors.green),
+                        ),
+                        child: Text(
+                            service['type'] == 'product' ? 'Producto' : 'Servicio',
+                            style: TextStyle(
+                                fontSize: 10, 
+                                fontWeight: FontWeight.bold,
+                                color: service['type'] == 'product' ? Colors.blue.shade900 : Colors.green.shade900,
+                            ),
+                        ),
+                    ),
+                    const SizedBox(width: 8),
                     InkWell(
                       onTap: () {
                          setState(() {
@@ -556,16 +575,34 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                 ),
                 Text(service['description']!, style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
                 const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFA600),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Text(
-                    "\$${service['price']}",
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-                  ),
+                Row(
+                    children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFA600),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Text(
+                            "\$${service['price']}",
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                          ),
+                        ),
+                        if (service['stock'] != null && service['stock']!.isNotEmpty) ...[
+                            const SizedBox(width: 12),
+                            Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                decoration: BoxDecoration(
+                                    color: Colors.grey.shade300,
+                                    borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: Text(
+                                    "Stock: ${service['stock']}",
+                                    style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 12),
+                                ),
+                            ),
+                        ]
+                    ],
                 )
               ],
             ),
@@ -586,13 +623,66 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Agregar nuevo servicio:", style: TextStyle(color: Colors.black54, fontSize: 16, fontWeight: FontWeight.bold)),
+          const Text("Agregar nuevo item:", style: TextStyle(color: Colors.black54, fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          _buildFormInput(_serviceNameController, "Nombre del servicio"),
+          // Type Selector
+          Row(
+            children: [
+                Expanded(
+                    child: GestureDetector(
+                        onTap: () => setState(() => _newItemType = 'service'),
+                        child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            decoration: BoxDecoration(
+                                color: _newItemType == 'service' ? const Color(0xFFFFA600) : Colors.white,
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(color: const Color(0xFFFFA600))
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                                "Servicio",
+                                style: TextStyle(
+                                    fontWeight: _newItemType == 'service' ? FontWeight.bold : FontWeight.normal,
+                                    color: _newItemType == 'service' ? Colors.white : const Color(0xFFFFA600)
+                                )
+                            ),
+                        ),
+                    ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                    child: GestureDetector(
+                        onTap: () => setState(() => _newItemType = 'product'),
+                        child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            decoration: BoxDecoration(
+                                color: _newItemType == 'product' ? const Color(0xFFFFA600) : Colors.white,
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(color: const Color(0xFFFFA600))
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                                "Producto",
+                                style: TextStyle(
+                                    fontWeight: _newItemType == 'product' ? FontWeight.bold : FontWeight.normal,
+                                    color: _newItemType == 'product' ? Colors.white : const Color(0xFFFFA600)
+                                )
+                            ),
+                        ),
+                    ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildFormInput(_serviceNameController, "Nombre del ${_newItemType == 'product' ? 'producto' : 'servicio'}"),
           const SizedBox(height: 12),
           _buildFormInput(_serviceDescController, "DescripciÃ³n breve"),
           const SizedBox(height: 12),
           _buildFormInput(_servicePriceController, "Precio (Ej: \$5.00)", keyboardType: TextInputType.number),
+          if (_newItemType == 'product') ...[
+              const SizedBox(height: 12),
+              _buildFormInput(_serviceStockController, "Cantidad en Stock", keyboardType: TextInputType.number),
+          ],
           const SizedBox(height: 20),
           Center(
             child: ElevatedButton(
@@ -603,10 +693,13 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                        'name': _serviceNameController.text,
                        'description': _serviceDescController.text,
                        'price': _servicePriceController.text,
+                       'stock': _newItemType == 'product' ? _serviceStockController.text : '',
+                       'type': _newItemType,
                      });
                      _serviceNameController.clear();
                      _serviceDescController.clear();
                      _servicePriceController.clear();
+                     _serviceStockController.clear();
                    });
                  }
               },
@@ -615,7 +708,7 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
               ),
-              child: const Text("Agregar Servicio", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              child: const Text("Agregar Item", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             ),
           )
         ],

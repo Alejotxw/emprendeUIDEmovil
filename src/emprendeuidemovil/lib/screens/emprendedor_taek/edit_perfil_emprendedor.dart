@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:emprendeuidemovil/providers/user_profile_provider.dart';
 
 class EditPerfilEmprendedorScreen extends StatefulWidget {
   final String currentName;
@@ -107,6 +109,7 @@ class _EditPerfilEmprendedorScreenState extends State<EditPerfilEmprendedorScree
               const SizedBox(height: 12),
               // Name Input
               TextField(
+                style: const TextStyle(color: Colors.black),
                 controller: _nameController,
                 decoration: InputDecoration(
                   hintText: 'ej. Juan Perez',
@@ -150,6 +153,7 @@ class _EditPerfilEmprendedorScreenState extends State<EditPerfilEmprendedorScree
               const SizedBox(height: 12),
               // Phone Input
               TextField(
+                style: const TextStyle(color: Colors.black),
                 controller: _phoneController,
                  keyboardType: TextInputType.phone,
                 decoration: InputDecoration(
@@ -205,11 +209,13 @@ class _EditPerfilEmprendedorScreenState extends State<EditPerfilEmprendedorScree
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                         Navigator.pop(context, {
-                           'name': _nameController.text,
-                           'phone': _phoneController.text,
-                           'image': _imageFile,
-                         });
+                         // Update Provider
+                         context.read<UserProfileProvider>().updateProfile(
+                           name: _nameController.text,
+                           phone: _phoneController.text,
+                           imagePath: _imageFile?.path,
+                         );
+                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
