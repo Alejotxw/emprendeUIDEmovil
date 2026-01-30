@@ -1,37 +1,54 @@
-Historia de Usuario
+# Historia de Usuario: Configuración de Localización (i18n)
 
-Como desarrollador de la aplicación,
-quiero configurar el sistema nativo de localización de Flutter con soporte inicial para español e inglés,
-para separar los textos del código y preparar la aplicación para múltiples idiomas.
+**Como** desarrollador de la aplicación,  
+**quiero** configurar el sistema nativo de localización de Flutter con soporte inicial para español e inglés,  
+**para** separar los textos del código y preparar la aplicación para múltiples idiomas.
 
-Criterios de Aceptación
+---
 
-Dado que el proyecto se configura por primera vez con localización
-Cuando se ejecuta flutter pub get y flutter gen-l10n
-Entonces deben generarse automáticamente las clases AppLocalizations sin errores.
+## ✅ Criterios de Aceptación (Gherkin)
 
-Dado que el MaterialApp se inicializa
-Cuando se configura la aplicación
-Entonces debe incluir localizationsDelegates, supportedLocales y permitir el uso de AppLocalizations.of(context) en los widgets.
+### Escenario: Generación de clases de localización
+* **Dado** que el proyecto se configura por primera vez con localización.
+* **Cuando** se ejecutan los comandos `flutter pub get` y `flutter gen-l10n`.
+* **Entonces** deben generarse automáticamente las clases `AppLocalizations` sin errores.
 
-Dado que existen los archivos app_es.arb y app_en.arb
-Cuando se agrega una nueva clave en ambos archivos
-Entonces al ejecutar flutter gen-l10n debe actualizarse la clase generada con el nuevo método correspondiente.
+### Escenario: Integración con MaterialApp
+* **Dado** que el `MaterialApp` se está inicializando.
+* **Cuando** se configura la aplicación.
+* **Entonces** deben incluirse los `localizationsDelegates` y `supportedLocales`, permitiendo el acceso mediante `AppLocalizations.of(context)`.
 
-Dado que el dispositivo está configurado en español o inglés
-Cuando se abre la aplicación
-Entonces debe cargarse automáticamente el idioma correspondiente según la configuración del sistema.
+### Escenario: Sincronización de claves ARB
+* **Dado** que existen los archivos `app_es.arb` y `app_en.arb`.
+* **Cuando** se agrega una nueva clave en ambos archivos.
+* **Entonces** la clase generada debe actualizarse automáticamente con el nuevo método correspondiente tras la generación.
 
-Dado que no existe soporte para un idioma no configurado (por ejemplo, francés)
-Cuando el dispositivo utiliza ese idioma
-Entonces la aplicación debe utilizar el idioma por defecto configurado (español o inglés).
+### Escenario: Detección automática e Idioma por defecto
+* **Dado** que el dispositivo tiene un idioma configurado.
+* **Cuando** se abre la aplicación:
+    * **Si** el idioma es Español o Inglés, debe cargarse automáticamente.
+    * **Si** el idioma no está soportado (ej. Francés), debe aplicarse el idioma por defecto configurado.
 
-Notas Técnicas
+---
 
-Flutter: Configurar el archivo pubspec.yaml con la sección flutter: generate: true y habilitar el paquete flutter_localizations. Crear los archivos de localización en la carpeta lib/l10n/ (app_es.arb, app_en.arb). Ejecutar flutter gen-l10n para generar las clases de localización.
+## 🛠️ Notas Técnicas
 
-Arquitectura: Centralizar todos los textos visibles de la aplicación en los archivos .arb y evitar el uso de strings directamente en los widgets. Utilizar AppLocalizations.of(context) para acceder a los textos localizados.
+### 🌎 Flutter i18n
+* **Configuración:** Activar `generate: true` en la sección `flutter:` del `pubspec.yaml`.
+* **Dependencias:** Habilitar el paquete `flutter_localizations` (SDK de Flutter).
+* **Estructura:** Crear los archivos en la ruta `lib/l10n/`:
+    * `app_es.arb` (Español)
+    * `app_en.arb` (Inglés)
+* **Comandos:** Uso de `flutter gen-l10n` para la creación de las clases sintéticas.
 
-Compatibilidad: Definir un idioma por defecto mediante localeResolutionCallback o configuración de supportedLocales, garantizando fallback automático cuando el idioma del dispositivo no esté soportado.
+### 🏗️ Arquitectura y Fallback
+* **Acceso:** Centralizar todos los strings en los archivos `.arb` y evitar el "hardcoding" de texto en los widgets.
+* **Compatibilidad:** Implementar `localeResolutionCallback` para garantizar el fallback automático hacia el idioma base cuando el idioma del sistema no coincida con los soportados.
 
-GitHub: Crear branch hacia developer feature/(su tarea HU) y realizar un Pull Request (NO HACER MERGE).
+---
+
+## 🚀 Control de Versiones (GitHub)
+
+* **Rama:** `feature/configuracion-localizacion-hu`
+* **Pull Request:** Crear PR hacia la rama `develop`.
+* **Regla de Oro:** **NO HACER MERGE** manualmente; esperar validación técnica.
