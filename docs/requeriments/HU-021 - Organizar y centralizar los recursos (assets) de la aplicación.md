@@ -1,35 +1,44 @@
-Historia de usuario
+# Historia de Usuario: Centralización de Recursos (Assets)
 
-Como desarrollador del equipo, quiero centralizar todas las rutas de imágenes, íconos y fuentes en una clase de constantes, para evitar errores de tipeo, mejorar la organización del proyecto y facilitar el mantenimiento cuando se agreguen o modifiquen recursos.
+**Como** desarrollador del equipo,  
+**quiero** centralizar todas las rutas de imágenes, íconos y fuentes en una clase de constantes,  
+**para** evitar errores de tipeo, mejorar la organización del proyecto y facilitar el mantenimiento futuro.
 
-Criterios de Aceptación
+---
 
-Dado que la aplicación utiliza imágenes, íconos y fuentes en diferentes pantallas
-Cuando se compila y ejecuta la aplicación
-Entonces todas las imágenes, íconos y fuentes deben cargarse correctamente desde las carpetas assets/images/, assets/icons/ y assets/fonts/.
+## ✅ Criterios de Aceptación (Gherkin)
 
-Dado que existe un recurso (e.g., logo.png, banner_home.png, icon_home.svg)
-Cuando se referencia en cualquier widget o componente de la aplicación
-Entonces debe usarse exclusivamente a través de la clase AppAssets (e.g., AppAssets.logo, AppAssets.iconHome), sin utilizar rutas escritas directamente como strings.
+### Escenario: Uso de la clase AppAssets
+* **Dado** que la aplicación utiliza imágenes, íconos y fuentes en diferentes pantallas.
+* **Cuando** se referencia un recurso en cualquier widget.
+* **Entonces** debe usarse exclusivamente la clase `AppAssets` (ej. `AppAssets.logo`), prohibiendo el uso de strings directos en los widgets.
 
-Dado que no existe una imagen, ícono o fuente en la ruta indicada
-Cuando se carga el widget correspondiente
-Entonces debe mostrarse un placeholder predeterminado (e.g., ícono genérico o contenedor gris), sin que la aplicación falle o genere excepciones.
+### Escenario: Carga correcta de recursos
+* **Dado** que los recursos existen en `assets/images/`, `assets/icons/` o `assets/fonts/`.
+* **Cuando** se compila y ejecuta la aplicación.
+* **Entonces** todos los recursos deben visualizarse correctamente sin errores de tipo *"Unable to load asset"*.
 
-Dado que se agrega un nuevo recurso a alguna carpeta de assets
-Cuando se actualiza el archivo pubspec.yaml declarando la carpeta completa
-Entonces el nuevo recurso debe estar disponible después de ejecutar flutter pub get, sin necesidad de declarar archivos individuales.
+### Escenario: Manejo de errores y placeholders
+* **Dado** que un recurso no existe o la ruta es incorrecta.
+* **Cuando** el widget intenta cargar dicho recurso.
+* **Entonces** debe mostrarse un **placeholder** predeterminado (contenedor gris o ícono genérico) evitando que la app falle.
 
-Dado que el proyecto se abre en otro dispositivo o por otro desarrollador del equipo
-Cuando se ejecuta la aplicación
-Entonces todos los recursos deben cargarse correctamente sin errores del tipo "Unable to load asset".
+### Escenario: Configuración del proyecto
+* **Dado** que se agrega un nuevo recurso a las carpetas de assets.
+* **Cuando** se declara la carpeta completa en el `pubspec.yaml` y se ejecuta `flutter pub get`.
+* **Entonces** el recurso debe estar disponible para su uso inmediato sin declarar archivos individuales.
 
-Notas Técnicas
+---
 
-Flutter: Crear una clase AppAssets en un archivo dedicado (e.g., app_assets.dart) con constantes estáticas para cada recurso (static const String logo = 'assets/images/logo.png';). Definir rutas base para images, icons y fonts. Implementar manejo de errores en widgets de imágenes mediante errorBuilder o fallback widgets. Evitar el uso de rutas directas en el código y centralizar el acceso a recursos en AppAssets.
+## 🛠️ Notas Técnicas
 
-Arquitectura: Organizar las carpetas assets/images/, assets/icons/ y assets/fonts/ dentro del proyecto. Aplicar naming conventions consistentes para los recursos. Validar el uso de AppAssets mediante revisiones de código o lint rules.
-
-Configuración: Declarar las carpetas completas en pubspec.yaml bajo la sección flutter: assets:. Ejecutar flutter pub get para sincronizar los recursos.
-
-GitHub: Crear branch hacia developer feature/(su tarea HU), y realizar un Pull Request (NO HACER MERGE).
+### 💻 Flutter & Implementación
+* **Clase de Constantes:** Crear `lib/core/constants/app_assets.dart`.
+  ```dart
+  class AppAssets {
+    static const String _images = 'assets/images/';
+    static const String _icons = 'assets/icons/';
+    
+    static const String logo = '${_images}logo.png';
+    static const String iconHome = '${_icons}icon_home.svg';
+  }
