@@ -1,78 +1,74 @@
-Historia de Usuario
+# Historia de Usuario – Gestión de Solicitudes de Clientes
 
-Como emprendedor autenticado,
-quiero visualizar la lista de solicitudes recibidas de clientes, acceder al detalle de cada una para ver los servicios o productos solicitados y actualizar su estado (Pendiente, Aceptado, Rechazado),
-para gestionar eficientemente las órdenes entrantes,
-con edición permitida solo en los estados Pendiente y Aceptado, y bloqueo en Rechazado para evitar cambios retroactivos.
+**Como** emprendedor autenticado  
+**Quiero** visualizar la lista de solicitudes recibidas, acceder al detalle de cada pedido y gestionar sus estados (Pendiente, Aceptado, Rechazado)  
+**Para** gestionar eficientemente las órdenes entrantes, asegurando la integridad de los datos mediante el bloqueo de ediciones en estados finales.
 
-Criterios de Aceptación
+---
 
-Dado que el emprendedor accede a la sección "Ver Solicitudes" desde el perfil o dashboard del emprendimiento
-Cuando se carga la pantalla
-Entonces debe mostrar el título "Ver Solicitudes" con una lista o grid de solicitudes, mostrando el nombre del servicio o producto, precio total y estado actual (Pendiente, Aceptado o Rechazado); si no existen solicitudes, debe mostrarse el mensaje "No hay solicitudes. ¡Espera clientes!". Las solicitudes deben ordenarse por fecha de creación descendente y permitir filtros por estado.
+## Criterios de Aceptación (Gherkin)
 
-Dado que el emprendedor selecciona una solicitud
-Cuando navega al detalle
-Entonces debe mostrarse la pantalla "Detalle de Solicitud" con la información completa del pedido: datos del cliente, lista de servicios o productos solicitados, cantidades, precios unitarios, total calculado y estado actual de la solicitud.
+### Escenario: Visualización y Filtrado de Solicitudes
+**Dado** que el emprendedor accede a la sección "Ver Solicitudes" desde su perfil o dashboard  
+**Cuando** la pantalla se carga  
+**Entonces** el sistema debe mostrar:
+* Título “Ver Solicitudes” con una lista o grid ordenada por fecha descendente.
+* **Información clave:** Nombre del servicio/producto, precio total y **Badge de estado**.
+* **Filtros dinámicos:** Permitir segmentar la vista por *Pendiente*, *Aceptado* o *Rechazado*.
+* **Empty State:** Si no hay registros, mostrar *"No hay solicitudes. ¡Espera clientes!"*.
 
-Dado que el emprendedor revisa una solicitud en estado Pendiente
-Cuando interactúa con las opciones disponibles
-Entonces debe poder cambiar el estado a Aceptado o Rechazado mediante confirmación previa.
+### Escenario: Detalle y Revisión de Pedidos
+**Dado** que el emprendedor selecciona una solicitud específica  
+**Cuando** navega a la pantalla "Detalle de Solicitud"  
+**Entonces** el sistema debe desglosar:
+* Datos completos del cliente y lista de servicios/productos con cantidades.
+* Cálculo automático del **Total** basado en precios unitarios.
+* Visualización del estado actual con controles de acción condicionales.
 
-Dado que el emprendedor cambia el estado de una solicitud a Aceptado
-Cuando confirma la acción
-Entonces el sistema debe actualizar el estado a Aceptado, notificar al cliente y reflejar el cambio en la lista principal en tiempo real.
+### Escenario: Gestión de Estados y Notificaciones
+**Dado** que una solicitud está en estado **Pendiente** **Cuando** el emprendedor selecciona "Aceptar" o "Rechazar"  
+**Entonces** el sistema debe:
+1. Solicitar una **Confirmación Previa** mediante un diálogo.
+2. Actualizar el estado en Firestore y notificar al cliente vía Push.
+3. Reflejar el cambio inmediatamente en la lista principal mediante listeners en tiempo real.
 
-Dado que el emprendedor cambia el estado de una solicitud a Rechazado
-Cuando confirma la acción
-Entonces el sistema debe actualizar el estado a Rechazado, notificar al cliente y bloquear futuras modificaciones en dicha solicitud.
+### Escenario: Bloqueo de Modificaciones en Rechazados
+**Dado** que una solicitud se encuentra en estado **Rechazado** **Cuando** el emprendedor accede al detalle del registro  
+**Entonces** el sistema debe mostrar la información en **modo solo lectura**.  
+**Y** deshabilitar cualquier control de cambio de estado para evitar ediciones retroactivas.
 
-Dado que una solicitud se encuentra en estado Rechazado
-Cuando el emprendedor accede al detalle
-Entonces debe mostrarse la información en modo solo lectura, sin permitir cambios en el estado ni en los datos de la solicitud.
+### Escenario: Resiliencia Offline y Errores
+**Dado** que el emprendedor opera con conexión inestable  
+**Cuando** intenta actualizar un estado o cargar la lista  
+**Entonces** el sistema debe guardar la acción localmente para sincronizarla después.  
+**Y** en caso de fallo crítico de carga, mostrar un mensaje de error con opción de **"Reintentar"**.
 
-Dado que llegan nuevas solicitudes
-Cuando el sistema recibe la información
-Entonces deben agregarse automáticamente a la lista y mostrarse como Pendientes.
+---
 
-Dado que el emprendedor filtra las solicitudes por estado
-Cuando selecciona un filtro
-Entonces deben mostrarse únicamente las solicitudes que coincidan con el estado seleccionado.
+## Notas Técnicas
 
-Dado que no existe conexión a internet
-Cuando el emprendedor intenta actualizar el estado de una solicitud
-Entonces el sistema debe guardar la acción localmente y sincronizarla cuando se restablezca la conexión.
+### Firebase (Backend)
+* **Firestore:** Colección `emprendedores/{userId}/emprendimientos/{emprId}/solicitudes`.
+* **Estructura de Documento:** * `clienteId`: String (Relación Auth).
+    * `servicios`: List<Map> (nombre, cantidad, precio).
+    * `total`: Double.
+    * `estado`: String (Enum: PENDIENTE, ACEPTADO, RECHAZADO).
+    * `timestamps`: `createdAt`, `updatedAt`.
+* **Real-time:** Uso de `snapshots()` para actualización reactiva de la UI.
+* **Persistencia:** Offline habilitado para gestión de estados sin red.
 
-Dado que ocurre un error al cargar las solicitudes
-Cuando el sistema detecta la falla
-Entonces debe mostrarse un mensaje de error y permitir reintentar la carga.
+### Flutter Implementation
+* **UI:** `GridView.builder` o `ListView.builder` para el listado; `SingleChildScrollView` para el detalle.
+* **State Management:** Gestión mediante **Provider** o **Riverpod**.
+* **Interacción:** Diálogos de confirmación (`showDialog`) y `SnackBars` para notificaciones de éxito/error.
+* **Lógica de Bloqueo:** Condicionales en la UI para deshabilitar botones si `estado == 'RECHAZADO'`.
 
-Notas Técnicas
-Firebase
+### Diseño (Figma)
+* **Estética:** Uso de colores institucionales y diseño responsivo.
+* **Feedback Visual:** Badges de colores (Amarillo: Pendiente, Verde: Aceptado, Rojo: Rechazado).
 
-Firestore: colección emprendedores/{userId}/emprendimientos/{emprId}/solicitudes
-Campos: clienteId, servicios, total, estado, razonRechazo, createdAt, updatedAt.
+---
 
-Uso de Firebase Auth para identificación del emprendedor.
-Actualización en tiempo real mediante listeners.
-Persistencia offline habilitada.
-
-Flutter
-
-Listado de solicitudes mediante GridView.builder o ListView.builder.
-Pantalla de detalle con Scaffold y SingleChildScrollView.
-Gestión de estados con Provider o Riverpod.
-Diálogos de confirmación para cambios de estado.
-Sincronización offline y manejo de errores.
-
-Figma
-
-Diseño basado en mockups del proyecto.
-Uso de colores institucionales.
-Diseño responsivo para listado y detalle de solicitudes.
-
-GitHub
-
-Creación de branch: feature/solicitudes-hu
-Pull request hacia develop.
-No realizar merge.
+## Flujo de Trabajo (Git)
+* **Rama:** `feature/solicitudes-hu` (desde `develop`).
+* **Pull Request:** Hacia la rama `develop` para revisión de lógica y manejo de errores.
