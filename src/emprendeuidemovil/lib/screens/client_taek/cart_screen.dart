@@ -40,9 +40,9 @@ class _CartScreenState extends State<CartScreen> {
                   onPressed: (index) => setState(() => _selectedTab = index),
                   borderRadius: BorderRadius.circular(8),
                   selectedColor: Colors.white,
-                  fillColor: _selectedTab == 0 ? Colors.blue[600] : Colors.orange[600],
+                  fillColor: _selectedTab == 0 ? const Color.fromARGB(255, 255, 157, 0) : Colors.orange[600],
                   borderColor: Colors.grey,
-                  selectedBorderColor: _selectedTab == 0 ? Colors.blue[600] : Colors.orange[600],
+                  selectedBorderColor: _selectedTab == 0 ? const Color.fromARGB(255, 255, 140, 0) : Colors.orange[600],
                   children: const [
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
