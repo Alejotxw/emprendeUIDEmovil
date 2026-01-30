@@ -1,78 +1,70 @@
-Historia de Usuario
+# Historia de Usuario – Gestión de Emprendimientos y Catálogo
 
-Como emprendedor autenticado,
-quiero listar, crear, editar y guardar como borrador mis emprendimientos, con selección de ubicación vía mapa interactivo y selector de horarios por día,
-para configurar y publicar mis servicios/productos de manera flexible,
-con autosave en borradores al retroceder, cerrar la app o presionar botón manual.
+**Como** emprendedor autenticado  
+**Quiero** listar, crear, editar y guardar como borrador mis emprendimientos, integrando ubicación mediante mapa interactivo, configuración de horarios y catálogo de servicios  
+**Para** configurar y publicar mis servicios/productos de manera flexible, asegurando la persistencia de datos mediante un sistema de auto-guardado y soporte offline.
 
-Criterios de Aceptación
+---
 
-Dado que el emprendedor accede a la sección "Emprendimientos" desde el perfil (rol "Emprendedor" activo)
-Cuando se carga la pantalla
-Entonces debe mostrar "Emprendimientos" con botón "Crear", lista de cards existentes y borradores (por ejemplo: "Kevin Girón" en "Diseño" con "Diseño web y Posters", badges de estado: activo, editar, borrador), cada card con imagen placeholder y botón "Editar Emprendimiento" o "Borrador"; si la lista está vacía, debe mostrar el mensaje "No tienes emprendimientos. ¡Crea uno!" con acceso al botón Crear.
+## Criterios de Aceptación (Gherkin)
 
-Dado que el emprendedor presiona "Crear" o "Editar Emprendimiento" en una card
-Cuando se carga el formulario
-Entonces debe mostrar la pantalla "Crear/Editar Emprendimiento" con los campos: Información Básica (nombre en TextField prellenado en edición, categoría mediante RadioButtons: Comida, Tecnología, Diseño, Artesanías), Descripción (TextField multiline), Ubicación (mapa interactivo con marcador draggable y botón para confirmar posición), Horario (tabla editable por día con selectores de hora de inicio y fin), Servicios/Productos (lista dinámica con opción de agregar y eliminar servicios); además, debe mostrar los botones "Guardar Borrador" y "Crear/Actualizar Emprendimiento".
+### Escenario: Visualización y gestión del listado
+**Dado** que el emprendedor accede a la sección "Emprendimientos" desde su perfil con el rol activo  
+**Cuando** la pantalla se carga  
+**Entonces** el sistema debe mostrar:
+* Botón **“Crear”** y lista de cards (ej: "Kevin Girón" en "Diseño").
+* **Badges de estado:** `Activo`, `Editar`, `Borrador`.
+* Botón de acción **"Editar Emprendimiento"** o **"Borrador"** en cada card con imagen placeholder.
+* **Empty State:** Si la lista está vacía, mostrar *"No tienes emprendimientos. ¡Crea uno!"*.
 
-Dado que el emprendedor selecciona la ubicación en el mapa
-Cuando interactúa con el mapa
-Entonces debe actualizarse la ubicación en tiempo real, validar la disponibilidad de GPS y mostrar la dirección legible en un campo editable; si la ubicación no está confirmada, el botón de creación debe permanecer deshabilitado.
+### Escenario: Formulario de Registro con Mapa y Horarios
+**Dado** que el emprendedor inicia la creación o edición de un emprendimiento  
+**Cuando** se carga el formulario  
+**Entonces** debe permitir la entrada de:
+* **Información Básica:** Nombre y Categoría (RadioButtons: Comida, Tecnología, Diseño, Artesanías).
+* **Descripción:** Campo de texto multilínea.
+* **Ubicación:** Mapa interactivo con marcador *draggable*; debe validar disponibilidad de GPS y mostrar la dirección legible. El botón de envío se deshabilita si la ubicación no está confirmada.
+* **Horario:** Tabla editable por día con selectores donde $Hora_{fin} > Hora_{inicio}$, con opción de marcar día como "Cerrado".
 
-Dado que el emprendedor edita el horario de un día
-Cuando selecciona un día específico
-Entonces debe abrir un selector de horario con validación (hora de fin mayor a la hora de inicio), opción de marcar el día como cerrado, actualización visual de la tabla y persistencia del horario como un mapa por día.
+### Escenario: Gestión Dinámica de Servicios y Productos
+**Dado** que el emprendedor gestiona su catálogo  
+**Cuando** interactúa con las opciones de agregar o eliminar  
+**Entonces** debe abrir un **formulario modal** para ingresar Nombre, Descripción y Precio.  
+**Y** validar campos obligatorios, actualizar la lista numerada y respetar el límite máximo de servicios permitidos.
 
-Dado que el emprendedor agrega o elimina un servicio o producto
-Cuando interactúa con las opciones de agregar o eliminar
-Entonces debe abrir un formulario modal para ingresar nombre, descripción y precio, validar los campos obligatorios, actualizar la lista numerada de servicios y limitar la cantidad máxima permitida.
+### Escenario: Sistema de Auto-guardado y Borradores
+**Dado** que el emprendedor presiona "Guardar Borrador" o intenta salir del formulario  
+**Cuando** confirma la acción, retrocede o cierra la aplicación  
+**Entonces** el sistema debe mostrar un diálogo para Guardar, Descartar o Cancelar.  
+**Y** al guardar, persistir la información con estado `borrador` y mostrar el badge correspondiente en el listado.
 
-Dado que el emprendedor presiona "Guardar Borrador"
-Cuando confirma la acción
-Entonces debe validar los campos obligatorios, guardar el emprendimiento con estado "borrador", mostrar un mensaje de confirmación y regresar al listado con el badge correspondiente.
+### Escenario: Publicación y Sincronización Offline
+**Dado** que se presiona "Crear/Actualizar Emprendimiento"  
+**Cuando** todos los campos obligatorios están validados  
+**Entonces** debe cambiar el estado a `activo`, mostrar confirmación y navegar al listado.  
+**Y** ante la falta de internet, almacenar localmente y sincronizar con Firestore al recuperar la conexión.
 
-Dado que el emprendedor intenta salir del formulario con cambios no guardados
-Cuando presiona el botón de retroceso o cierra la aplicación
-Entonces debe mostrarse un diálogo para guardar los cambios como borrador, descartarlos o cancelar la acción; si selecciona guardar, el sistema debe almacenar automáticamente el emprendimiento como borrador.
+---
 
-Dado que el emprendedor presiona "Crear/Actualizar Emprendimiento"
-Cuando todos los campos obligatorios están validados
-Entonces debe crearse o actualizarse el emprendimiento con estado "activo", mostrar un mensaje de confirmación y navegar al listado o detalle correspondiente.
+## Notas Técnicas
 
-Dado que no existe conexión a internet
-Cuando el emprendedor guarda o crea un emprendimiento
-Entonces el sistema debe almacenar la información localmente y sincronizarla cuando exista conexión.
+### Firebase (Backend)
+* **Firestore:** Colección `emprendedores/{userId}/emprendimientos` y subcolección para `borradores`.
+* **Data Model:** Campos `GeoPoint` (ubicación), `Map` (horario), `Array` (servicios), `estado` y `timestamps`.
+* **Storage:** Almacenamiento de imágenes mediante Firebase Storage.
+* **Offline:** Persistencia de datos habilitada nativamente.
 
-Dado que el emprendedor elimina un emprendimiento
-Cuando confirma la acción
-Entonces debe eliminarse el registro y actualizarse la lista de emprendimientos.
+### Flutter Implementation
+* **UI:** `ListView.builder` para el listado y formularios con validaciones dinámicas.
+* **Geolocalización:** Integración de `Maps_flutter` y `geolocator`.
+* **Estado & Persistencia:** Gestión de estado con **Provider**. Uso de `WillPopScope` y `SharedPreferences` para la lógica de autosave.
+* **Pickers:** Implementación de `showTimePicker` para la selección de horarios.
 
-Notas Técnicas
+### Diseño (Figma)
+* **UX/UI:** Estructura de cards basada en mockups, uso de colores institucionales y jerarquía visual definida.
 
-Firebase
+---
 
-Firestore: colección emprendedores/{userId}/emprendimientos con campos: nombre, categoría, descripción, ubicación (GeoPoint), horario, servicios, estado, fechas de creación y actualización.
-Subcolección para borradores.
-Uso de Firebase Auth para autenticación y Firebase Storage para imágenes.
-Persistencia offline habilitada.
-
-Flutter
-
-Listado con ListView.builder.
-Formulario con validaciones.
-Integración de Google Maps y Geolocator para ubicación.
-Uso de TimePicker para horarios.
-Gestión de estado con Provider.
-Autosave mediante WillPopScope y SharedPreferences.
-
-Figma
-
-Diseño basado en mockups.
-Uso de colores institucionales.
-Estructura de cards y jerarquía visual.
-
-GitHub
-
-Creación de branch feature/emprendimientos-hu.
-Pull request hacia develop.
-No realizar merge.
+## Flujo de Trabajo (Git)
+* **Rama:** `feature/emprendimientos-hu` (desde `develop`).
+* **Pull Request:** Hacia la rama `develop` para revisión de código (Sin merge manual).
