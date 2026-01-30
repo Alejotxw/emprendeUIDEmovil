@@ -1,0 +1,6 @@
+# Backend secrets
+src/backend/.env
+src/backend/serviceAccountKey.json
+
+# Node
+node_modules/
