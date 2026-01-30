@@ -198,12 +198,6 @@ class ProfileScreen extends StatelessWidget {
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ReviewsScreen())),
       ),
       ListTile(
-        leading: const Icon(Icons.star, color: Color(0xFF83002A)),
-        title: const Text('Rating de Servicios'),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RatingsScreen())),
-      ),
-      ListTile(
         leading: const Icon(Icons.shopping_cart, color: Color(0xFF83002A)),
         title: const Text('Mis Pedidos'),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
