@@ -1,37 +1,51 @@
-Historia de Usuario
+# Historia de Usuario: Implementación de Textos Multi-idioma (i18n)
 
-Como usuario internacional,
-quiero que todos los textos de la aplicación aparezcan en mi idioma preferido (español o inglés),
-para comprender correctamente todas las funcionalidades de la app.
+**Como** usuario internacional,  
+**quiero** que todos los textos de la aplicación aparezcan en mi idioma preferido (español o inglés),  
+**para** comprender correctamente todas las funcionalidades de la app.
 
-Criterios de Aceptación
+---
 
-Dado que el usuario cambia el idioma mediante el mecanismo temporal (botón o selector)
-Cuando selecciona español o inglés
-Entonces todos los textos visibles en todas las pantallas deben actualizarse inmediatamente al idioma seleccionado.
+## ✅ Criterios de Aceptación (Gherkin)
 
-Dado que existe un texto en la interfaz (botones, títulos, mensajes, placeholders, etc.)
-Cuando se renderiza cualquier pantalla
-Entonces no debe mostrarse texto hard-coded, sino únicamente textos obtenidos mediante AppLocalizations.of(context).
+### Escenario: Cambio dinámico de idioma
+* **Dado** que el usuario utiliza el mecanismo de selección (botón o selector).
+* **Cuando** selecciona un idioma (Español ↔ Inglés).
+* **Entonces** todos los textos visibles en todas las pantallas deben actualizarse inmediatamente sin necesidad de reiniciar la app.
 
-Dado que una clave falta en uno de los archivos .arb
-Cuando se carga la aplicación en ese idioma
-Entonces debe mostrarse la clave como fallback para facilitar la detección de errores de localización.
+### Escenario: Prohibición de Hard-coded Strings
+* **Dado** que se renderiza cualquier pantalla (botones, títulos, placeholders).
+* **Cuando** el widget se construye.
+* **Entonces** el sistema debe obtener los textos exclusivamente mediante `AppLocalizations.of(context)`, prohibiendo el uso de strings directos.
 
-Dado que el usuario navega por cualquier pantalla de la aplicación (dashboard, perfil, carrito, solicitudes, etc.)
-Cuando cambia el idioma
-Entonces todos los textos visibles y mensajes de la interfaz deben traducirse correctamente al idioma seleccionado.
+### Escenario: Fallback de claves faltantes
+* **Dado** que una clave no existe en uno de los archivos `.arb`.
+* **Cuando** se carga la aplicación en ese idioma específico.
+* **Entonces** debe mostrarse la clave como fallback para facilitar la depuración y detección de errores.
 
-Dado que se implementa una nueva pantalla sin textos previamente definidos
-Cuando se agregan nuevos mensajes
-Entonces deben registrarse las claves correspondientes en los archivos de localización en ambos idiomas.
+### Escenario: Persistencia de selección
+* **Dado** que el usuario ha seleccionado un idioma preferido.
+* **Cuando** la aplicación se cierra y se vuelve a abrir.
+* **Entonces** la interfaz debe cargar automáticamente el último idioma seleccionado almacenado en el dispositivo.
 
-Notas Técnicas
+---
 
-Flutter: Implementar la internacionalización utilizando el sistema nativo de Flutter (flutter_localizations y intl). Configurar los archivos .arb en la carpeta lib/l10n/ y generar las clases de localización mediante flutter gen-l10n.
+## 🛠️ Notas Técnicas
 
-Arquitectura: Centralizar todos los textos en los archivos de localización y evitar el uso de strings directamente en los widgets. Utilizar AppLocalizations.of(context) para acceder a los textos traducidos.
+### 🌎 Internacionalización (i18n)
+* **Framework:** Uso de `flutter_localizations` y el paquete `intl`.
+* **Gestión de Recursos:** Centralización de textos en `lib/l10n/` con archivos `app_es.arb` y `app_en.arb`.
+* **Generación:** Uso mandatorio de `flutter gen-l10n` para actualizar las clases sintéticas.
 
-Persistencia: Almacenar la preferencia de idioma del usuario mediante SharedPreferences o almacenamiento local para mantener el idioma seleccionado entre sesiones.
+### 🏗️ Arquitectura y Persistencia
+* **Acceso a Datos:** Uso de `AppLocalizations.of(context)!.clave` en la capa de UI.
+* **Almacenamiento Local:** Implementación de `shared_preferences` o `Hive` para guardar el locale seleccionado (ej. `es` o `en`).
+* **Estado:** Integración con el gestor de estado (Provider/Riverpod) para notificar el cambio de `Locale` al widget raíz (`MaterialApp`).
 
-GitHub: Crear branch hacia developer feature/(su tarea HU) y realizar un Pull Request (NO HACER MERGE).
+---
+
+## 🚀 Control de Versiones (GitHub)
+
+* **Rama:** `feature/implementacion-traducciones-hu`
+* **Pull Request:** Crear PR hacia la rama `develop`.
+* **Regla de Oro:** **NO HACER MERGE** manualmente; requiere aprobación del Code Review.
