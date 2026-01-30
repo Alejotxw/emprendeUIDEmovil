@@ -124,6 +124,9 @@ class _SolicitudesScreenState extends State<SolicitudesScreen> {
                   requesterName: solicitud['requesterName'],
                   items: solicitud['items'],
                   paymentMethod: solicitud['paymentMethod'],
+                  deliveryLocation: solicitud['deliveryLocation'],
+                  deliveryDate: solicitud['deliveryDate'],
+                  deliveryTime: solicitud['deliveryTime'],
                 );
               },
             ),
@@ -149,6 +152,9 @@ class _SolicitudesScreenState extends State<SolicitudesScreen> {
     required String requesterName,
     required List<Map<String, String>> items,
     required String paymentMethod,
+    String? deliveryLocation,
+    DateTime? deliveryDate,
+    TimeOfDay? deliveryTime,
   }) {
     return GestureDetector(
       onTap: () async {
@@ -170,11 +176,21 @@ class _SolicitudesScreenState extends State<SolicitudesScreen> {
         // Si hay resultado, actualizar el estado
         if (result != null && mounted) {
           setState(() {
-            _solicitudes[index]['status'] = result;
-            if (result == 'Aceptado') {
-              _solicitudes[index]['statusColor'] = const Color(0xFF4CAF50); // Verde
-            } else if (result == 'Rechazado') {
-              _solicitudes[index]['statusColor'] = const Color(0xFFD50000); // Rojo
+            if (result is Map) {
+              _solicitudes[index]['status'] = result['status'];
+              if (result['status'] == 'Aceptado') {
+                _solicitudes[index]['statusColor'] = const Color(0xFF4CAF50); // Verde
+                _solicitudes[index]['deliveryLocation'] = result['location'];
+                _solicitudes[index]['deliveryDate'] = result['date'];
+                _solicitudes[index]['deliveryTime'] = result['time'];
+              }
+            } else if (result is String) {
+              _solicitudes[index]['status'] = result;
+              if (result == 'Aceptado') {
+                _solicitudes[index]['statusColor'] = const Color(0xFF4CAF50); // Verde
+              } else if (result == 'Rechazado') {
+                _solicitudes[index]['statusColor'] = const Color(0xFFD50000); // Rojo
+              }
             }
           });
         }
@@ -304,6 +320,26 @@ class _SolicitudesScreenState extends State<SolicitudesScreen> {
                     ),
                   ),
                 ),
+                if (status == 'Aceptado' && deliveryLocation != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    "Punto: $deliveryLocation",
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[400] : Colors.grey[800],
+                    ),
+                    maxLines: 1, 
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (deliveryDate != null && deliveryTime != null)
+                  Text(
+                    "Fecha: ${deliveryDate.day}/${deliveryDate.month}/${deliveryDate.year} - ${deliveryTime.format(context)}",
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[400] : Colors.grey[800],
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 12),
               ],
             ),
