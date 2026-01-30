@@ -23,6 +23,9 @@ class DetalleSolicitudScreen extends StatefulWidget {
 }
 
 class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
+  DateTime? _selectedDate;
+  TimeOfDay? _selectedTime;
+
   // We can use state to manage the selected payment method if it were editable, 
   // but usually in a "Review Request" screen, this information is read-only (what the user selected).
   // However, the image shows radio buttons which seemingly could be selected by the entrepreneur 
@@ -205,6 +208,158 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
               style: const TextStyle(color: Colors.grey),
             ),
 
+            const SizedBox(height: 30),
+
+             // --- Ubicación de entrega ---
+            Text(
+              'Ubicación de entrega',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade400),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.location_on, color: Color(0xFF83002A)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      "Sede Loja Universidad Internacional del Ecuador",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 30),
+
+            // --- Fecha y Hora de Entrega ---
+            Text(
+              "Fecha y Hora de Entrega",
+              style: TextStyle(
+                fontSize: 16, 
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () async {
+                      final DateTime? picked = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime(2101),
+                        builder: (context, child) {
+                          return Theme(
+                            data: Theme.of(context).copyWith(
+                              colorScheme: const ColorScheme.light(
+                                primary: Color(0xFF83002A),
+                                onPrimary: Colors.white,
+                                onSurface: Colors.black,
+                              ),
+                            ),
+                            child: child!,
+                          );
+                        },
+                      );
+                      if (picked != null) {
+                        setState(() {
+                          _selectedDate = picked;
+                        });
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
+                        border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade400),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.calendar_today, size: 20, color: Color(0xFF83002A)),
+                          const SizedBox(width: 8),
+                          Text(
+                            _selectedDate != null 
+                              ? "${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}" 
+                              : "Fecha",
+                             style: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () async {
+                      final TimeOfDay? picked = await showTimePicker(
+                        context: context,
+                        initialTime: TimeOfDay.now(),
+                         builder: (context, child) {
+                          return Theme(
+                            data: Theme.of(context).copyWith(
+                              colorScheme: const ColorScheme.light(
+                                primary: Color(0xFF83002A),
+                                onPrimary: Colors.white,
+                                onSurface: Colors.black,
+                              ),
+                            ),
+                            child: child!,
+                          );
+                        },
+                      );
+                      if (picked != null) {
+                         setState(() {
+                          _selectedTime = picked;
+                        });
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
+                        border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade400),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.access_time, size: 20, color: Color(0xFF83002A)),
+                          const SizedBox(width: 8),
+                          Text(
+                            _selectedTime != null 
+                              ? _selectedTime!.format(context) 
+                              : "Hora",
+                            style: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
             const SizedBox(height: 40),
             // Actions Buttons
             Row(
@@ -235,7 +390,18 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(context, 'Aceptado');
+                      if (_selectedDate == null || _selectedTime == null) {
+                         ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Por favor confirma fecha y hora de entrega')),
+                        );
+                        return;
+                      }
+                      Navigator.pop(context, {
+                        'status': 'Aceptado',
+                        'location': "Sede Loja Universidad Internacional del Ecuador",
+                        'date': _selectedDate,
+                        'time': _selectedTime
+                      });
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2E7D32), // Green
@@ -328,4 +494,6 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
       ),
     );
   }
+
+
 }
