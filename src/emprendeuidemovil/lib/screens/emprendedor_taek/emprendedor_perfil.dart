@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:emprendeuidemovil/screens/emprendedor_taek/comentarios_servicios.dart';
 import 'package:emprendeuidemovil/screens/emprendedor_taek/configuracion_emprendedor.dart';
-import 'package:emprendeuidemovil/screens/emprendedor_taek/rating_servicios_emprendedor.dart';
+
 
 class EmprendedorPerfilScreen extends StatefulWidget {
   const EmprendedorPerfilScreen({super.key});
@@ -42,24 +42,12 @@ class _EmprendedorPerfilScreenState extends State<EmprendedorPerfilScreen> {
                   const SizedBox(height: 32),
                   // 4. Menu Options
                   _buildMenuOption(
-                    'Comentarios de mis Servicios / Productos',
+                    'Reseñas',
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => const ComentariosServiciosScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  _buildMenuOption(
-                    'Rating de mis Servicios / Productos',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const RatingServiciosEmprendedorScreen(),
                         ),
                       );
                     },

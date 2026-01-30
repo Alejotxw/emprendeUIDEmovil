@@ -7,7 +7,7 @@ class ReviewsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mis Reseñas'),
+        title: const Text('Reseñas'),
         backgroundColor: const Color(0xFFC8102E),
         foregroundColor: Colors.white,
       ),

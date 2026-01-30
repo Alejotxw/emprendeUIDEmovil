@@ -4,11 +4,11 @@ import 'package:provider/provider.dart';
 // Imports de tus pantallas
 import 'package:emprendeuidemovil/screens/emprendedor_taek/comentarios_servicios.dart';
 import 'package:emprendeuidemovil/screens/emprendedor_taek/configuracion_emprendedor.dart';
-import 'package:emprendeuidemovil/screens/emprendedor_taek/rating_servicios_emprendedor.dart';
+
 
 // Imports del modo cliente (ajusta si los nombres son diferentes)
 import '../screens/client_taek/reviews_screen.dart';
-import '../screens/client_taek/ratings_screen.dart';
+
 import '../screens/client_taek/orders_screen.dart';
 import '../screens/settings_screen.dart';
 
@@ -171,14 +171,8 @@ class ProfileScreen extends StatelessWidget {
     return [
       _buildMenuOption(
         context,
-        'Comentarios de mis Servicios / Productos',
+        'Reseñas',
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ComentariosServiciosScreen())),
-      ),
-      const SizedBox(height: 16),
-      _buildMenuOption(
-        context,
-        'Rating de mis Servicios / Productos',
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RatingServiciosEmprendedorScreen())),
       ),
       const SizedBox(height: 16),
       _buildMenuOption(
@@ -193,15 +187,9 @@ class ProfileScreen extends StatelessWidget {
     return [
       ListTile(
         leading: const Icon(Icons.rate_review, color: Color(0xFF83002A)),
-        title: const Text('Mis Reseñas'),
+        title: const Text('Reseñas'),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ReviewsScreen())),
-      ),
-      ListTile(
-        leading: const Icon(Icons.star, color: Color(0xFF83002A)),
-        title: const Text('Rating de Servicios'),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RatingsScreen())),
       ),
       ListTile(
         leading: const Icon(Icons.shopping_cart, color: Color(0xFF83002A)),
