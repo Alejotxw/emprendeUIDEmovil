@@ -2,21 +2,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:emprendeuidemovil/providers/settings_provider.dart';
+import 'package:emprendeuidemovil/providers/user_profile_provider.dart'; // Added
 import 'package:emprendeuidemovil/screens/emprendedor_taek/edit_perfil_emprendedor.dart';
 import 'package:emprendeuidemovil/screens/emprendedor_taek/privacidad_seguridad.dart';
-import 'package:emprendeuidemovil/screens/emprendedor_taek/ayuda_soporte.dart';
+import 'package:emprendeuidemovil/screens/emprendedor_taek/privacidad_seguridad.dart';
 
 class ConfiguracionEmprendedorScreen extends StatefulWidget {
-  final String currentName;
-  final String currentPhone;
-  final File? currentImage;
-
-  const ConfiguracionEmprendedorScreen({
-    super.key,
-    this.currentName = "Sebastián Chocho",
-    this.currentPhone = "096 933 1762",
-    this.currentImage,
-  });
+  const ConfiguracionEmprendedorScreen({super.key});
 
   @override
   State<ConfiguracionEmprendedorScreen> createState() => _ConfiguracionEmprendedorScreenState();
@@ -26,16 +18,9 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
   bool _notificationsEnabled = true;
   bool _solicitudesEnabled = true;
 
-  late String _name;
-  late String _phone;
-  File? _imageFile;
-
   @override
   void initState() {
     super.initState();
-    _name = widget.currentName;
-    _phone = widget.currentPhone;
-    _imageFile = widget.currentImage;
   }
 
   @override
@@ -97,11 +82,7 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
         children: [
           IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
-            onPressed: () => Navigator.pop(context, {
-              'name': _name,
-              'phone': _phone,
-              'image': _imageFile,
-            }),
+            onPressed: () => Navigator.pop(context),
           ),
           const SizedBox(width: 8),
           const Expanded(
@@ -133,109 +114,120 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
   }
 
   Widget _buildProfileSection() {
-    return _buildSectionContainer(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Consumer<UserProfileProvider>(
+      builder: (context, userProfile, child) {
+        return _buildSectionContainer(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Mi perfil",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
-                ),
-              ),
-              Container(
-                 decoration: BoxDecoration(
-                   color: const Color(0xFFFFF6E5),
-                   borderRadius: BorderRadius.circular(20),
-                   border: Border.all(color: const Color(0xFFFFA600)),
-                 ),
-                 child: InkWell(
-                    onTap: () async {
-                      final result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => EditPerfilEmprendedorScreen(
-                            currentName: _name,
-                             currentPhone: _phone,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Mi perfil",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF6E5),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFFFA600)),
+                    ),
+                    child: InkWell(
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EditPerfilEmprendedorScreen(
+                              currentName: userProfile.name,
+                              currentPhone: userProfile.phone,
+                              // We can pass image too if needed, but the edit screen should probably just pick a new one or show current.
+                              // Let's pass the path for consistency if we update the EditScreen to use Provider too or use initial values.
+                            ),
+                          ),
+                        );
+                        // Provider updates automatically, no need to set state
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                        child: Text(
+                          "Editar",
+                          style: TextStyle(
+                            color: Colors.black, // Keep black text on light button
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      );
-
-                      if (result != null && result is Map) {
-                        setState(() {
-                          _name = result['name'] ?? _name;
-                          _phone = result['phone'] ?? _phone;
-                          if (result['image'] != null) {
-                            _imageFile = result['image'];
-                          }
-                        });
-                      }
-                    },
-                   child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                      child: Text(
-                        "Editar",
-                        style: TextStyle(
-                          color: Colors.black, // Keep black text on light button
-                          fontWeight: FontWeight.bold,
-                        ),
                       ),
-                   ),
-                 ),
-              )
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color(0xFF83002A),
-                  image: _imageFile != null
-                      ? DecorationImage(
-                          image: FileImage(_imageFile!),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
-                ),
-                child: _imageFile == null
-                    ? const Icon(Icons.person, color: Colors.white, size: 30)
-                    : null,
+                    ),
+                  )
+                ],
               ),
-               const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(height: 16),
+              Row(
                 children: [
-                  Text("Nombre", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black)),
-                  Text(_name, style: const TextStyle(color: Colors.grey, fontSize: 14)),
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: const Color(0xFF83002A),
+                      image: userProfile.imagePath != null
+                          ? DecorationImage(
+                              image: FileImage(File(userProfile.imagePath!)),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
+                    ),
+                    child: userProfile.imagePath == null
+                        ? const Icon(Icons.person, color: Colors.white, size: 30)
+                        : null,
+                  ),
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Nombre",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.white
+                                  : Colors.black)),
+                      Text(userProfile.name,
+                          style: const TextStyle(color: Colors.grey, fontSize: 14)),
+                    ],
+                  )
                 ],
-              )
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  const Icon(Icons.phone, color: Color(0xFF83002A), size: 30),
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Telefono",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.white
+                                  : Colors.black)),
+                      Text(userProfile.phone,
+                          style: const TextStyle(color: Colors.grey, fontSize: 14)),
+                    ],
+                  )
+                ],
+              ),
             ],
           ),
-           const SizedBox(height: 16),
-          Row(
-            children: [
-              const Icon(Icons.phone, color: Color(0xFF83002A), size: 30),
-               const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Telefono", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black)),
-                  Text(_phone, style: const TextStyle(color: Colors.grey, fontSize: 14)),
-                ],
-              )
-            ],
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -387,35 +379,6 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
                ],
              ),
            ),
-           const Padding(
-             padding: EdgeInsets.symmetric(vertical: 12),
-             child: Divider(color: Colors.grey),
-           ),
-           // Support
-            InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const AyudaSoporteScreen()),
-                );
-              },
-              child: Row(
-               children: [
-                 const Icon(Icons.info, color: Color(0xFF83002A), size: 32),
-                 const SizedBox(width: 16),
-                 Expanded(
-                   child: Column(
-                     crossAxisAlignment: CrossAxisAlignment.start,
-                     children: [
-                       Text("Ayuda y Soporte", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black)),
-                       const Text("Estamos aquí para ayudarte", style: TextStyle(color: Colors.grey, fontSize: 14)),
-                     ],
-                   ),
-                 ),
-                 const Icon(Icons.chevron_right, color: Colors.grey),
-               ],
-              ),
-            ),
          ],
        ),
      );

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/settings_provider.dart';
+import '../providers/user_profile_provider.dart'; // Agregado
+import 'dart:io'; // Agregado
 import 'client_taek/edit_profile_screen.dart';  // Import para navegación a edición
 import 'client_taek/support_screen.dart';
 import 'client_taek/privacy_screen.dart';
@@ -39,35 +41,69 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Mi Perfil', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    const Text('Nombre: Sebastián Chocho', style: TextStyle(fontSize: 16)),
-                    const SizedBox(height: 8),
-                    const Text('Teléfono: 09931762', style: TextStyle(fontSize: 16)),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        icon: const Icon(Icons.edit, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Consumer<UserProfileProvider>(
+                  builder: (context, userProfile, child) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 30,
+                              backgroundColor: const Color(0xFFC8102E),
+                              backgroundImage: userProfile.imagePath != null
+                                  ? FileImage(File(userProfile.imagePath!))
+                                  : null,
+                              child: userProfile.imagePath == null
+                                  ? const Icon(Icons.person, color: Colors.white)
+                                  : null,
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Mi Perfil',
+                                      style: TextStyle(
+                                          fontSize: 18, fontWeight: FontWeight.bold)),
+                                  const SizedBox(height: 4),
+                                  Text('Nombre: ${userProfile.name}',
+                                      style: const TextStyle(fontSize: 16)),
+                                  Text('Teléfono: ${userProfile.phone}',
+                                      style: const TextStyle(fontSize: 16)),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        onPressed: () {
-                          // Navega a pantalla de edición completa
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => EditProfileScreen()),  // Non-const para fix error
-                          );
-                        },
-                        label: const Text('Editar'),
-                      ),
-                    ),
-                  ],
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            icon: const Icon(Icons.edit, color: Colors.white),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                            onPressed: () {
+                              // Navega a pantalla de edición completa
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => EditProfileScreen(
+                                          initialName: userProfile.name,
+                                          initialPhone: userProfile.phone,
+                                          initialImage: userProfile.imagePath,
+                                        )),
+                              );
+                            },
+                            label: const Text('Editar'),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ),
@@ -158,40 +194,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            // Registro de Producto
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Gestión de Productos', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    const Text('Registra nuevos productos para tu emprendimiento'),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        icon: const Icon(Icons.add, color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF83002A),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const ProductRegistrationScreen()),
-                          );
-                        },
-                        label: const Text('Registrar Producto'),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
+
             // Privacidad y Seguridad (navega a sub-pantalla)
             Card(
               child: ListTile(
@@ -207,20 +210,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            // Ayuda y Soporte (navega a sub-pantalla)
-            Card(
-              child: ListTile(
-                leading: const Icon(Icons.help_outline, color: Color(0xFFC8102E)),
-                title: const Text('Ayuda y Soporte'),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SupportScreen()),  // Non-const para fix error
-                  );
-                },
-              ),
-            ),
+
             const SizedBox(height: 16),
             // Acerca de UIDE V1
             Card(

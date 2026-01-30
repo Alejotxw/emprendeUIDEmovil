@@ -14,6 +14,8 @@ import '../screens/settings_screen.dart';
 
 // Import del provider (¡OBLIGATORIO!)
 import 'package:emprendeuidemovil/providers/user_role_provider.dart';
+import 'package:emprendeuidemovil/providers/user_profile_provider.dart';
+import 'dart:io'; // Para FileImage
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -89,27 +91,50 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildProfileInfo() {
-    return Column(
-      children: [
-        Container(
-          width: 100,
-          height: 100,
-          decoration: const BoxDecoration(
-            color: Color(0xFF83002A),
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(Icons.person, size: 60, color: Colors.white),
-        ),
-        const SizedBox(height: 16),
-        const Text(
-          'Sebastián Chocho',
-          style: TextStyle(color: Color(0xFF83002A), fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        const Text(
-          'sechochosi@uide.edu.ec',
-          style: TextStyle(color: Colors.grey, fontSize: 14, decoration: TextDecoration.underline),
-        ),
-      ],
+    return Consumer<UserProfileProvider>(
+      builder: (context, userProfile, child) {
+        return Column(
+          children: [
+            Container(
+              width: 100,
+              height: 100,
+              decoration: const BoxDecoration(
+                color: Color(0xFF83002A),
+                shape: BoxShape.circle,
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: userProfile.imagePath != null
+                  ? Image.file(
+                      File(userProfile.imagePath!),
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Icon(Icons.person, size: 60, color: Colors.white),
+                    )
+                  : const Icon(Icons.person, size: 60, color: Colors.white),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              userProfile.name,
+              style: const TextStyle(
+                  color: Color(0xFF83002A),
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold),
+            ),
+            const Text(
+              'sechochosi@uide.edu.ec',
+              style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 14,
+                  decoration: TextDecoration.underline),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              userProfile.phone,
+              style: const TextStyle(color: Colors.grey, fontSize: 14),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -172,12 +197,14 @@ class ProfileScreen extends StatelessWidget {
       _buildMenuOption(
         context,
         'Reseñas',
+        Icons.rate_review,
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ComentariosServiciosScreen())),
       ),
       const SizedBox(height: 16),
       _buildMenuOption(
         context,
         'Configuraciones',
+        Icons.settings,
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ConfiguracionEmprendedorScreen())),
       ),
     ];
@@ -206,7 +233,7 @@ class ProfileScreen extends StatelessWidget {
     ];
   }
 
-  Widget _buildMenuOption(BuildContext context, String title, {VoidCallback? onTap}) {
+  Widget _buildMenuOption(BuildContext context, String title, IconData icon, {VoidCallback? onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -217,8 +244,9 @@ class ProfileScreen extends StatelessWidget {
           border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : Colors.grey.shade400),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            Icon(icon, color: const Color(0xFF83002A)),
+            const SizedBox(width: 16),
             Expanded(
               child: Text(title, style: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black, fontSize: 15, fontWeight: FontWeight.w500)),
             ),

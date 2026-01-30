@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:emprendeuidemovil/screens/emprendedor_taek/comentarios_servicios.dart';
 import 'package:emprendeuidemovil/screens/emprendedor_taek/configuracion_emprendedor.dart';
+import 'package:provider/provider.dart';
+import 'package:emprendeuidemovil/providers/user_profile_provider.dart';
 
 
 class EmprendedorPerfilScreen extends StatefulWidget {
@@ -12,14 +14,12 @@ class EmprendedorPerfilScreen extends StatefulWidget {
 }
 
 class _EmprendedorPerfilScreenState extends State<EmprendedorPerfilScreen> {
-  String _name = 'Sebastián Chocho';
-  String _phone = '096 933 1762'; // Default phone
-  File? _imageFile;
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
         children: [
           // 1. Top Bar
@@ -43,6 +43,7 @@ class _EmprendedorPerfilScreenState extends State<EmprendedorPerfilScreen> {
                   // 4. Menu Options
                   _buildMenuOption(
                     'Reseñas',
+                    Icons.rate_review,
                     onTap: () {
                       Navigator.push(
                         context,
@@ -53,27 +54,14 @@ class _EmprendedorPerfilScreenState extends State<EmprendedorPerfilScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  _buildMenuOption('Configuraciones', onTap: () async {
-                     final result = await Navigator.push(
+                  _buildMenuOption('Configuraciones', Icons.settings, onTap: () async {
+                      // Navigate directly - Provider handles the state
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ConfiguracionEmprendedorScreen(
-                            currentName: _name,
-                            currentPhone: _phone,
-                            currentImage: _imageFile,
-                          ),
+                          builder: (context) => const ConfiguracionEmprendedorScreen(),
                         ),
                       );
-
-                      if (result != null && result is Map) {
-                        setState(() {
-                          _name = result['name'] ?? _name;
-                          _phone = result['phone'] ?? _phone;
-                          if (result['image'] != null) {
-                            _imageFile = result['image'];
-                          }
-                        });
-                      }
                   }),
 
                   const SizedBox(height: 40),
@@ -124,46 +112,51 @@ class _EmprendedorPerfilScreenState extends State<EmprendedorPerfilScreen> {
   }
 
   Widget _buildProfileInfo() {
-    return Column(
-      children: [
-        // Avatar
-        Container(
-          width: 100,
-          height: 100,
-          decoration: BoxDecoration(
-            color: const Color(0xFF83002A),
-            shape: BoxShape.circle,
-            image: _imageFile != null
-                ? DecorationImage(
-                    image: FileImage(_imageFile!),
-                    fit: BoxFit.cover,
-                  )
-                : null,
-          ),
-           child: _imageFile == null
-              ? const Icon(Icons.person, size: 60, color: Colors.white)
-              : null,
-        ),
-        const SizedBox(height: 16),
-        // Name
-        Text(
-          _name,
-          style: const TextStyle(
-            color: Color(0xFF83002A),
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        // Email
-        const Text(
-          'sechochosi@uide.edu.ec',
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 14,
-            decoration: TextDecoration.underline,
-          ),
-        ),
-      ],
+    return Consumer<UserProfileProvider>(
+      builder: (context, userProfile, child) {
+        return Column(
+          children: [
+            // Avatar
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: const Color(0xFF83002A),
+                shape: BoxShape.circle,
+                image: userProfile.imagePath != null
+                    ? DecorationImage(
+                        image: FileImage(File(userProfile.imagePath!)),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: userProfile.imagePath == null
+                  ? const Icon(Icons.person, size: 60, color: Colors.white)
+                  : null,
+            ),
+            const SizedBox(height: 16),
+            // Name
+            Text(
+              userProfile.name,
+              style: const TextStyle(
+                color: Color(0xFF83002A),
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            // Email
+            const Text(
+              'sechochosi@uide.edu.ec',
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 14,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -216,30 +209,31 @@ class _EmprendedorPerfilScreenState extends State<EmprendedorPerfilScreen> {
     );
   }
 
-  Widget _buildMenuOption(String title, {VoidCallback? onTap}) {
+  Widget _buildMenuOption(String title, IconData icon, {VoidCallback? onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
           borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: Colors.grey.shade400),
+          border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : Colors.grey.shade400),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            Icon(icon, color: const Color(0xFF83002A)),
+            const SizedBox(width: 16),
             Expanded(
               child: Text(
                 title,
-                style: const TextStyle(
-                  color: Colors.black,
+                style: TextStyle(
+                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                 ),
               ),
             ),
-            const Icon(Icons.chevron_right, color: Colors.black),
+            Icon(Icons.chevron_right, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
           ],
         ),
       ),
@@ -253,7 +247,7 @@ class _EmprendedorPerfilScreenState extends State<EmprendedorPerfilScreen> {
         width: 250,
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(color: const Color.fromARGB(255, 255, 33, 33), width: 1.5),
         ),

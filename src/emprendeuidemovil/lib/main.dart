@@ -7,7 +7,8 @@ import 'providers/cart_provider.dart';
 import 'providers/user_role_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/ratings_provider.dart';
-import 'providers/chat_provider.dart'; // Agregado
+import 'providers/chat_provider.dart';
+import 'providers/user_profile_provider.dart'; // Agregado
 
 // Pantallas modo Emprendedor
 import 'screens/emprendedor_taek/solicitudes.dart';
@@ -31,7 +32,8 @@ void main() {
         ChangeNotifierProvider(create: (_) => UserRoleProvider()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
         ChangeNotifierProvider(create: (_) => RatingsProvider()),
-        ChangeNotifierProvider(create: (_) => ChatProvider()), // Agregado
+        ChangeNotifierProvider(create: (_) => ChatProvider()),
+        ChangeNotifierProvider(create: (_) => UserProfileProvider()), // Agregado
       ],
       child: const MyApp(),
     ),

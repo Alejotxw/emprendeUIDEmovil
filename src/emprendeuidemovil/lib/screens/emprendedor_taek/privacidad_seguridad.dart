@@ -14,7 +14,7 @@ class _PrivacidadSeguridadScreenState extends State<PrivacidadSeguridadScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
         children: [
           _buildTopBar(context),
@@ -117,7 +117,7 @@ class _PrivacidadSeguridadScreenState extends State<PrivacidadSeguridadScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFE6F7E9), // Light green
+        color: Theme.of(context).brightness == Brightness.dark ? Colors.green.shade900.withOpacity(0.3) : const Color(0xFFE6F7E9),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: const Color(0xFF39B54A), width: 0.5),
       ),
@@ -136,20 +136,20 @@ class _PrivacidadSeguridadScreenState extends State<PrivacidadSeguridadScreen> {
            Expanded(
              child: Column(
                crossAxisAlignment: CrossAxisAlignment.start,
-               children: const [
+               children: [
                  Text(
                    "Cuenta Protegida",
                    style: TextStyle(
                      fontWeight: FontWeight.bold,
                      fontSize: 16,
-                     color: Colors.black,
+                     color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
                    ),
                  ),
-                 SizedBox(height: 8),
+                 const SizedBox(height: 8),
                  Text(
                    "Tu cuenta está activa y protegida. Mantén tus datos seguros siguiendo nuestras recomendaciones.",
                    style: TextStyle(
-                     color: Colors.black87,
+                     color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.black87,
                      fontSize: 14,
                      height: 1.4,
                    ),
@@ -166,19 +166,19 @@ class _PrivacidadSeguridadScreenState extends State<PrivacidadSeguridadScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : Colors.grey.shade300),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Privacidad de perfil",
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
             ),
           ),
           const SizedBox(height: 24),
@@ -190,8 +190,8 @@ class _PrivacidadSeguridadScreenState extends State<PrivacidadSeguridadScreen> {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text("Mostrar correo electrónico", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                  children: [
+                    Text("Mostrar correo electrónico", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black)),
                     Text("Visible en tu perfil público", style: TextStyle(color: Colors.grey, fontSize: 13)),
                   ],
                 ),
@@ -217,8 +217,8 @@ class _PrivacidadSeguridadScreenState extends State<PrivacidadSeguridadScreen> {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text("Mostrar teléfono", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                  children: [
+                    Text("Mostrar teléfono", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black)),
                     Text("Visible en tu perfil público", style: TextStyle(color: Colors.grey, fontSize: 13)),
                   ],
                 ),
