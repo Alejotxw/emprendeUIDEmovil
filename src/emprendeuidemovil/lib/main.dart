@@ -34,6 +34,8 @@ import 'providers/cart_provider.dart';
 // 🔹 Widgets
 import 'widgets/bottom_navigation.dart';
 import 'screens/chat_screen.dart'; // Agregado
+import 'screens/login_screen.dart';
+import 'screens/admin_screen.dart';
 
 void main() {
   runApp(
@@ -162,7 +164,12 @@ class MyApp extends StatelessWidget {
               child: child!,
             );
           },
-          home: const MainScreen(),
+          home: const LoginScreen(),
+          routes: {
+            '/login': (context) => const LoginScreen(),
+            '/main': (context) => const MainScreen(),
+            '/admin': (context) => const AdminScreen(),
+          },
         );
       },
     );
