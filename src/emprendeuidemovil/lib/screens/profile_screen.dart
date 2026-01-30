@@ -14,6 +14,7 @@ import '../screens/settings_screen.dart';
 
 // Import del provider (¡OBLIGATORIO!)
 import 'package:emprendeuidemovil/providers/user_role_provider.dart';
+import 'login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -232,8 +233,11 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildLogoutButton(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Tu lógica de logout
-        Navigator.pushReplacementNamed(context, "/");
+        // Tu lógica de logout: navegar al LoginScreen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
       },
       child: Container(
         width: 250,
