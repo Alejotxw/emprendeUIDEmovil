@@ -4,6 +4,7 @@ import 'package:emprendeuidemovil/screens/emprendedor_taek/comentarios_servicios
 import 'package:emprendeuidemovil/screens/emprendedor_taek/configuracion_emprendedor.dart';
 import 'package:provider/provider.dart';
 import 'package:emprendeuidemovil/providers/user_profile_provider.dart';
+import '../login_screen.dart';
 
 
 class EmprendedorPerfilScreen extends StatefulWidget {
@@ -242,7 +243,10 @@ class _EmprendedorPerfilScreenState extends State<EmprendedorPerfilScreen> {
 
   Widget _buildLogoutButton(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.pushReplacementNamed(context, "/"),
+      onTap: () => Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      ),
       child: Container(
         width: 250,
         padding: const EdgeInsets.symmetric(vertical: 12),

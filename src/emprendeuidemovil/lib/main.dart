@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 
 // Providers
@@ -22,8 +23,13 @@ import 'screens/client_taek/cart_screen.dart';
 // Pantalla de perfil unificada y Chat
 import 'screens/profile_screen.dart';
 import 'screens/chat_screen.dart'; // Agregado
+import 'screens/login_screen.dart';
+import 'screens/admin_screen.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
   runApp(
     MultiProvider(
       providers: [
@@ -75,7 +81,12 @@ class MyApp extends StatelessWidget {
               child: child!,
             );
           },
-          home: const MainScreen(),
+          home: const LoginScreen(),
+          routes: {
+            '/login': (context) => const LoginScreen(),
+            '/main': (context) => const MainScreen(),
+            '/admin': (context) => const AdminScreen(),
+          },
         );
       },
     );

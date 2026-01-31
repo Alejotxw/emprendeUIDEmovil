@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/user_role_provider.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -74,9 +77,8 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                        Navigator.pushReplacementNamed(context, '/main');
-                      },
-                  
+                    Navigator.pushReplacementNamed(context, '/main');
+                  },
                   child: const Text(
                     'Ingresar',
                     style: TextStyle(
@@ -88,6 +90,49 @@ class LoginScreen extends StatelessWidget {
                 ),
               ),
 
+              const SizedBox(height: 40),
+
+              // --- SECCIÓN DE BOTONES DEMO ---
+              const Text(
+                'Modo Demo',
+                style: TextStyle(color: Colors.white70, fontSize: 14),
+              ),
+              const SizedBox(height: 15),
+              Row(
+                children: [
+                  // Botón Demo Cliente
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Provider.of<UserRoleProvider>(context, listen: false).setRole(UserRole.cliente);
+                        Navigator.pushReplacementNamed(context, '/main');
+                      },
+                      icon: const Icon(Icons.person, color: Colors.white),
+                      label: const Text('Cliente', style: TextStyle(color: Colors.white)),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.white54),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 15),
+                  // Botón Demo Admin
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Provider.of<UserRoleProvider>(context, listen: false).setRole(UserRole.emprendedor);
+                        Navigator.pushReplacementNamed(context, '/admin');
+                      },
+                      icon: const Icon(Icons.admin_panel_settings, color: Colors.white),
+                      label: const Text('Admin', style: TextStyle(color: Colors.white)),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.white54),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 40),
             ],
           ),
