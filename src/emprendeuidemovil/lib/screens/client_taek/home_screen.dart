@@ -4,6 +4,8 @@ import '../../providers/service_provider.dart';
 import '../../models/service_model.dart';
 import '../../widgets/service_card.dart';
 import 'detail_screen.dart';  // Import para navegación a detalle
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -34,6 +36,49 @@ class _HomeScreenState extends State<HomeScreen> {
         .map((s) => s.name)
         .take(5));  // Limita a 5 para no sobrecargar
     return suggestions.isNotEmpty ? suggestions : ['No hay opciones exactas. Prueba con "${lowerQuery}" relacionado'];
+  }
+
+  void _showEventDetails(Map<String, dynamic> event) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        title: Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context),
+            ),
+            Expanded(child: Text(event['title'] ?? 'Evento')),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (event['image'] != null)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.network(event['image'], height: 150, width: double.infinity, fit: BoxFit.cover),
+              ),
+            const SizedBox(height: 12),
+            Text("📅 Fecha: ${event['datetime']?.toString().split('T')[0] ?? ''}", 
+                 style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Text(event['description'] ?? 'Sin descripción'),
+            const SizedBox(height: 8),
+            Text("📞 Contacto: ${event['contact'] ?? 'No disponible'}",
+                 style: const TextStyle(color: Colors.blueGrey, fontSize: 13)),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cerrar'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -137,8 +182,88 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
+
+          
+
           body: CustomScrollView(
             slivers: [
+              // --- SECCIÓN DE EVENTOS (CARRUSEL) ---
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                .collection('events')
+                .where('status', isEqualTo: 'published')
+                .snapshots(),
+                builder: (context, snapshot) {
+                  // Si no hay datos o la lista está vacía, no muestra NADA
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const SliverToBoxAdapter(child: SizedBox.shrink());
+                  }
+
+                  final docs = snapshot.data!.docs;
+
+                  return SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: CarouselSlider(
+                        options: CarouselOptions(
+                          height: 200,
+                          // Solo activa el autoPlay si hay más de un evento
+                          autoPlay: docs.length > 1, 
+                          autoPlayInterval: const Duration(seconds: 5),
+                          enlargeCenterPage: true,
+                          // Evita el scroll infinito si solo hay un evento
+                          enableInfiniteScroll: docs.length > 1,
+                          viewportFraction: 0.85,
+                        ),
+                        items: docs.map((doc) {
+                          final event = doc.data() as Map<String, dynamic>;
+                          final imageUrl = event['image'] ?? '';
+
+                          return GestureDetector(
+                            onTap: () => _showEventDetails(event),
+                            child: Container(
+                              width: MediaQuery.of(context).size.width,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                color: Colors.grey[200], // Fondo mientras carga
+                                image: imageUrl.isNotEmpty
+                                    ? DecorationImage(
+                                        image: NetworkImage(imageUrl),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : null,
+                              ),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  gradient: LinearGradient(
+                                    begin: Alignment.bottomCenter,
+                                    end: Alignment.center,
+                                    colors: [
+                                      Colors.black.withOpacity(0.8),
+                                      Colors.transparent
+                                    ],
+                                  ),
+                                ),
+                                padding: const EdgeInsets.all(12),
+                                alignment: Alignment.bottomLeft,
+                                child: Text(
+                                  event['title'] ?? '',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  );
+                },
+              ),
               // Categorías SIEMPRE visibles
               SliverToBoxAdapter(
                 child: Padding(
@@ -266,6 +391,8 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
+
+
 
   Widget _buildCategoryChip(String label, VoidCallback onTap) {
     IconData icon = _getCategoryIcon(label);
