@@ -13,6 +13,10 @@ import 'providers/ratings_provider.dart';
 import 'providers/chat_provider.dart';
 import 'providers/user_profile_provider.dart'; // Agregado
 
+import 'providers/chat_provider.dart'; // Agregado
+import 'providers/order_provider.dart'; // Agregado
+import 'providers/notification_provider.dart'; // Agregado
+
 // Pantallas modo Emprendedor
 import 'screens/emprendedor_taek/solicitudes.dart';
 import 'screens/emprendedor_taek/mis_emprendimientos.dart';
@@ -37,6 +41,7 @@ import 'widgets/bottom_navigation.dart';
 import 'screens/chat_screen.dart'; // Agregado
 import 'screens/login_screen.dart';
 import 'screens/admin_screen.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,6 +69,10 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => RatingsProvider()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
         ChangeNotifierProvider(create: (_) => UserProfileProvider()), // Agregado
+        ChangeNotifierProvider(create: (_) => ChatProvider()), // Agregado
+        ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => OrderProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()), // AGREGA ESTO
       ],
       child: const MyApp(),
     ),

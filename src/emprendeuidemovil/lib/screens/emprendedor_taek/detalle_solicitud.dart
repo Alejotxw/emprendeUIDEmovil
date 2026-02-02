@@ -364,13 +364,15 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
             // Actions Buttons
             Row(
               children: [
+                // --- BOTÓN RECHAZAR ---
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
+                      // Enviamos 'Rechazado' para que el carrito se ponga en rojo
                       Navigator.pop(context, 'Rechazado');
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFD50000), // Red
+                      backgroundColor: const Color(0xFFD50000), // Rojo
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
                       ),
@@ -386,25 +388,19 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 20),
+                
+                const SizedBox(width: 16), // Espacio entre botones
+
+                // --- BOTÓN ACEPTAR ---
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      if (_selectedDate == null || _selectedTime == null) {
-                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Por favor confirma fecha y hora de entrega')),
-                        );
-                        return;
-                      }
-                      Navigator.pop(context, {
-                        'status': 'Aceptado',
-                        'location': "Sede Loja Universidad Internacional del Ecuador",
-                        'date': _selectedDate,
-                        'time': _selectedTime
-                      });
+                      // AQUÍ PODRÍAS AGREGAR EL DATEPICKER ANTES DEL POP
+                      // Pero lo más importante es devolver 'Aceptado'
+                      Navigator.pop(context, 'Aceptado');
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2E7D32), // Green
+                      backgroundColor: const Color(0xFF4CAF50), // Verde
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
                       ),

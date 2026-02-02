@@ -8,12 +8,49 @@ import '../../widgets/dashboard_widget.dart';
 import '../../widgets/emprendimiento_servicio_list.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import '../../providers/notification_provider.dart'; // Ajusta la ruta a tu carpeta
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
+}
+
+  void _showNotificationsDialog(BuildContext context, NotificationProvider provider) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      title: const Text('Notificaciones'),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: provider.notifications.isEmpty
+            ? const Text('No hay mensajes nuevos')
+            : // Busca esta parte en tu home_screen.dart
+              ListView.builder(
+                shrinkWrap: true,
+                itemCount: provider.notifications.length,
+                itemBuilder: (context, index) {
+                  final noti = provider.notifications[index];
+
+                  return ListTile(
+                    leading: const Icon(Icons.info_outline, color: Color(0xFFC8102E)),
+                    title: Text(noti.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text(noti.message),
+                    trailing: Text(
+                      "${noti.timestamp.hour}:${noti.timestamp.minute.toString().padLeft(2, '0')}",
+                      style: const TextStyle(fontSize: 10, color: Colors.grey),
+                    ),
+                  );
+                },
+              ),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cerrar')),
+      ],
+    ),
+  );
 }
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -128,16 +165,59 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Hola, Alejandro',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
+                      // FILA SUPERIOR: Nombre y Campana de Notificaciones
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Hola, Alejandro',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                          // --- INICIO DE NOTIFICACIONES ---
+                          Consumer<NotificationProvider>(
+                            builder: (context, notiProvider, child) {
+                              return Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.notifications, color: Colors.white),
+                                    onPressed: () => _showNotificationsDialog(context, notiProvider),
+                                  ),
+                                  if (notiProvider.notifications.isNotEmpty)
+                                    Positioned(
+                                      right: 8,
+                                      top: 8,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(2),
+                                        decoration: BoxDecoration(
+                                          color: Colors.orange, // Color llamativo para el contador
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                                        child: Text(
+                                          '${notiProvider.notifications.length}',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              );
+                            },
+                          ),
+                          // --- FIN DE NOTIFICACIONES ---
+                        ],
                       ),
                       const SizedBox(height: 8),
-                      // Autocomplete para sugerencias
+                      // Autocomplete para sugerencias (Buscador)
                       Autocomplete<String>(
                         optionsBuilder: (TextEditingValue textEditingValue) {
                           if (textEditingValue.text.isEmpty) return const Iterable<String>.empty();
@@ -151,42 +231,47 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                         fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
                           _searchController.text = _searchQuery;
-                          return TextField(
-                            controller: controller ?? _searchController,
-                            focusNode: focusNode,
-                            onChanged: (value) => setState(() => _searchQuery = value),
-                            onSubmitted: (value) => setState(() => _searchQuery = value),
-                            style: const TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
-                              hintText: _searchQuery.isEmpty
-                                  ? '¿Qué necesitas hoy? Busca servicios o emprendimientos'
-                                  : null,
-                              hintStyle: const TextStyle(color: Colors.white70, fontSize: 14),
-                              prefixIcon: const Icon(Icons.search, color: Colors.white70),
-                              suffixIcon: _searchQuery.isNotEmpty
-                                  ? IconButton(
-                                      icon: const Icon(Icons.clear, color: Colors.white70),
-                                      onPressed: () {
-                                        _searchController.clear();
-                                        setState(() => _searchQuery = '');
-                                      },
-                                    )
-                                  : null,
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: TextField(
+                              controller: controller ?? _searchController,
+                              focusNode: focusNode,
+                              onChanged: (value) => setState(() => _searchQuery = value),
+                              onSubmitted: (value) => setState(() => _searchQuery = value),
+                              style: const TextStyle(color: Colors.white),
+                              decoration: InputDecoration(
+                                hintText: _searchQuery.isEmpty
+                                    ? '¿Qué necesitas hoy? Busca servicios'
+                                    : null,
+                                hintStyle: const TextStyle(color: Colors.white70, fontSize: 14),
+                                prefixIcon: const Icon(Icons.search, color: Colors.white70),
+                                suffixIcon: _searchQuery.isNotEmpty
+                                    ? IconButton(
+                                        icon: const Icon(Icons.clear, color: Colors.white70),
+                                        onPressed: () {
+                                          _searchController.clear();
+                                          setState(() => _searchQuery = '');
+                                        },
+                                      )
+                                    : null,
+                                border: InputBorder.none,
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                              ),
                             ),
                           );
                         },
                       ),
                     ],
                   ),
+                  
                 ),
               ),
+              
             ),
           ),
-
-          
-
           body: CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
