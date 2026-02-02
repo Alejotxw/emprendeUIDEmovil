@@ -9,6 +9,8 @@ import 'providers/user_role_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/ratings_provider.dart';
 import 'providers/chat_provider.dart'; // Agregado
+import 'providers/order_provider.dart'; // Agregado
+import 'providers/notification_provider.dart'; // Agregado
 
 // Pantallas modo Emprendedor
 import 'screens/emprendedor_taek/solicitudes.dart';
@@ -25,6 +27,7 @@ import 'screens/chat_screen.dart'; // Agregado
 import 'screens/login_screen.dart';
 import 'screens/admin_screen.dart';
 
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -38,6 +41,9 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
         ChangeNotifierProvider(create: (_) => RatingsProvider()),
         ChangeNotifierProvider(create: (_) => ChatProvider()), // Agregado
+        ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => OrderProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()), // AGREGA ESTO
       ],
       child: const MyApp(),
     ),
