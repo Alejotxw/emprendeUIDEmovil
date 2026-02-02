@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/cart_provider.dart';
+import '../../providers/order_provider.dart';
+import '../../models/cart_item.dart'; 
 
 class PaymentScreen extends StatefulWidget {
   const PaymentScreen({super.key});
@@ -140,6 +142,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
                 const SizedBox(height: 16),
                 // Botón Pagar (deshabilitado si no método)
+                // Botón Pagar dentro del build de payment_screen.dart
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -149,17 +152,50 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
+                    // Dentro del onPressed del botón Pagar en payment_screen.dart
+                    // En lib/screens/client_taek/payment_screen.dart
+
                     onPressed: _selectedPaymentMethod.isNotEmpty
-                        ? () {
-                            cartProvider.clearCart();  // Mock: Limpia carrito al pagar
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text('Pago exitoso por $_selectedPaymentMethod!'),
+                        ? () async {
+                            final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+                            final cartProvider = Provider.of<CartProvider>(context, listen: false);
+
+                            final bool pagandoServicios = cartProvider.servicios.isNotEmpty && 
+                                cartProvider.servicios.every((s) => s.status == CartStatus.accepted);
+
+                            final List<CartItem> itemsAPagar = pagandoServicios 
+                                ? List.from(cartProvider.servicios) 
+                                : List.from(cartProvider.productos);
+
+                            // Guardamos el pedido (esto alimentará la pantalla de pedidos)
+                            orderProvider.addOrder(
+                              itemsAPagar,
+                              cartProvider.totalPrice,
+                              _selectedPaymentMethod,
+                            );
+
+                            // Notificación de éxito
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                              content: Text('¡Pago completado! Enviando solicitud...'),
                               backgroundColor: Colors.green,
+                              duration: Duration(seconds: 2),
                             ));
-                            Navigator.popUntil(context, ModalRoute.withName('/home'));  // Vuelve a home
+
+                            // Limpiar solo lo pagado
+                            if (pagandoServicios) {
+                              cartProvider.clearServices(); 
+                            } else {
+                              cartProvider.clearProducts();
+                            }
+
+                            await Future.delayed(const Duration(seconds: 2));
+                            if (mounted) Navigator.of(context).popUntil((route) => route.isFirst);
                           }
                         : null,
-                    child: const Text('Pagar', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    child: const Text(
+                      'Pagar',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
               ],
