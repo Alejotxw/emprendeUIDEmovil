@@ -14,7 +14,8 @@ Map<String, List<CartItem>> get cart => _cart;
   bool get hasItems => servicios.isNotEmpty || productos.isNotEmpty;
 
   void addToCart(ServiceModel service, {ProductItem? product, ServiceItem? serviceItem, int quantity = 1, String? comment}) {
-    final type = service.isProduct ? 'productos' : 'servicios';
+    final bool isProductItem = product != null;
+    final type = isProductItem ? 'productos' : 'servicios';
     
     final existingIndex = _cart[type]!.indexWhere((item) => 
       item.service.id == service.id && 
@@ -32,7 +33,7 @@ Map<String, List<CartItem>> get cart => _cart;
         quantity: quantity,
         comment: comment,
         // Forzamos que los servicios nazcan en pendiente
-        status: service.isProduct ? CartStatus.accepted : CartStatus.pending,
+        status: CartStatus.pending,
       );
       _cart[type]!.add(item);
     }
@@ -45,7 +46,7 @@ Map<String, List<CartItem>> get cart => _cart;
   }
 
   void removeFromCart(ServiceModel service, {ProductItem? product, ServiceItem? serviceItem}) {
-    final type = service.isProduct ? 'productos' : 'servicios';
+    final type = product != null ? 'productos' : 'servicios';
     _cart[type]!.removeWhere((item) => 
       item.service.id == service.id && 
       (product == null || item.product == product) &&
@@ -55,7 +56,7 @@ Map<String, List<CartItem>> get cart => _cart;
   }
 
   void updateQuantity(ServiceModel service, int delta, {ProductItem? product, ServiceItem? serviceItem}) {
-    final type = service.isProduct ? 'productos' : 'servicios';
+    final type = product != null ? 'productos' : 'servicios';
     final index = _cart[type]!.indexWhere((item) => 
       item.service.id == service.id && 
       (product == null || item.product == product) &&
@@ -71,7 +72,7 @@ Map<String, List<CartItem>> get cart => _cart;
   }
 
   void updateStatus(ServiceModel service, CartStatus newStatus, {ProductItem? product, ServiceItem? serviceItem}) {
-    final type = service.isProduct ? 'productos' : 'servicios';
+    final type = product != null ? 'productos' : 'servicios';
     final index = _cart[type]!.indexWhere((item) => 
       item.service.id == service.id && 
       (product == null || item.product == product) &&
@@ -84,7 +85,7 @@ Map<String, List<CartItem>> get cart => _cart;
 }
 
   void updateComment(ServiceModel service, String newComment, {ProductItem? product, ServiceItem? serviceItem}) {
-    final type = service.isProduct ? 'productos' : 'servicios';
+    final type = product != null ? 'productos' : 'servicios';
     final index = _cart[type]!.indexWhere((item) => 
       item.service.id == service.id && 
       (product == null || item.product == product) &&
@@ -119,7 +120,7 @@ void clearProducts() {
   double get totalPrice {
     double total = 0.0;
     for (final item in [...servicios, ...productos]) {
-      total += item.service.price * item.quantity;
+      total += item.price * item.quantity;
     }
     return total;
   }
