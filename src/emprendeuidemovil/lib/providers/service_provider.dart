@@ -111,6 +111,26 @@ class ServiceProvider extends ChangeNotifier {
       ServiceModel(id: '10', name: 'Miguel Herrera', subtitle: 'Obra de arte digital', category: 'Arte', price: 25.0, rating: 4.8, reviewCount: 22, isFavorite: false),
       ServiceModel(id: '11', name: 'Elena Castro', subtitle: 'Presentación PPT', category: 'Presentaciones', price: 11.0, rating: 4.2, reviewCount: 9, isFavorite: false),
       ServiceModel(id: '12', name: 'Roberto Silva', subtitle: 'Accesorios para eventos', category: 'Accesorios', price: 6.0, rating: 4.1, reviewCount: 7, isFavorite: false),
+      ServiceModel(
+        id: 'mine_1',
+        name: 'Kevin Giron',
+        subtitle: 'Diseño web y Posters',
+        category: 'Diseño',
+        price: 0.0,
+        rating: 5.0,
+        reviewCount: 0,
+        isMine: true,
+      ),
+      ServiceModel(
+        id: 'mine_2',
+        name: 'Kevin Giron',
+        subtitle: 'Diseño web y Posters',
+        category: 'Diseño',
+        price: 0.0,
+        rating: 5.0,
+        reviewCount: 0,
+        isMine: true,
+      ),
     ];
     _favorites = _allServices.where((s) => s.isFavorite).map((s) => s.id).toSet() as Set<String>;  // Cast explícito
     notifyListeners();
@@ -129,8 +149,24 @@ class ServiceProvider extends ChangeNotifier {
     return _allServices.where((s) => s.category == category).toList();
   }
 
+  // user: current user services
+  List<ServiceModel> get myServices => _allServices.where((s) => s.isMine).toList();
+
   void addService(ServiceModel service) {
     _allServices.insert(0, service); // Add to the beginning of the list
+    notifyListeners();
+  }
+
+  void updateService(ServiceModel updatedService) {
+    final index = _allServices.indexWhere((s) => s.id == updatedService.id);
+    if (index != -1) {
+      _allServices[index] = updatedService;
+      notifyListeners();
+    }
+  }
+
+  void deleteService(String id) {
+    _allServices.removeWhere((s) => s.id == id);
     notifyListeners();
   }
 }
