@@ -13,23 +13,37 @@ class MisEmprendimientosScreen extends StatefulWidget {
 }
 
 class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
-  final List<Map<String, dynamic>> _emprendimientos = [
-    {
-      'title': 'Kevin Giron',
-      'subtitle': 'Diseño web y Posters',
-      'category': 'Diseño',
-      'isDraft': false,
-    },
-    {
-      'title': 'Kevin Giron',
-      'subtitle': 'Diseño web y Posters',
-      'category': 'Diseño',
-      'isDraft': true,
-    },
-  ];
+  // Helper to convert ServiceModel to Map for the form
+  Map<String, dynamic> _serviceToMap(ServiceModel service) {
+    return {
+      'id': service.id,
+      'title': service.name,
+      'subtitle': service.subtitle,
+      'category': service.category,
+      'imagePath': service.imageUrl,
+      'isDraft': false, // ServiceModel doesn't have isDraft yet
+      'services': [
+        ...service.services.map((s) => {
+          'name': s.name,
+          'description': s.description,
+          'price': s.price.toString(),
+          'type': 'service',
+        }),
+        ...service.products.map((p) => {
+          'name': p.name,
+          'description': p.description,
+          'price': p.price.toString(),
+          'type': 'product',
+        }),
+      ],
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
+    final serviceProvider = Provider.of<ServiceProvider>(context);
+    final myEmprendimientos = serviceProvider.myServices;
+
     return Scaffold(
       backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF121212) : Colors.white,
       body: Column(
@@ -59,23 +73,23 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
                   onPressed: () async {
                     final result = await Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => FormEmprendimientoScreen()),
+                      MaterialPageRoute(builder: (context) => const FormEmprendimientoScreen()),
                     );
 
                     if (result != null && result is Map<String, dynamic>) {
                       if (result['action'] == 'create') {
                          final data = result['data'];
                          
-                         // Create ServiceModel for global app
                          final newService = ServiceModel(
                            id: DateTime.now().millisecondsSinceEpoch.toString(),
                            name: data['title'],
                            subtitle: data['subtitle'],
                            category: data['category'],
-                           price: 0.0, // Base price or range can be logic here
-                           rating: 5.0, // New services start high?
+                           price: 0.0,
+                           rating: 5.0,
                            reviewCount: 0,
                            imageUrl: data['imagePath'] ?? '',
+                           isMine: true,
                            services: (data['services'] as List).where((s) => s['type'] == 'service').map<ServiceItem>((s) => ServiceItem(
                              name: s['name'],
                              price: double.tryParse(s['price']) ?? 0.0,
@@ -88,12 +102,7 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
                            )).toList(),
                          );
 
-                         // Add to global provider so client sees it
-                         Provider.of<ServiceProvider>(context, listen: false).addService(newService);
-
-                         setState(() {
-                           _emprendimientos.add(result['data']);
-                         });
+                         serviceProvider.addService(newService);
                       }
                     }
                   },
@@ -119,45 +128,69 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
 
           // List of Emprendimientos
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _emprendimientos.length,
-              itemBuilder: (context, index) {
-                final item = _emprendimientos[index];
-                return Column(
-                  children: [
-                    _buildEmprendimientoCard(
-                      title: item['title'],
-                      subtitle: item['subtitle'],
-                      category: item['category'],
-                      isDraft: item['isDraft'],
-                      imagePath: item['imagePath'],
-                      onPressed: () async {
-                         final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => FormEmprendimientoScreen(entrepreneurship: item),
-                            ),
-                          );
+            child: myEmprendimientos.isEmpty 
+              ? Center(
+                  child: Text(
+                    "No tienes emprendimientos aún",
+                    style: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.black54),
+                  ),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: myEmprendimientos.length,
+                  itemBuilder: (context, index) {
+                    final service = myEmprendimientos[index];
+                    return Column(
+                      children: [
+                        _buildEmprendimientoCard(
+                          title: service.name,
+                          subtitle: service.subtitle,
+                          category: service.category,
+                          isDraft: false, 
+                          imagePath: service.imageUrl.startsWith('assets/') ? null : service.imageUrl,
+                          onPressed: () async {
+                             final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => FormEmprendimientoScreen(
+                                    entrepreneurship: _serviceToMap(service)
+                                  ),
+                                ),
+                              );
 
-                          if (result != null && result is Map<String, dynamic>) {
-                            setState(() {
-                               if (result['action'] == 'update') {
-                                  _emprendimientos[index] = result['data'];
-                               } else if (result['action'] == 'delete') {
-                                  _emprendimientos.removeAt(index);
-                               }
-                            });
-                          }
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    if (index == _emprendimientos.length - 1)
-                       const SizedBox(height: 80), // Padding for bottom nav
-                  ],
-                );
-              },
-            ),
+                              if (result != null && result is Map<String, dynamic>) {
+                                 if (result['action'] == 'update') {
+                                    final data = result['data'];
+                                    final updatedService = service.copyWith(
+                                      name: data['title'],
+                                      subtitle: data['subtitle'],
+                                      category: data['category'],
+                                      imageUrl: data['imagePath'] ?? service.imageUrl,
+                                      services: (data['services'] as List).where((s) => s['type'] == 'service').map<ServiceItem>((s) => ServiceItem(
+                                        name: s['name'],
+                                        price: double.tryParse(s['price']) ?? 0.0,
+                                        description: s['description']
+                                      )).toList(),
+                                      products: (data['services'] as List).where((s) => s['type'] == 'product').map<ProductItem>((s) => ProductItem(
+                                        name: s['name'],
+                                        price: double.tryParse(s['price']) ?? 0.0,
+                                        description: s['description']
+                                      )).toList(),
+                                    );
+                                    serviceProvider.updateService(updatedService);
+                                 } else if (result['action'] == 'delete') {
+                                    serviceProvider.deleteService(service.id);
+                                 }
+                              }
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        if (index == myEmprendimientos.length - 1)
+                           const SizedBox(height: 80), // Padding for bottom nav
+                      ],
+                    );
+                  },
+                ),
           ),
         ],
       ),

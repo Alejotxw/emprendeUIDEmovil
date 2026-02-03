@@ -10,6 +10,7 @@ class ServiceModel {
   final String imageUrl;
   final List<ProductItem> products;
   final List<ServiceItem> services;
+  final bool isMine; // Indicates if this service belongs to the current user
 
   const ServiceModel({
     required this.id,
@@ -23,6 +24,7 @@ class ServiceModel {
     this.imageUrl = 'assets/placeholder_service.png',
     this.products = const [],
     this.services = const [],
+    this.isMine = false,
   });
 
   ServiceModel copyWith({
@@ -37,6 +39,7 @@ class ServiceModel {
     String? imageUrl,
     List<ProductItem>? products,
     List<ServiceItem>? services,
+    bool? isMine,
   }) {
     return ServiceModel(
       id: id ?? this.id,
@@ -50,6 +53,7 @@ class ServiceModel {
       imageUrl: imageUrl ?? this.imageUrl,
       products: products ?? this.products,
       services: services ?? this.services,
+      isMine: isMine ?? this.isMine,
     );
   }
 
