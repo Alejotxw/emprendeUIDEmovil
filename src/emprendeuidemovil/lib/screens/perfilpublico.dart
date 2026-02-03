@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import '../../models/service_model.dart';
 
 class PerfilPublicoScreen extends StatelessWidget {
@@ -70,12 +71,12 @@ class PerfilPublicoScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             radius: 50,
             backgroundColor: Colors.white,
             child: CircleAvatar(
               radius: 46,
-              backgroundImage: AssetImage('assets/food_placeholder.png'), // Tu imagen
+              backgroundImage: _getImage(service.imageUrl),
             ),
           ),
           const SizedBox(height: 12),
@@ -94,6 +95,25 @@ class PerfilPublicoScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  ImageProvider _getImage(String imageUrl) {
+    if (imageUrl.isEmpty || imageUrl.contains('placeholder')) {
+      return const AssetImage('assets/food_placeholder.png');
+    }
+    
+    // Check if it is a file path
+    final file = File(imageUrl);
+    if (file.existsSync()) {
+      return FileImage(file);
+    }
+
+    // Default to network/asset based on checking logic or generic
+    if (imageUrl.startsWith('http')) {
+      return NetworkImage(imageUrl);
+    }
+    
+    return AssetImage(imageUrl);
   }
 
   // Títulos de sección
@@ -127,8 +147,10 @@ class PerfilPublicoScreen extends StatelessWidget {
         ),
         subtitle: Text(
           content,
-          style: const TextStyle(
-              fontSize: 16, fontWeight: FontWeight.w500, color: Color.fromARGB(221, 255, 255, 255)),
+          style: TextStyle(
+              fontSize: 16, 
+              fontWeight: FontWeight.w500, 
+              color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87),
         ),
       ),
     );

@@ -80,26 +80,40 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
                       if (result['action'] == 'create') {
                          final data = result['data'];
                          
+                         final servicesList = (data['services'] as List).where((s) => s['type'] == 'service').map<ServiceItem>((s) => ServiceItem(
+                           name: s['name'],
+                           price: double.tryParse(s['price']) ?? 0.0,
+                           description: s['description']
+                         )).toList();
+
+                         final productsList = (data['services'] as List).where((s) => s['type'] == 'product').map<ProductItem>((s) => ProductItem(
+                           name: s['name'],
+                           price: double.tryParse(s['price']) ?? 0.0,
+                           description: s['description']
+                         )).toList();
+
+                         // Calculate a base price (minimum or average)
+                         double basePrice = 0.0;
+                         if (servicesList.isNotEmpty || productsList.isNotEmpty) {
+                           final allPrices = [
+                             ...servicesList.map((s) => s.price),
+                             ...productsList.map((p) => p.price)
+                           ];
+                           basePrice = allPrices.reduce((a, b) => a < b ? a : b);
+                         }
+
                          final newService = ServiceModel(
                            id: DateTime.now().millisecondsSinceEpoch.toString(),
                            name: data['title'],
                            subtitle: data['subtitle'],
                            category: data['category'],
-                           price: 0.0,
+                           price: basePrice,
                            rating: 5.0,
                            reviewCount: 0,
                            imageUrl: data['imagePath'] ?? '',
                            isMine: true,
-                           services: (data['services'] as List).where((s) => s['type'] == 'service').map<ServiceItem>((s) => ServiceItem(
-                             name: s['name'],
-                             price: double.tryParse(s['price']) ?? 0.0,
-                             description: s['description']
-                           )).toList(),
-                           products: (data['services'] as List).where((s) => s['type'] == 'product').map<ProductItem>((s) => ProductItem(
-                             name: s['name'],
-                             price: double.tryParse(s['price']) ?? 0.0,
-                             description: s['description']
-                           )).toList(),
+                           services: servicesList,
+                           products: productsList,
                          );
 
                          serviceProvider.addService(newService);
@@ -161,21 +175,36 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
                               if (result != null && result is Map<String, dynamic>) {
                                  if (result['action'] == 'update') {
                                     final data = result['data'];
+                                    
+                                    final servicesList = (data['services'] as List).where((s) => s['type'] == 'service').map<ServiceItem>((s) => ServiceItem(
+                                      name: s['name'],
+                                      price: double.tryParse(s['price']) ?? 0.0,
+                                      description: s['description']
+                                    )).toList();
+
+                                    final productsList = (data['services'] as List).where((s) => s['type'] == 'product').map<ProductItem>((s) => ProductItem(
+                                      name: s['name'],
+                                      price: double.tryParse(s['price']) ?? 0.0,
+                                      description: s['description']
+                                    )).toList();
+
+                                    double basePrice = 0.0;
+                                    if (servicesList.isNotEmpty || productsList.isNotEmpty) {
+                                      final allPrices = [
+                                        ...servicesList.map((s) => s.price),
+                                        ...productsList.map((p) => p.price)
+                                      ];
+                                      basePrice = allPrices.reduce((a, b) => a < b ? a : b);
+                                    }
+
                                     final updatedService = service.copyWith(
                                       name: data['title'],
                                       subtitle: data['subtitle'],
                                       category: data['category'],
+                                      price: basePrice,
                                       imageUrl: data['imagePath'] ?? service.imageUrl,
-                                      services: (data['services'] as List).where((s) => s['type'] == 'service').map<ServiceItem>((s) => ServiceItem(
-                                        name: s['name'],
-                                        price: double.tryParse(s['price']) ?? 0.0,
-                                        description: s['description']
-                                      )).toList(),
-                                      products: (data['services'] as List).where((s) => s['type'] == 'product').map<ProductItem>((s) => ProductItem(
-                                        name: s['name'],
-                                        price: double.tryParse(s['price']) ?? 0.0,
-                                        description: s['description']
-                                      )).toList(),
+                                      services: servicesList,
+                                      products: productsList,
                                     );
                                     serviceProvider.updateService(updatedService);
                                  } else if (result['action'] == 'delete') {

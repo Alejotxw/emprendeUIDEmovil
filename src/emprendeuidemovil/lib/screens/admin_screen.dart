@@ -101,7 +101,10 @@ class _AdminScreenState extends State<AdminScreen> {
                   
                   TextButton.icon(
                     onPressed: () async {
-                      final picked = await _picker.pickImage(source: ImageSource.gallery);
+                      final picked = await _picker.pickImage(
+                        source: ImageSource.gallery,
+                        imageQuality: 50, // Comprime la imagen
+                      );
                       if (picked != null) setStateDialog(() => _pickedImage = picked);
                     },
                     icon: const Icon(Icons.photo_library),
@@ -114,72 +117,15 @@ class _AdminScreenState extends State<AdminScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () async {
-              if (_formKey.currentState!.validate()) {
-                _formKey.currentState!.save();
-                
-                // 1. Mostrar un indicador de carga (Loading)
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (context) => const Center(child: CircularProgressIndicator()),
-                );
-
-                try {
-                  String? finalImageUrl = existingData?['image'];
-
-                  // 2. Subida de imagen a Firebase Storage
-                  if (_pickedImage != null) {
-                    final file = File(_pickedImage!.path);
-                    // Usamos un nombre único para evitar conflictos
-                    final storageRef = FirebaseStorage.instance
-                        .ref()
-                        .child('events/${DateTime.now().millisecondsSinceEpoch}.jpg');
-                    
-                    // Esperamos a que la subida termine por completo
-                    await storageRef.putFile(file);
-                    
-                    // Obtenemos la URL después de confirmar que el archivo existe
-                    finalImageUrl = await storageRef.getDownloadURL();
-                  }
-
-                  // 3. Preparar el mapa de datos
-                  final isDraft = false;
-                  final eventData = {
-                    'title': _eventTitle,
-                    'datetime': _eventDateTime?.toIso8601String() ?? DateTime.now().toIso8601String(),
-                    'description': _eventDesc,
-                    'contact': _contactMethods,
-                    'image': finalImageUrl, 
-                    'status': isDraft ? 'draft' : 'published',
-                    'updatedAt': FieldValue.serverTimestamp(),
-                  };
-
-                  // 4. Guardar en Firestore
-                  if (docId == null) {
-                    await FirebaseFirestore.instance.collection('events').add(eventData);
-                  } else {
-                    await FirebaseFirestore.instance.collection('events').doc(docId).update(eventData);
-                  }
-
-                  // 5. Cerrar diálogos y mostrar éxito
-                  if (mounted) {
-                    Navigator.pop(context); // Cierra el Loading
-                    Navigator.pop(context); // Cierra el Formulario
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(isDraft ? 'Borrador guardado' : 'Evento publicado')),
-                    );
-                  }
-                } catch (e) {
-                  // 6. Manejo de errores real
-                  if (mounted) Navigator.pop(context); // Cierra el Loading
-                  debugPrint("Error al guardar: $e");
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error al publicar: ${e.toString()}')),
-                  );
-                }
-              }
-            },
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFC8102E),
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => _saveEvent(docId, existingData, isDraft: false),
             child: const Text('Publicar Evento'),
           )
         ],
@@ -187,48 +133,188 @@ class _AdminScreenState extends State<AdminScreen> {
     );
   }
 
-  // FUNCIÓN AUXILIAR PARA PROCESAR EL GUARDADO
+  // FUNCIÓN AUXILIAR PARA PROCESAR EL GUARDADO (CENTRALIZADA)
   Future<void> _saveEvent(String? docId, Map<String, dynamic>? existingData, {required bool isDraft}) async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      
-      // Mostrar indicador de carga
-      showDialog(context: context, builder: (_) => const Center(child: CircularProgressIndicator()));
+    if (!_formKey.currentState!.validate()) return;
+    
+    _formKey.currentState!.save();
+    
+    // 1. Mostrar un indicador de carga (Loading)
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: Card(
+          margin: EdgeInsets.symmetric(horizontal: 40),
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(color: Color(0xFFC8102E)),
+                SizedBox(height: 20),
+                Text('Publicando evento...', style: TextStyle(fontWeight: FontWeight.bold)),
+                SizedBox(height: 8),
+                Text('Esto puede tardar unos segundos', style: TextStyle(fontSize: 12, color: Colors.grey)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
 
-      try {
-        String? finalImageUrl = existingData?['image'];
-        if (_pickedImage != null) {
-          final ref = FirebaseStorage.instance.ref().child('events/${DateTime.now().millisecondsSinceEpoch}.jpg');
-          await ref.putFile(File(_pickedImage!.path));
-          finalImageUrl = await ref.getDownloadURL();
-        }
+    try {
+      String? finalImageUrl = existingData?['image'];
 
-        final data = {
-          'title': _eventTitle,
-          'datetime': _eventDateTime?.toIso8601String() ?? DateTime.now().toIso8601String(),
-          'description': _eventDesc,
-          'contact': _contactMethods,
-          'image': finalImageUrl,
-          'status': isDraft ? 'draft' : 'published', // CAMPO NUEVO
-          'updatedAt': FieldValue.serverTimestamp(),
-        };
+      // 2. Subida de imagen a Firebase Storage (con Timeout y Logging)
+      if (_pickedImage != null) {
+        debugPrint("DEBUG: Preparando archivo para subir: ${_pickedImage!.path}");
+        final file = File(_pickedImage!.path);
+        final bytes = await file.readAsBytes(); // Leer bytes para mayor seguridad
+        
+        final storageRef = FirebaseStorage.instance
+            .ref()
+            .child('events/${DateTime.now().millisecondsSinceEpoch}.jpg');
+        
+        debugPrint("DEBUG: Iniciando putData en storage...");
+        final uploadTask = storageRef.putData(bytes);
 
-        if (docId == null) {
-          await FirebaseFirestore.instance.collection('events').add(data);
+        // Escuchar eventos de progreso
+        uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+          double progress = 100 * (snapshot.bytesTransferred / snapshot.totalBytes);
+          debugPrint("DEBUG: Progreso: ${progress.toStringAsFixed(2)}% (${snapshot.state})");
+        });
+        
+        final TaskSnapshot snapshot = await uploadTask.timeout(const Duration(seconds: 45));
+        
+        if (snapshot.state == TaskState.success) {
+          debugPrint("DEBUG: Subida exitosa. Obteniendo URL con reintentos...");
+          
+          // Lógica de reintento para getDownloadURL (algunas veces hay latencia)
+          int retryCount = 0;
+          while (retryCount < 3) {
+            try {
+              finalImageUrl = await snapshot.ref.getDownloadURL().timeout(const Duration(seconds: 10));
+              debugPrint("DEBUG: URL obtenida: $finalImageUrl");
+              break; 
+            } catch (e) {
+              retryCount++;
+              debugPrint("DEBUG: Intento $retryCount de obtener URL falló: $e");
+              if (retryCount >= 3) rethrow;
+              await Future.delayed(const Duration(milliseconds: 500));
+            }
+          }
         } else {
-          await FirebaseFirestore.instance.collection('events').doc(docId).update(data);
+          throw Exception("La subida falló con estado: ${snapshot.state}");
         }
+      }
 
-        Navigator.pop(context); // Quitar carga
-        Navigator.pop(context); // Cerrar diálogo
+      // 3. Preparar el mapa de datos
+      final eventData = {
+        'title': _eventTitle,
+        'datetime': _eventDateTime?.toIso8601String() ?? DateTime.now().toIso8601String(),
+        'description': _eventDesc,
+        'contact': _contactMethods,
+        'image': finalImageUrl, 
+        'status': isDraft ? 'draft' : 'published',
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+
+      // 4. Guardar en Firestore (con Timeout y Logging)
+      debugPrint("DEBUG: Guardando en Firestore...");
+      if (docId == null) {
+        await FirebaseFirestore.instance.collection('events').add(eventData)
+            .timeout(const Duration(seconds: 20));
+      } else {
+        await FirebaseFirestore.instance.collection('events').doc(docId).update(eventData)
+            .timeout(const Duration(seconds: 20));
+      }
+      debugPrint("DEBUG: Guardado en Firestore exitoso.");
+
+      // 5. Cerrar diálogos y mostrar éxito
+      if (mounted) {
+        Navigator.pop(context); // Cierra el Loading
+        Navigator.pop(context); // Cierra el Formulario
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(isDraft ? 'Guardado como borrador' : 'Evento publicado')),
+          SnackBar(
+            content: Text(isDraft ? 'Borrador guardado' : '¡Evento publicado con éxito!'),
+            backgroundColor: Colors.green,
+          ),
         );
-      } catch (e) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    } catch (e) {
+      // 6. Manejo de errores detallado
+      if (mounted) Navigator.pop(context); // Cierra el Loading
+      debugPrint("DEBUG ERROR: Error al guardar evento: $e");
+      
+      String errorMsg = 'Error al publicar';
+      if (e.toString().contains('timeout')) {
+        errorMsg = 'Tiempo de espera agotado. Probablemente no hay internet o es muy lento.';
+      } else if (e.toString().contains('permission-denied')) {
+        errorMsg = 'Error de permisos en Firebase. Revisa las reglas de seguridad.';
+      } else {
+        errorMsg = 'Fallo: $e';
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMsg),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
       }
     }
+  }
+
+  // FUNCIÓN PARA CONFIRMAR ELIMINACIÓN
+  void _confirmDelete(BuildContext context, String docId, String? imageUrl) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Eliminar Evento'),
+        content: const Text('¿Estás seguro de que deseas eliminar este evento? Esta acción no se puede deshacer.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            onPressed: () async {
+              Navigator.pop(context); // Cerrar diálogo
+              try {
+                // 1. Eliminar de Firestore
+                await FirebaseFirestore.instance.collection('events').doc(docId).delete();
+                
+                // 2. Opcional: Eliminar la imagen de Storage si existe
+                if (imageUrl != null && imageUrl.contains('firebasestorage')) {
+                  try {
+                    await FirebaseStorage.instance.refFromURL(imageUrl).delete();
+                  } catch (e) {
+                    debugPrint("Error al borrar imagen de storage: $e");
+                  }
+                }
+                
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Evento eliminado correctamente'), backgroundColor: Colors.orange),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error al eliminar: $e'), backgroundColor: Colors.red),
+                  );
+                }
+              }
+            },
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -259,7 +345,13 @@ class _AdminScreenState extends State<AdminScreen> {
               children: [
                 _buildStatCard('Emprendimientos', '${serviceProvider.allServices.length}', Colors.blue),
                 const SizedBox(width: 12),
-                _buildStatCard('Eventos Activos', '...', Colors.orange), 
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance.collection('events').snapshots(),
+                  builder: (context, snapshot) {
+                    final count = snapshot.hasData ? snapshot.data!.docs.length : 0;
+                    return _buildStatCard('Eventos Activos', '$count', Colors.orange);
+                  },
+                ),
               ],
             ),
             const SizedBox(height: 25),
@@ -318,10 +410,10 @@ class _AdminScreenState extends State<AdminScreen> {
                                 icon: const Icon(Icons.edit, color: Colors.blue),
                                 onPressed: () => _showEventDialog(docId: doc.id, existingData: data),
                               ),
-                              IconButton(
-                                icon: const Icon(Icons.delete_outline, color: Colors.red),
-                                onPressed: () => FirebaseFirestore.instance.collection('events').doc(doc.id).delete(),
-                              ),
+                               IconButton(
+                                 icon: const Icon(Icons.delete_outline, color: Colors.red),
+                                 onPressed: () => _confirmDelete(context, doc.id, data['image']),
+                               ),
                             ],
                           ),
                         ),

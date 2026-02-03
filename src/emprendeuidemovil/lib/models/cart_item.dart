@@ -21,5 +21,11 @@ class CartItem {
   });
 
   String get displayName => product?.name ?? serviceItem?.name ?? service.name;
-  String get type => service.isProduct ? 'productos' : 'servicios';
+  
+  double get price => product?.price ?? serviceItem?.price ?? service.price;
+
+  bool get isActualProduct => product != null;
+  bool get isActualService => serviceItem != null || (product == null && serviceItem == null);
+
+  String get type => isActualProduct ? 'productos' : 'servicios';
 }
