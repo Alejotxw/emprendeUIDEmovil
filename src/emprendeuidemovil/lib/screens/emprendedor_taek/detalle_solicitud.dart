@@ -8,15 +8,18 @@ class DetalleSolicitudScreen extends StatefulWidget {
   final String paymentMethod; // 'fisico' or 'transferencia'
   final String description;
 
-  const DetalleSolicitudScreen({
-    super.key,
-    required this.title,
-    required this.requesterName,
-    required this.tag,
-    required this.items,
-    this.paymentMethod = 'fisico', 
-    this.description = '',
-  });
+   final bool isProduct;
+ 
+   const DetalleSolicitudScreen({
+     super.key,
+     required this.title,
+     required this.requesterName,
+     required this.tag,
+     required this.items,
+     this.paymentMethod = 'fisico', 
+     this.description = '',
+     this.isProduct = false,
+   });
 
   @override
   State<DetalleSolicitudScreen> createState() => _DetalleSolicitudScreenState();
@@ -74,15 +77,15 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
                     color: const Color(0xFFFFE0B2), // Light orange/yellow
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Text(
-                    widget.tag,
-                    style: const TextStyle(
-                      color: Color(0xFFFFA600),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
+                   child: Text(
+                     widget.isProduct ? 'Producto' : 'Servicio',
+                     style: const TextStyle(
+                       color: Color(0xFFFFA600),
+                       fontWeight: FontWeight.bold,
+                       fontSize: 14,
+                     ),
+                   ),
+                 ),
               ],
             ),
             
@@ -98,17 +101,17 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
 
             const SizedBox(height: 24),
             // Section Title
-            Center(
-              child: Text(
-                'Producto/Servicio Elegido',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  decoration: TextDecoration.underline,
-                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white : const Color(0xFF001F54),
-                ),
-              ),
-            ),
+             Center(
+               child: Text(
+                 widget.isProduct ? 'Producto Elegido' : 'Servicio Elegido',
+                 style: TextStyle(
+                   fontSize: 16,
+                   fontWeight: FontWeight.bold,
+                   decoration: TextDecoration.underline,
+                   color: Theme.of(context).brightness == Brightness.dark ? Colors.white : const Color(0xFF001F54),
+                 ),
+               ),
+             ),
             const SizedBox(height: 16),
 
             // Items List
@@ -362,62 +365,85 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
 
             const SizedBox(height: 40),
             // Actions Buttons
-            Row(
-              children: [
-                // --- BOTÓN RECHAZAR ---
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Enviamos 'Rechazado' para que el carrito se ponga en rojo
-                      Navigator.pop(context, 'Rechazado');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFD50000), // Rojo
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+            if (widget.isProduct)
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Para productos, al dar Enviar lo marcamos como aceptado para el flujo
+                    Navigator.pop(context, 'Aceptado');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4CAF50), // Verde
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
                     ),
-                    child: const Text(
-                      'Rechazar',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: const Text(
+                    'Enviar',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
                 ),
-                
-                const SizedBox(width: 16), // Espacio entre botones
+              )
+            else
+              Row(
+                children: [
+                  // --- BOTÓN RECHAZAR ---
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context, 'Rechazado');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFD50000), // Rojo
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text(
+                        'Rechazar',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  
+                  const SizedBox(width: 16), // Espacio entre botones
 
-                // --- BOTÓN ACEPTAR ---
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // AQUÍ PODRÍAS AGREGAR EL DATEPICKER ANTES DEL POP
-                      // Pero lo más importante es devolver 'Aceptado'
-                      Navigator.pop(context, 'Aceptado');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF4CAF50), // Verde
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
+                  // --- BOTÓN ACEPTAR ---
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context, 'Aceptado');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4CAF50), // Verde
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: const Text(
-                      'Aceptar',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                      child: const Text(
+                        'Aceptar',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
             const SizedBox(height: 40),
           ],
         ),

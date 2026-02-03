@@ -16,7 +16,7 @@ class SolicitudesScreen extends StatefulWidget {
 class _SolicitudesScreenState extends State<SolicitudesScreen> {
   final List<Map<String, dynamic>> _solicitudesEstaticas = [
     {
-      'tag': 'Web',
+      'tag': 'Servicio',
       'title': 'Diseño Web',
       'description': 'Preparo postres y dulces.',
       'price': '5.00',
@@ -26,6 +26,7 @@ class _SolicitudesScreenState extends State<SolicitudesScreen> {
       'items': [{'name': 'Landing Page', 'detail': 'HTML/CSS', 'price': '5.00'}],
       'paymentMethod': 'fisico',
       'deliveryTime': '14:00 PM', // Hora de entrega
+      'isProduct': false,
     },
   ];
 
@@ -42,17 +43,35 @@ class _SolicitudesScreenState extends State<SolicitudesScreen> {
       // 1. SERVICIOS QUE ESTÁN EN EL CARRITO (Esperando aprobación)
       ...cartProvider.servicios.map((item) => {
             'cartItemRef': item,
-            'tag': item.service.category,
+            'tag': 'Servicio',
             'title': item.displayName,
             'description': item.comment ?? 'Sin descripción',
-            'price': item.service.price.toStringAsFixed(2),
+            'price': item.price.toStringAsFixed(2),
             'status': _traducirEstado(item.status),
             'statusColor': _obtenerColorEstado(item.status),
-            'requesterName': 'Cliente (Servicio)',
-            'items': [{'name': item.displayName, 'detail': item.service.name, 'price': item.service.price.toString()}],
+            'requesterName': 'Cliente',
+            'items': [{'name': item.displayName, 'detail': item.service.name, 'price': item.price.toString()}],
             'paymentMethod': 'Pendiente',
             'isFromProvider': true,
             'deliveryTime': 'Por definir', 
+            'isProduct': false,
+          }),
+
+      // 2. PRODUCTOS QUE ESTÁN EN EL CARRITO (Si el flujo lo requiere)
+      ...cartProvider.productos.map((item) => {
+            'cartItemRef': item,
+            'tag': 'Producto',
+            'title': item.displayName,
+            'description': 'Pedido de producto',
+            'price': item.price.toStringAsFixed(2),
+            'status': _traducirEstado(item.status),
+            'statusColor': _obtenerColorEstado(item.status),
+            'requesterName': 'Cliente',
+            'items': [{'name': item.displayName, 'detail': 'Cantidad: ${item.quantity}', 'price': item.price.toString()}],
+            'paymentMethod': 'Pendiente',
+            'isFromProvider': true,
+            'deliveryTime': 'Inmediata', 
+            'isProduct': true,
           }),
 
       // 2. PRODUCTOS/PEDIDOS YA PAGADOS (Aparecen aquí para el emprendedor)
@@ -68,6 +87,7 @@ class _SolicitudesScreenState extends State<SolicitudesScreen> {
             'paymentMethod': order.paymentMethod,
             'deliveryTime': 'Inmediata', // O la lógica de tiempo que prefieras
             'isOrder': true,
+            'isProduct': true,
           }),
     ];
 
@@ -146,7 +166,10 @@ class _SolicitudesScreenState extends State<SolicitudesScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 4),
                         decoration: BoxDecoration(color: solicitud['statusColor'], borderRadius: BorderRadius.circular(8)),
                         alignment: Alignment.center,
-                        child: Text(solicitud['status'], style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                        child: Text(
+                          solicitud['isProduct'] ? 'PRODUCTO - ${solicitud['status']}' : 'SERVICIO - ${solicitud['status']}', 
+                          style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)
+                        ),
                       ),
                     ],
                   ),
@@ -194,6 +217,7 @@ class _SolicitudesScreenState extends State<SolicitudesScreen> {
           items: List<Map<String, String>>.from(solicitud['items']),
           paymentMethod: solicitud['paymentMethod'],
           description: solicitud['description'],
+          isProduct: solicitud['isProduct'] ?? false,
         ),
       ),
     );

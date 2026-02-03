@@ -132,35 +132,43 @@ class _DetailScreenState extends State<DetailScreen> {
                       _buildInfoCard('Horario', 'Lun-Vie 10:00-16:00'),
                       _buildInfoCard('Ubicación', 'Dirección mock, Quito, Ecuador'),
                       const SizedBox(height: 24),
-                      Text(
-                        widget.service.isService ? 'Servicios Disponibles' : 'Productos Disponibles',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFC8102E)),
-                      ),
-                      const SizedBox(height: 16),
-                      
-                      // ... (El resto del código de servicios/productos se mantiene igual)
-                      if (widget.service.isService && widget.service.services.isNotEmpty)
-                        ...widget.service.services.asMap().entries.map((entry) => _buildServiceItem(entry.value, entry.key + 1)).toList()
-                      else if (widget.service.isService)
-                        const Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: Text('No hay servicios disponibles en este momento.'),
-                        )
-                      else if (widget.service.products.isNotEmpty)
-                        ...widget.service.products.asMap().entries.map((entry) => _buildProductItem(entry.value, entry.key + 1)).toList()
-                      else
-                        const Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: Text('No hay productos disponibles en este momento.'),
+                      // --- SECCIÓN DE SERVICIOS ---
+                      if (widget.service.services.isNotEmpty) ...[
+                        const Text(
+                          'Servicios Disponibles',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFC8102E)),
                         ),
+                        const SizedBox(height: 16),
+                        ...widget.service.services.asMap().entries.map((entry) => _buildServiceItem(entry.value, entry.key + 1)).toList(),
+                        const SizedBox(height: 24),
+                      ],
                       
-                      const SizedBox(height: 24),
+                      // --- SECCIÓN DE PRODUCTOS ---
+                      if (widget.service.products.isNotEmpty) ...[
+                        const Text(
+                          'Productos Disponibles',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFC8102E)),
+                        ),
+                        const SizedBox(height: 16),
+                        ...widget.service.products.asMap().entries.map((entry) => _buildProductItem(entry.value, entry.key + 1)).toList(),
+                        const SizedBox(height: 24),
+                      ],
 
-                      // ... (Resto de la lógica de botones de compra/solicitud)
-                      if (widget.service.isService)
-                        _buildServiceAction(cartProvider)
-                      else if (widget.service.isProduct)
+                      if (widget.service.services.isEmpty && widget.service.products.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          child: Center(
+                            child: Text('No hay servicios o productos disponibles.'),
+                          ),
+                        ),
+
+                      // Botones de acción dinámicos
+                      if (widget.service.services.isNotEmpty)
+                        _buildServiceAction(cartProvider),
+                      if (widget.service.products.isNotEmpty) ...[
+                        if (widget.service.services.isNotEmpty) const SizedBox(height: 20),
                         _buildProductAction(cartProvider),
+                      ],
                     ],
                   ),
                 ),

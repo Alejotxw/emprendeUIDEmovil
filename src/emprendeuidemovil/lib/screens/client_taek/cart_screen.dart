@@ -63,7 +63,7 @@ class _CartScreenState extends State<CartScreen> {
             children: [
               // Selector de pestañas
               Container(
-                color: Colors.grey[100],
+                color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.grey[100],
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -162,6 +162,11 @@ Widget _buildCartItem(CartItem item, CartProvider cartProvider) {
                   Text(item.comment ?? 'Sin descripción', style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic)),
                   const SizedBox(height: 8),
                   _buildStatusBadge(item.status),
+                  const SizedBox(height: 4),
+                  Text(
+                    '\$${item.price.toStringAsFixed(2)} x ${item.quantity}',
+                    style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFC8102E)),
+                  ),
                 ],
               ),
             ),
