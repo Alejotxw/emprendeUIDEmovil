@@ -4,6 +4,7 @@ import '../../models/service_model.dart';
 import '../../providers/cart_provider.dart';
 // 1. Asegúrate de que la ruta sea correcta según tu proyecto
 import '../../screens/perfilpublico.dart'; 
+import 'dart:io';
 
 class DetailScreen extends StatefulWidget {
   final ServiceModel service;
@@ -55,12 +56,10 @@ class _DetailScreenState extends State<DetailScreen> {
                 Container(
                   width: double.infinity,
                   height: 200,
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/food_placeholder.png'),
-                      fit: BoxFit.cover,
-                    ),
-                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(12)),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    image: _getImageProvider(widget.service.imageUrl),
+                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
                   ),
                 ),
                 Padding(
@@ -330,6 +329,38 @@ class _DetailScreenState extends State<DetailScreen> {
           ],
         ),
       ),
+    );
+  }
+
+
+  DecorationImage? _getImageProvider(String imageUrl) {
+    if (imageUrl.isEmpty || imageUrl.contains('placeholder')) {
+      return const DecorationImage(
+        image: AssetImage('assets/food_placeholder.png'),
+        fit: BoxFit.cover,
+      );
+    }
+    
+    // Check if it is a file path
+    final file = File(imageUrl);
+    if (file.existsSync()) {
+      return DecorationImage(
+        image: FileImage(file),
+        fit: BoxFit.cover,
+      );
+    }
+
+    // Default to network/asset based on checking logic or generic
+    if (imageUrl.startsWith('http')) {
+      return DecorationImage(
+        image: NetworkImage(imageUrl),
+        fit: BoxFit.cover,
+      );
+    }
+    
+    return DecorationImage(
+        image: AssetImage(imageUrl),
+        fit: BoxFit.cover,
     );
   }
 }

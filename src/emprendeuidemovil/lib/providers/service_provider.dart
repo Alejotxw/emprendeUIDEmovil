@@ -128,4 +128,9 @@ class ServiceProvider extends ChangeNotifier {
   List<ServiceModel> getServicesByCategory(String category) {
     return _allServices.where((s) => s.category == category).toList();
   }
+
+  void addService(ServiceModel service) {
+    _allServices.insert(0, service); // Add to the beginning of the list
+    notifyListeners();
+  }
 }
