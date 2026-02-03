@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class FormEmprendimientoScreen extends StatefulWidget {
   final Map<String, dynamic>? entrepreneurship;
@@ -24,6 +26,8 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
   String _selectedCategory = 'Comida';
   List<Map<String, String>> _services = [];
   String _newItemType = 'service'; // 'service' | 'product'
+  File? _selectedImage;
+  final ImagePicker _picker = ImagePicker();
 
   // Schedule State
   final List<String> _days = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
@@ -37,6 +41,9 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
     _nameController = TextEditingController(text: widget.entrepreneurship?['title'] ?? '');
     _descriptionController = TextEditingController(text: widget.entrepreneurship?['subtitle'] ?? '');
     _selectedCategory = widget.entrepreneurship?['category'] ?? 'Comida';
+    if (widget.entrepreneurship?['imagePath'] != null) {
+      _selectedImage = File(widget.entrepreneurship!['imagePath']);
+    }
     
     if (widget.entrepreneurship != null && widget.entrepreneurship!['services'] != null) {
        _services = List<Map<String, String>>.from(widget.entrepreneurship!['services'].map((item) {
@@ -96,6 +103,7 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
       'category': _selectedCategory,
       'services': _services,
       'isDraft': isDraft,
+      'imagePath': _selectedImage?.path,
     };
 
     if (!isDraft && _nameController.text.isEmpty) {
@@ -135,6 +143,62 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                    ),
                    const SizedBox(height: 16),
 
+                   // Image Picker
+                   GestureDetector(
+                     onTap: _pickImage,
+                     child: Container(
+                       height: 180,
+                       width: double.infinity,
+                       decoration: BoxDecoration(
+                         color: _selectedImage == null 
+                             ? (Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.grey.shade100)
+                             : null,
+                         borderRadius: BorderRadius.circular(20),
+                         border: Border.all(color: Colors.grey.shade300),
+                         image: _selectedImage != null
+                             ? DecorationImage(
+                                 image: FileImage(_selectedImage!),
+                                 fit: BoxFit.cover,
+                               )
+                             : null,
+                       ),
+                       child: _selectedImage == null
+                           ? Column(
+                               mainAxisAlignment: MainAxisAlignment.center,
+                               children: [
+                                 Icon(Icons.add_a_photo, 
+                                   size: 50, 
+                                   color: Theme.of(context).brightness == Brightness.dark ? Colors.grey : Colors.grey.shade400
+                                 ),
+                                 const SizedBox(height: 10),
+                                 Text(
+                                   "Agregar Imagen del Emprendimiento",
+                                   style: TextStyle(
+                                     color: Theme.of(context).brightness == Brightness.dark ? Colors.grey : Colors.grey.shade500
+                                   ),
+                                 ),
+                               ],
+                             )
+                           : Stack(
+                               children: [
+                                 Positioned(
+                                   right: 10,
+                                   top: 10,
+                                   child: Container(
+                                     padding: const EdgeInsets.all(4),
+                                     decoration: const BoxDecoration(
+                                       color: Colors.black54,
+                                       shape: BoxShape.circle,
+                                     ),
+                                     child: const Icon(Icons.edit, color: Colors.white, size: 20),
+                                   ),
+                                 ),
+                               ],
+                             ),
+                     ),
+                   ),
+                   const SizedBox(height: 20),
+
                    // Name Input
                    const Text("Nombre del emprendimiento", style: TextStyle(fontWeight: FontWeight.bold)),
                    const SizedBox(height: 8),
@@ -168,8 +232,8 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                         _buildCategoryItem("Bienestar", Icons.spa),
                         _buildCategoryItem("Eventos", Icons.event),
                         _buildCategoryItem("Mascotas", Icons.pets),
-                        _buildCategoryItem("Tecnologia", Icons.computer),
-                        _buildCategoryItem("Gastronomia", Icons.restaurant),
+                        _buildCategoryItem("Tecnología", Icons.computer),
+                        _buildCategoryItem("Gastronomía", Icons.restaurant),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -178,8 +242,8 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         _buildCategoryItem("Moda", Icons.checkroom),
-                        _buildCategoryItem("Diseo", Icons.brush),
-                        _buildCategoryItem("Educacin", Icons.school),
+                        _buildCategoryItem("Diseño", Icons.brush),
+                        _buildCategoryItem("Educación", Icons.school),
                         _buildCategoryItem("Movilidad", Icons.directions_car),
                       ],
                     ),
@@ -440,8 +504,11 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                 label: Text(day),
                 selected: isSelected,
                 selectedColor: const Color(0xFF83002A),
+                backgroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : null,
                 labelStyle: TextStyle(
-                  color: isSelected ? Colors.white : Colors.black,
+                  color: isSelected 
+                      ? Colors.white 
+                      : (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
                 onSelected: (selected) {
@@ -737,5 +804,14 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _pickImage() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      setState(() {
+        _selectedImage = File(image.path);
+      });
+    }
   }
 }

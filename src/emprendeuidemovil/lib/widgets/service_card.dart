@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:io';
 import '../providers/service_provider.dart';
 import '../models/service_model.dart';
 
@@ -35,6 +36,17 @@ class ServiceCard extends StatelessWidget {
             default: return Icons.category;
           }
         }
+        
+        ImageProvider? getImageProvider(String imageUrl) {
+            // Logic to determine image provider
+            if (imageUrl.isEmpty || imageUrl.contains('placeholder')) return null;
+            final file = File(imageUrl);
+            if (file.existsSync()) return FileImage(file);
+            if (imageUrl.startsWith('http')) return NetworkImage(imageUrl);
+            return AssetImage(imageUrl);
+        }
+
+        final imageProvider = getImageProvider(service.imageUrl);
 
         return GestureDetector(
           onTap: onTap,
@@ -49,14 +61,22 @@ class ServiceCard extends StatelessWidget {
               children: [
                 Stack(
                   children: [
-                    Container(
-                      height: 100,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFC8102E).withOpacity(0.8),
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                      Container(
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFC8102E).withOpacity(0.8),
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                          image: imageProvider != null 
+                              ? DecorationImage(
+                                  image: imageProvider,
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
+                        ),
+                        child: imageProvider == null 
+                            ? Center(child: Icon(getIcon(), size: 40, color: Colors.white))
+                            : null,
                       ),
-                      child: Center(child: Icon(getIcon(), size: 40, color: Colors.white)),
-                    ),
                     Positioned(
                       top: 4,
                       right: 4,

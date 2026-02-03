@@ -1,5 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:emprendeuidemovil/screens/emprendedor_taek/form_emprendimiento.dart';
+import '../../providers/service_provider.dart';
+import '../../models/service_model.dart';
 
 class MisEmprendimientosScreen extends StatefulWidget {
   const MisEmprendimientosScreen({super.key});
@@ -60,6 +64,33 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
 
                     if (result != null && result is Map<String, dynamic>) {
                       if (result['action'] == 'create') {
+                         final data = result['data'];
+                         
+                         // Create ServiceModel for global app
+                         final newService = ServiceModel(
+                           id: DateTime.now().millisecondsSinceEpoch.toString(),
+                           name: data['title'],
+                           subtitle: data['subtitle'],
+                           category: data['category'],
+                           price: 0.0, // Base price or range can be logic here
+                           rating: 5.0, // New services start high?
+                           reviewCount: 0,
+                           imageUrl: data['imagePath'] ?? '',
+                           services: (data['services'] as List).where((s) => s['type'] == 'service').map<ServiceItem>((s) => ServiceItem(
+                             name: s['name'],
+                             price: double.tryParse(s['price']) ?? 0.0,
+                             description: s['description']
+                           )).toList(),
+                           products: (data['services'] as List).where((s) => s['type'] == 'product').map<ProductItem>((s) => ProductItem(
+                             name: s['name'],
+                             price: double.tryParse(s['price']) ?? 0.0,
+                             description: s['description']
+                           )).toList(),
+                         );
+
+                         // Add to global provider so client sees it
+                         Provider.of<ServiceProvider>(context, listen: false).addService(newService);
+
                          setState(() {
                            _emprendimientos.add(result['data']);
                          });
@@ -100,6 +131,7 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
                       subtitle: item['subtitle'],
                       category: item['category'],
                       isDraft: item['isDraft'],
+                      imagePath: item['imagePath'],
                       onPressed: () async {
                          final result = await Navigator.push(
                             context,
@@ -137,6 +169,7 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
     required String subtitle,
     required String category,
     required bool isDraft,
+    String? imagePath,
     required VoidCallback onPressed,
   }) {
     return Container(
@@ -150,10 +183,17 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
           // Image / Color Block
           Container(
             height: 120,
+            width: double.infinity,
             margin: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF83002A), // Placeholder color from image
+              color: const Color(0xFF83002A), // Placeholder color
               borderRadius: BorderRadius.circular(16),
+              image: imagePath != null
+                  ? DecorationImage(
+                      image: FileImage(File(imagePath)),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
             ),
           ),
           
