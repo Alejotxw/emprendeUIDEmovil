@@ -17,6 +17,11 @@ import 'providers/chat_provider.dart'; // Agregado
 import 'providers/order_provider.dart'; // Agregado
 import 'providers/notification_provider.dart'; // Agregado
 
+import 'providers/user_profile_provider.dart';
+import 'providers/order_provider.dart';
+import 'providers/notification_provider.dart';
+import 'providers/event_provider.dart';
+
 // Pantallas modo Emprendedor
 import 'screens/emprendedor_taek/solicitudes.dart';
 import 'screens/emprendedor_taek/mis_emprendimientos.dart';
@@ -73,6 +78,9 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => OrderProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()), // AGREGA ESTO
+
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProvider(create: (_) => EventProvider()),
       ],
       child: const MyApp(),
     ),
