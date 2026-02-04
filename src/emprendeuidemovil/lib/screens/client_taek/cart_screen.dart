@@ -96,7 +96,7 @@ class _CartScreenState extends State<CartScreen> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       onPressed: canPay 
-                        ? () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PaymentScreen()))
+                        ? () => Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentScreen(isServicePayment: isServiceTab)))
                         : null,
                       child: Text(buttonText, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                     ),

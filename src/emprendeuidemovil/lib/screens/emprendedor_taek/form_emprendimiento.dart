@@ -51,20 +51,7 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
          return Map<String, String>.from(item);
        }));
     } else {
-      _services = [
-        {
-          'name': 'Postres',
-          'description': 'Sabrosos',
-          'price': '5.00',
-          'type': 'product'
-        },
-        {
-          'name': 'Sopas',
-          'description': 'Almuerzos',
-          'price': '3.00',
-          'type': 'product'
-        }
-      ];
+      _services = [];
     }
   }
 

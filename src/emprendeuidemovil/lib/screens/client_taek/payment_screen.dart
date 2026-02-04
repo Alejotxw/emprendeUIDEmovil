@@ -5,7 +5,8 @@ import '../../providers/order_provider.dart';
 import '../../models/cart_item.dart'; 
 
 class PaymentScreen extends StatefulWidget {
-  const PaymentScreen({super.key});
+  final bool isServicePayment;
+  const PaymentScreen({super.key, this.isServicePayment = false});
 
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
@@ -18,7 +19,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Widget build(BuildContext context) {
     return Consumer<CartProvider>(
       builder: (context, cartProvider, child) {
-        final double subtotal = cartProvider.totalPrice;
+        // CORRECCIÓN: Usamos el flag para decidir qué total mostrar
+        final double subtotal = widget.isServicePayment 
+            ? cartProvider.totalServicesPrice 
+            : cartProvider.totalProductsPrice;
+        
         final double total = subtotal;  // Mock sin impuestos
 
         return Scaffold(
@@ -142,7 +147,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
                 const SizedBox(height: 16),
                 // Botón Pagar (deshabilitado si no método)
-                // Botón Pagar dentro del build de payment_screen.dart
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -152,25 +156,21 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
-                    // Dentro del onPressed del botón Pagar en payment_screen.dart
-                    // En lib/screens/client_taek/payment_screen.dart
-
                     onPressed: _selectedPaymentMethod.isNotEmpty
                         ? () async {
                             final orderProvider = Provider.of<OrderProvider>(context, listen: false);
                             final cartProvider = Provider.of<CartProvider>(context, listen: false);
 
-                            final bool pagandoServicios = cartProvider.servicios.isNotEmpty && 
-                                cartProvider.servicios.every((s) => s.status == CartStatus.accepted);
-
-                            final List<CartItem> itemsAPagar = pagandoServicios 
+                            // Determinamos qué ítems se están pagando
+                            // NOTA: Usamos widget.isServicePayment para ser consistentes con lo que mostramos en UI
+                            final List<CartItem> itemsAPagar = widget.isServicePayment 
                                 ? List.from(cartProvider.servicios) 
                                 : List.from(cartProvider.productos);
 
                             // Guardamos el pedido (esto alimentará la pantalla de pedidos)
                             orderProvider.addOrder(
                               itemsAPagar,
-                              cartProvider.totalPrice,
+                              total, // Usamos el total calculado correctamente
                               _selectedPaymentMethod,
                             );
 
@@ -181,8 +181,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                               duration: Duration(seconds: 2),
                             ));
 
-                            // Limpiar solo lo pagado
-                            if (pagandoServicios) {
+                            // Limpiar solo la sección pagada
+                            if (widget.isServicePayment) {
                               cartProvider.clearServices(); 
                             } else {
                               cartProvider.clearProducts();

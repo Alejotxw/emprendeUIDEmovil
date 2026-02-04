@@ -12,6 +12,7 @@ import 'providers/chat_provider.dart';
 import 'providers/user_profile_provider.dart';
 import 'providers/order_provider.dart';
 import 'providers/notification_provider.dart';
+import 'providers/event_provider.dart';
 
 // Pantallas modo Emprendedor
 import 'screens/emprendedor_taek/solicitudes.dart';
@@ -45,6 +46,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => UserProfileProvider()),
         ChangeNotifierProvider(create: (_) => OrderProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProvider(create: (_) => EventProvider()),
       ],
       child: const MyApp(),
     ),

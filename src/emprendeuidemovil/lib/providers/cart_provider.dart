@@ -118,8 +118,20 @@ void clearProducts() {
   }
 
   double get totalPrice {
+    return totalServicesPrice + totalProductsPrice;
+  }
+
+  double get totalServicesPrice {
     double total = 0.0;
-    for (final item in [...servicios, ...productos]) {
+    for (final item in servicios) {
+      total += item.price * item.quantity;
+    }
+    return total;
+  }
+
+  double get totalProductsPrice {
+    double total = 0.0;
+    for (final item in productos) {
       total += item.price * item.quantity;
     }
     return total;

@@ -6,7 +6,9 @@ import '../../widgets/service_card.dart';
 import 'detail_screen.dart';  // Import para navegación a detalle
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import '../../providers/notification_provider.dart'; // Ajusta la ruta a tu carpeta
+import '../../providers/notification_provider.dart'; 
+import '../../providers/event_provider.dart';
+import 'dart:io';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -93,10 +95,12 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (event['image'] != null)
+            if (event['image'] != null && event['image'].toString().isNotEmpty)
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                child: Image.network(event['image'], height: 150, width: double.infinity, fit: BoxFit.cover),
+                child: event['image'].toString().startsWith('http')
+                    ? Image.network(event['image'], height: 150, width: double.infinity, fit: BoxFit.cover)
+                    : Image.file(File(event['image']), height: 150, width: double.infinity, fit: BoxFit.cover),
               ),
             const SizedBox(height: 12),
             Text("📅 Fecha: ${event['datetime']?.toString().split('T')[0] ?? ''}", 
@@ -273,18 +277,14 @@ class _HomeScreenState extends State<HomeScreen> {
           body: CustomScrollView(
             slivers: [
               // --- SECCIÓN DE EVENTOS (CARRUSEL) ---
-              StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                .collection('events')
-                .where('status', isEqualTo: 'published')
-                .snapshots(),
-                builder: (context, snapshot) {
+              Consumer<EventProvider>(
+                builder: (context, eventProvider, child) {
+                  final events = eventProvider.events.where((e) => e.status == 'published').toList();
+
                   // Si no hay datos o la lista está vacía, no muestra NADA
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  if (events.isEmpty) {
                     return const SliverToBoxAdapter(child: SizedBox.shrink());
                   }
-
-                  final docs = snapshot.data!.docs;
 
                   return SliverToBoxAdapter(
                     child: Padding(
@@ -293,19 +293,27 @@ class _HomeScreenState extends State<HomeScreen> {
                         options: CarouselOptions(
                           height: 200,
                           // Solo activa el autoPlay si hay más de un evento
-                          autoPlay: docs.length > 1, 
+                          autoPlay: events.length > 1, 
                           autoPlayInterval: const Duration(seconds: 5),
                           enlargeCenterPage: true,
                           // Evita el scroll infinito si solo hay un evento
-                          enableInfiniteScroll: docs.length > 1,
+                          enableInfiniteScroll: events.length > 1,
                           viewportFraction: 0.85,
                         ),
-                        items: docs.map((doc) {
-                          final event = doc.data() as Map<String, dynamic>;
-                          final imageUrl = event['image'] ?? '';
+                        items: events.map((event) {
+                          // Adaptamos el EventModel a un Map simple para la función _showEventDetails
+                          final eventMap = {
+                            'title': event.title,
+                            'datetime': event.datetime.toIso8601String(),
+                            'description': event.description,
+                            'contact': event.contact,
+                            'image': event.image,
+                          };
+
+                          final imageUrl = event.image ?? '';
 
                           return GestureDetector(
-                            onTap: () => _showEventDetails(event),
+                            onTap: () => _showEventDetails(eventMap),
                             child: Container(
                               width: MediaQuery.of(context).size.width,
                               decoration: BoxDecoration(
@@ -313,7 +321,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 color: Colors.grey[200], // Fondo mientras carga
                                 image: imageUrl.isNotEmpty
                                     ? DecorationImage(
-                                        image: NetworkImage(imageUrl),
+                                        image: imageUrl.startsWith('http')
+                                            ? NetworkImage(imageUrl)
+                                            : FileImage(File(imageUrl)) as ImageProvider,
                                         fit: BoxFit.cover,
                                       )
                                     : null,
@@ -333,7 +343,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 padding: const EdgeInsets.all(12),
                                 alignment: Alignment.bottomLeft,
                                 child: Text(
-                                  event['title'] ?? '',
+                                  event.title,
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 18,

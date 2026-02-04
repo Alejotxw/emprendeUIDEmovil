@@ -2,11 +2,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../providers/service_provider.dart';
 import '../providers/user_role_provider.dart';
+import '../providers/event_provider.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
@@ -96,8 +95,9 @@ class _AdminScreenState extends State<AdminScreen> {
                   const SizedBox(height: 15),
                   if (_pickedImage != null)
                     Image.file(File(_pickedImage!.path), height: 100, fit: BoxFit.cover)
-                  else if (existingData != null && existingData['image'] != null)
-                    Image.network(existingData['image'], height: 100, fit: BoxFit.cover),
+                  else if (existingData != null && existingData['image'] != null && existingData['image'].toString().isNotEmpty)
+                    Image.network(existingData['image'], height: 100, fit: BoxFit.cover, 
+                      errorBuilder: (c,o,s) => const Icon(Icons.broken_image, size: 50)),
                   
                   TextButton.icon(
                     onPressed: () async {
@@ -133,7 +133,7 @@ class _AdminScreenState extends State<AdminScreen> {
     );
   }
 
-  // FUNCIÓN AUXILIAR PARA PROCESAR EL GUARDADO (CENTRALIZADA)
+  // FUNCIÓN AUXILIAR PARA PROCESAR EL GUARDADO (LOCAL - MOCK)
   Future<void> _saveEvent(String? docId, Map<String, dynamic>? existingData, {required bool isDraft}) async {
     if (!_formKey.currentState!.validate()) return;
     
@@ -155,7 +155,7 @@ class _AdminScreenState extends State<AdminScreen> {
                 SizedBox(height: 20),
                 Text('Publicando evento...', style: TextStyle(fontWeight: FontWeight.bold)),
                 SizedBox(height: 8),
-                Text('Esto puede tardar unos segundos', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                Text('Guardando localmente...', style: TextStyle(fontSize: 12, color: Colors.grey)),
               ],
             ),
           ),
@@ -164,49 +164,13 @@ class _AdminScreenState extends State<AdminScreen> {
     );
 
     try {
+      // SIMULAMOS UNA ESPERA DE RED PARA DAR FEEDBACK VISUAL
+      await Future.delayed(const Duration(seconds: 1));
+
       String? finalImageUrl = existingData?['image'];
-
-      // 2. Subida de imagen a Firebase Storage (con Timeout y Logging)
       if (_pickedImage != null) {
-        debugPrint("DEBUG: Preparando archivo para subir: ${_pickedImage!.path}");
-        final file = File(_pickedImage!.path);
-        final bytes = await file.readAsBytes(); // Leer bytes para mayor seguridad
-        
-        final storageRef = FirebaseStorage.instance
-            .ref()
-            .child('events/${DateTime.now().millisecondsSinceEpoch}.jpg');
-        
-        debugPrint("DEBUG: Iniciando putData en storage...");
-        final uploadTask = storageRef.putData(bytes);
-
-        // Escuchar eventos de progreso
-        uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
-          double progress = 100 * (snapshot.bytesTransferred / snapshot.totalBytes);
-          debugPrint("DEBUG: Progreso: ${progress.toStringAsFixed(2)}% (${snapshot.state})");
-        });
-        
-        final TaskSnapshot snapshot = await uploadTask.timeout(const Duration(seconds: 45));
-        
-        if (snapshot.state == TaskState.success) {
-          debugPrint("DEBUG: Subida exitosa. Obteniendo URL con reintentos...");
-          
-          // Lógica de reintento para getDownloadURL (algunas veces hay latencia)
-          int retryCount = 0;
-          while (retryCount < 3) {
-            try {
-              finalImageUrl = await snapshot.ref.getDownloadURL().timeout(const Duration(seconds: 10));
-              debugPrint("DEBUG: URL obtenida: $finalImageUrl");
-              break; 
-            } catch (e) {
-              retryCount++;
-              debugPrint("DEBUG: Intento $retryCount de obtener URL falló: $e");
-              if (retryCount >= 3) rethrow;
-              await Future.delayed(const Duration(milliseconds: 500));
-            }
-          }
-        } else {
-          throw Exception("La subida falló con estado: ${snapshot.state}");
-        }
+        // En un entorno real subiríamos a Storage, aqui usamos el path local
+        finalImageUrl = _pickedImage!.path; 
       }
 
       // 3. Preparar el mapa de datos
@@ -217,19 +181,18 @@ class _AdminScreenState extends State<AdminScreen> {
         'contact': _contactMethods,
         'image': finalImageUrl, 
         'status': isDraft ? 'draft' : 'published',
-        'updatedAt': FieldValue.serverTimestamp(),
       };
 
-      // 4. Guardar en Firestore (con Timeout y Logging)
-      debugPrint("DEBUG: Guardando en Firestore...");
+      // 4. Guardar en LOCAL PROVIDER
+      final eventProvider = Provider.of<EventProvider>(context, listen: false);
+      
       if (docId == null) {
-        await FirebaseFirestore.instance.collection('events').add(eventData)
-            .timeout(const Duration(seconds: 20));
+        eventProvider.addEvent(eventData);
       } else {
-        await FirebaseFirestore.instance.collection('events').doc(docId).update(eventData)
-            .timeout(const Duration(seconds: 20));
+        eventProvider.updateEvent(docId, eventData);
       }
-      debugPrint("DEBUG: Guardado en Firestore exitoso.");
+      
+      debugPrint("DEBUG: Guardado local exitoso.");
 
       // 5. Cerrar diálogos y mostrar éxito
       if (mounted) {
@@ -243,25 +206,15 @@ class _AdminScreenState extends State<AdminScreen> {
         );
       }
     } catch (e) {
-      // 6. Manejo de errores detallado
+      // 6. Manejo de errores
       if (mounted) Navigator.pop(context); // Cierra el Loading
       debugPrint("DEBUG ERROR: Error al guardar evento: $e");
       
-      String errorMsg = 'Error al publicar';
-      if (e.toString().contains('timeout')) {
-        errorMsg = 'Tiempo de espera agotado. Probablemente no hay internet o es muy lento.';
-      } else if (e.toString().contains('permission-denied')) {
-        errorMsg = 'Error de permisos en Firebase. Revisa las reglas de seguridad.';
-      } else {
-        errorMsg = 'Fallo: $e';
-      }
-
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(errorMsg),
+            content: Text('Error: $e'),
             backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
           ),
         );
       }
@@ -269,12 +222,12 @@ class _AdminScreenState extends State<AdminScreen> {
   }
 
   // FUNCIÓN PARA CONFIRMAR ELIMINACIÓN
-  void _confirmDelete(BuildContext context, String docId, String? imageUrl) {
+  void _confirmDelete(BuildContext context, String docId) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Eliminar Evento'),
-        content: const Text('¿Estás seguro de que deseas eliminar este evento? Esta acción no se puede deshacer.'),
+        content: const Text('¿Estás seguro de que deseas eliminar este evento?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -282,33 +235,12 @@ class _AdminScreenState extends State<AdminScreen> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-            onPressed: () async {
+            onPressed: () {
               Navigator.pop(context); // Cerrar diálogo
-              try {
-                // 1. Eliminar de Firestore
-                await FirebaseFirestore.instance.collection('events').doc(docId).delete();
-                
-                // 2. Opcional: Eliminar la imagen de Storage si existe
-                if (imageUrl != null && imageUrl.contains('firebasestorage')) {
-                  try {
-                    await FirebaseStorage.instance.refFromURL(imageUrl).delete();
-                  } catch (e) {
-                    debugPrint("Error al borrar imagen de storage: $e");
-                  }
-                }
-                
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Evento eliminado correctamente'), backgroundColor: Colors.orange),
-                  );
-                }
-              } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error al eliminar: $e'), backgroundColor: Colors.red),
-                  );
-                }
-              }
+              Provider.of<EventProvider>(context, listen: false).deleteEvent(docId);
+              ScaffoldMessenger.of(context).showSnackBar(
+                 const SnackBar(content: Text('Evento eliminado correctamente'), backgroundColor: Colors.orange),
+              );
             },
             child: const Text('Eliminar'),
           ),
@@ -320,6 +252,7 @@ class _AdminScreenState extends State<AdminScreen> {
   @override
   Widget build(BuildContext context) {
     final serviceProvider = Provider.of<ServiceProvider>(context);
+    final eventProvider = Provider.of<EventProvider>(context); // Listen to events
     
     return Scaffold(
       appBar: AppBar(
@@ -345,13 +278,7 @@ class _AdminScreenState extends State<AdminScreen> {
               children: [
                 _buildStatCard('Emprendimientos', '${serviceProvider.allServices.length}', Colors.blue),
                 const SizedBox(width: 12),
-                StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance.collection('events').snapshots(),
-                  builder: (context, snapshot) {
-                    final count = snapshot.hasData ? snapshot.data!.docs.length : 0;
-                    return _buildStatCard('Eventos Activos', '$count', Colors.orange);
-                  },
-                ),
+                 _buildStatCard('Eventos Activos', '${eventProvider.events.length}', Colors.orange),
               ],
             ),
             const SizedBox(height: 25),
@@ -369,59 +296,59 @@ class _AdminScreenState extends State<AdminScreen> {
             ),
             const SizedBox(height: 15),
             Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance.collection('events').snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return const Center(child: Text('No hay eventos creados.'));
-                  }
+              child: eventProvider.events.isEmpty
+                  ? const Center(child: Text('No hay eventos creados.'))
+                  : ListView.builder(
+                      itemCount: eventProvider.events.length,
+                      itemBuilder: (context, index) {
+                        final event = eventProvider.events[index];
+                        final data = {
+                          'title': event.title,
+                          'datetime': event.datetime.toIso8601String(),
+                          'description': event.description,
+                          'contact': event.contact,
+                          'image': event.image,
+                          'status': event.status
+                        };
 
-                  return ListView.builder(
-                    itemCount: snapshot.data!.docs.length,
-                    itemBuilder: (context, index) {
-                      final doc = snapshot.data!.docs[index];
-                      final data = doc.data() as Map<String, dynamic>;
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        child: ListTile(
-                          leading: data['image'] != null 
-                            ? Image.network(data['image'], width: 50, height: 50, fit: BoxFit.cover)
-                            : const Icon(Icons.image_not_supported),
-                          title: Text(data['title'] ?? 'Sin título'),
-                          subtitle: Row(
-                            children: [
-                              Text(data['datetime']?.split('T')[0] ?? ''),
-                              const SizedBox(width: 10),
-                              if (data['status'] == 'draft')
-                                Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: BoxDecoration(color: Colors.amber[100], borderRadius: BorderRadius.circular(5)),
-                                  child: const Text('BORRADOR', style: TextStyle(fontSize: 10, color: Colors.orange)),
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          child: ListTile(
+                            leading: event.image != null 
+                              ? (event.image!.startsWith('http') 
+                                 ? Image.network(event.image!, width: 50, height: 50, fit: BoxFit.cover, errorBuilder: (c,o,s) => const Icon(Icons.error)) 
+                                 : Image.file(File(event.image!), width: 50, height: 50, fit: BoxFit.cover, errorBuilder: (c,o,s) => const Icon(Icons.image)))
+                              : const Icon(Icons.image_not_supported),
+                            title: Text(event.title),
+                            subtitle: Row(
+                              children: [
+                                Text('${event.datetime.year}-${event.datetime.month}-${event.datetime.day}'),
+                                const SizedBox(width: 10),
+                                if (event.status == 'draft')
+                                  Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(color: Colors.amber[100], borderRadius: BorderRadius.circular(5)),
+                                    child: const Text('BORRADOR', style: TextStyle(fontSize: 10, color: Colors.orange)),
+                                  ),
+                              ],
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit, color: Colors.blue),
+                                  onPressed: () => _showEventDialog(docId: event.id, existingData: data),
                                 ),
-                            ],
+                                 IconButton(
+                                   icon: const Icon(Icons.delete_outline, color: Colors.red),
+                                   onPressed: () => _confirmDelete(context, event.id),
+                                 ),
+                              ],
+                            ),
                           ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit, color: Colors.blue),
-                                onPressed: () => _showEventDialog(docId: doc.id, existingData: data),
-                              ),
-                               IconButton(
-                                 icon: const Icon(Icons.delete_outline, color: Colors.red),
-                                 onPressed: () => _confirmDelete(context, doc.id, data['image']),
-                               ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
+                        );
+                      },
+                    ),
             ),
           ],
         ),
