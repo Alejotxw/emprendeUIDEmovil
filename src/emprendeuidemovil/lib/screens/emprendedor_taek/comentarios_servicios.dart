@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:emprendeuidemovil/screens/emprendedor_taek/formulario_comentarios_responder_emprendedor.dart';
 
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import '../../providers/review_provider.dart';
+
 class ComentariosServiciosScreen extends StatelessWidget {
   const ComentariosServiciosScreen({super.key});
 
@@ -12,33 +16,34 @@ class ComentariosServiciosScreen extends StatelessWidget {
         children: [
           _buildTopBar(context),
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(20),
-              children: const [
-                CommentCard(
-                  serviceName: "Comida Casera",
-                  userName: "Romny Rios",
-                  time: "12:00",
-                  comment: "Estuvieron Buenas, el problema es que se demora mucho",
-                  rating: 3,
-                ),
-                SizedBox(height: 16),
-                CommentCard(
-                  serviceName: "Comida Casera",
-                  userName: "Romny Rios",
-                  time: "12:00",
-                  comment: "Estuvieron Buenas, el problema es que se demora mucho",
-                  rating: 5,
-                ),
-                SizedBox(height: 16),
-                CommentCard(
-                  serviceName: "Comida Casera",
-                  userName: "Romny Rios",
-                  time: "12:00",
-                  comment: "Estuvieron Buenas, el problema es que se demora mucho",
-                  rating: 4,
-                ),
-              ],
+            child: Consumer<ReviewProvider>(
+              builder: (context, reviewProvider, child) {
+                final reviews = reviewProvider.reviews;
+                
+                if (reviews.isEmpty) {
+                  return const Center(child: Text("No hay reseñas aún."));
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.all(20),
+                  itemCount: reviews.length,
+                  itemBuilder: (context, index) {
+                    final review = reviews[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: CommentCard(
+                        reviewId: review.id,
+                        serviceName: review.serviceName,
+                        userName: review.userName,
+                        time: DateFormat('HH:mm dd/MM').format(review.date),
+                        comment: review.comment,
+                        rating: review.rating,
+                        initialResponse: review.response,
+                      ),
+                    );
+                  },
+                );
+              },
             ),
           ),
         ],
@@ -83,19 +88,23 @@ class ComentariosServiciosScreen extends StatelessWidget {
 }
 
 class CommentCard extends StatefulWidget {
+  final String reviewId; // ID added
   final String serviceName;
   final String userName;
   final String time;
   final String comment;
   final int rating;
+  final String? initialResponse; // Initial reply
 
   const CommentCard({
     super.key,
+    required this.reviewId,
     required this.serviceName,
     required this.userName,
     required this.time,
     required this.comment,
     required this.rating,
+    this.initialResponse,
   });
 
   @override
@@ -103,23 +112,26 @@ class CommentCard extends StatefulWidget {
 }
 
 class _CommentCardState extends State<CommentCard> {
-  String? _reply;
-
-  void _openReplyForm() {
+  // We don't strictly need local state for reply if we rely on provider, 
+  // but to keep the edit flow simple we can keep using the logic,
+  // or just directly update provider on 'Guardar'.
+  
+  void _openReplyForm(BuildContext context) {
+    // Current reply from widget (or provider if we listened there, but widget rebuilds so it's fine)
+    final currentReply = widget.initialResponse;
+    
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return FormularioComentariosResponderEmprendedor(
-          initialResponse: _reply,
+          initialResponse: currentReply,
           onResponder: (replyText) {
-            setState(() {
-              _reply = replyText;
-            });
+             Provider.of<ReviewProvider>(context, listen: false)
+                .respondToReview(widget.reviewId, replyText);
           },
           onDelete: () {
-            setState(() {
-              _reply = null;
-            });
+             Provider.of<ReviewProvider>(context, listen: false)
+                .deleteResponse(widget.reviewId);
           },
         );
       },
@@ -152,7 +164,7 @@ class _CommentCardState extends State<CommentCard> {
                 ),
               ),
               GestureDetector(
-                onTap: _openReplyForm,
+                onTap: () => _openReplyForm(context), // Pass context
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                   decoration: BoxDecoration(
@@ -213,7 +225,7 @@ class _CommentCardState extends State<CommentCard> {
               fontWeight: FontWeight.w400,
             ),
           ),
-          if (_reply != null) ...[
+          if (widget.initialResponse != null) ...[
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(12),
@@ -236,7 +248,7 @@ class _CommentCardState extends State<CommentCard> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    _reply!,
+                    widget.initialResponse!,
                     style: TextStyle(
                       fontSize: 14,
                       color: isDark ? Colors.white70 : Colors.black87,

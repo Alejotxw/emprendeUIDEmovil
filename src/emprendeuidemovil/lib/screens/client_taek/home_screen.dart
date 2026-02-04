@@ -78,47 +78,149 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showEventDetails(Map<String, dynamic> event) {
+    final start = DateTime.tryParse(event['startDateTime'] ?? '');
+    final end = DateTime.tryParse(event['endDateTime'] ?? '');
+
+    String formatDate(DateTime? dt) {
+      if (dt == null) return '---';
+      return "${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}";
+    }
+    
+    String formatTime(DateTime? dt) {
+      if (dt == null) return '--:--';
+      return "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
+    }
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        title: Row(
-          children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => Navigator.pop(context),
-            ),
-            Expanded(child: Text(event['title'] ?? 'Evento')),
-          ],
-        ),
-        content: Column(
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (event['image'] != null && event['image'].toString().isNotEmpty)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: event['image'].toString().startsWith('http')
-                    ? Image.network(event['image'], height: 150, width: double.infinity, fit: BoxFit.cover)
-                    : Image.file(File(event['image']), height: 150, width: double.infinity, fit: BoxFit.cover),
+            // Header
+            Container(
+              color: const Color(0xFFC8102E),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              child: Row(
+                children: [
+                  const Icon(Icons.event, color: Colors.white),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      event['title'] ?? 'Detalles',
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
               ),
-            const SizedBox(height: 12),
-            Text("📅 Fecha: ${event['datetime']?.toString().split('T')[0] ?? ''}", 
-                 style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Text(event['description'] ?? 'Sin descripción'),
-            const SizedBox(height: 8),
-            Text("📞 Contacto: ${event['contact'] ?? 'No disponible'}",
-                 style: const TextStyle(color: Colors.blueGrey, fontSize: 13)),
+            ),
+            
+            // Content
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (event['image'] != null && event['image'].toString().isNotEmpty)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 20),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: event['image'].toString().startsWith('http')
+                              ? Image.network(
+                                  event['image'], 
+                                  height: 180, 
+                                  width: double.infinity, 
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (c,o,s) => Container(height: 180, color: Colors.grey[200], child: const Center(child: Icon(Icons.broken_image, size: 40))),
+                                )
+                              : Image.file(
+                                  File(event['image']), 
+                                  height: 180, 
+                                  width: double.infinity, 
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (c,o,s) => Container(height: 180, color: Colors.grey[200], child: const Center(child: Icon(Icons.broken_image, size: 40))),
+                                ),
+                        ),
+                      ),
+                    
+                    // Fechas
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                      ),
+                      child: Column(
+                        children: [
+                          _buildDetailRow(Icons.calendar_today, "Inicio", "${formatDate(start)}  ⏰ ${formatTime(start)}"),
+                          const Divider(height: 16),
+                          _buildDetailRow(Icons.event_available, "Fin", "${formatDate(end)}  ⏰ ${formatTime(end)}"),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+                    const Text("Descripción", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    const SizedBox(height: 6),
+                    Text(
+                      event['description'] ?? 'Sin descripción detallada.',
+                      style: TextStyle(color: Colors.grey[700], height: 1.4),
+                    ),
+                    
+                    const SizedBox(height: 16),
+                    const Text("Contacto", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                         Container(
+                           padding: const EdgeInsets.all(8),
+                           decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle),
+                           child: const Icon(Icons.phone, color: Colors.white, size: 16),
+                         ),
+                         const SizedBox(width: 10),
+                         Expanded(
+                           child: Text(
+                             event['contact'] ?? 'No disponible',
+                             style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+                           ),
+                         ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cerrar'),
-          ),
-        ],
       ),
+    );
+  }
+
+  Widget _buildDetailRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: const Color(0xFFC8102E)),
+        const SizedBox(width: 10),
+        Text("$label: ", style: const TextStyle(fontWeight: FontWeight.bold)),
+        Expanded(child: Text(value, style: const TextStyle(fontSize: 14))),
+      ],
     );
   }
 
@@ -304,7 +406,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           // Adaptamos el EventModel a un Map simple para la función _showEventDetails
                           final eventMap = {
                             'title': event.title,
-                            'datetime': event.datetime.toIso8601String(),
+                            'startDateTime': event.startDateTime.toIso8601String(),
+                            'endDateTime': event.endDateTime.toIso8601String(),
                             'description': event.description,
                             'contact': event.contact,
                             'image': event.image,
@@ -313,45 +416,49 @@ class _HomeScreenState extends State<HomeScreen> {
                           final imageUrl = event.image ?? '';
 
                           return GestureDetector(
-                            onTap: () => _showEventDetails(eventMap),
+                            onTap: () {
+                              debugPrint("Event Tapped: ${event.title}");
+                              _showEventDetails(eventMap);
+                            },
+                            behavior: HitTestBehavior.translucent,
                             child: Container(
-                              width: MediaQuery.of(context).size.width,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15),
-                                color: Colors.grey[200], // Fondo mientras carga
-                                image: imageUrl.isNotEmpty
-                                    ? DecorationImage(
-                                        image: imageUrl.startsWith('http')
-                                            ? NetworkImage(imageUrl)
-                                            : FileImage(File(imageUrl)) as ImageProvider,
-                                        fit: BoxFit.cover,
-                                      )
-                                    : null,
-                              ),
-                              child: Container(
+                                width: MediaQuery.of(context).size.width,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(15),
-                                  gradient: LinearGradient(
-                                    begin: Alignment.bottomCenter,
-                                    end: Alignment.center,
-                                    colors: [
-                                      Colors.black.withOpacity(0.8),
-                                      Colors.transparent
-                                    ],
-                                  ),
+                                  color: Colors.grey[200], // Fondo mientras carga
+                                  image: imageUrl.isNotEmpty
+                                      ? DecorationImage(
+                                          image: imageUrl.startsWith('http')
+                                              ? NetworkImage(imageUrl)
+                                              : FileImage(File(imageUrl)) as ImageProvider,
+                                          fit: BoxFit.cover,
+                                        )
+                                      : null,
                                 ),
-                                padding: const EdgeInsets.all(12),
-                                alignment: Alignment.bottomLeft,
-                                child: Text(
-                                  event.title,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    gradient: LinearGradient(
+                                      begin: Alignment.bottomCenter,
+                                      end: Alignment.center,
+                                      colors: [
+                                        Colors.black.withOpacity(0.8),
+                                        Colors.transparent
+                                      ],
+                                    ),
+                                  ),
+                                  padding: const EdgeInsets.all(12),
+                                  alignment: Alignment.bottomLeft,
+                                  child: Text(
+                                    event.title,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
                           );
                         }).toList(),
                       ),

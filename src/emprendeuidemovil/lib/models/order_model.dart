@@ -9,6 +9,8 @@ class OrderModel {
   final String status;
   final Color statusColor;
   final String paymentMethod;
+  final String? transferReceiptPath;
+  final DateTime? deliveryDate; // New field
 
   OrderModel({
     required this.id,
@@ -18,5 +20,7 @@ class OrderModel {
     this.status = 'Pendiente',
     this.statusColor = Colors.orange,
     required this.paymentMethod,
+    this.transferReceiptPath,
+    this.deliveryDate,
   });
 }

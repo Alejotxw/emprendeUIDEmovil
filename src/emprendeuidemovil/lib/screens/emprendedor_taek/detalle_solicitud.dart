@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:provider/provider.dart';
+import '../../providers/order_provider.dart';
+import '../chat_screen.dart';
 
 class DetalleSolicitudScreen extends StatefulWidget {
   final String title;
@@ -7,6 +11,7 @@ class DetalleSolicitudScreen extends StatefulWidget {
   final List<Map<String, String>> items;
   final String paymentMethod; // 'fisico' or 'transferencia'
   final String description;
+  final String? transferReceiptPath;
 
    final bool isProduct;
  
@@ -19,7 +24,21 @@ class DetalleSolicitudScreen extends StatefulWidget {
      this.paymentMethod = 'fisico', 
      this.description = '',
      this.isProduct = false,
+     this.transferReceiptPath,
    });
+
+  // Helper to generate a consistent chat ID. 
+  // Ideally, 'title' would be the order ID (e.g., 'Pedido: ORD-2024-101'). 
+  // If not, we fallback to title, which might collide if titles aren't unique.
+  // We assume 'title' for orders is "Pedido: ID".
+  String get _chatId {
+      if (title.startsWith("Pedido: ")) {
+          // Extract ID part: "Pedido: ORD-..." -> "order-ORD-..."
+          // The title is "Pedido: ${order.id}"
+          return 'order-${title.replaceAll("Pedido: ", "")}';
+      }
+      return 'service-${title.hashCode}'; // Fallback for pure services not yet orders?
+  }
 
   @override
   State<DetalleSolicitudScreen> createState() => _DetalleSolicitudScreenState();
@@ -28,17 +47,6 @@ class DetalleSolicitudScreen extends StatefulWidget {
 class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
-
-  // We can use state to manage the selected payment method if it were editable, 
-  // but usually in a "Review Request" screen, this information is read-only (what the user selected).
-  // However, the image shows radio buttons which seemingly could be selected by the entrepreneur 
-  // OR they indicate what the customer chose. 
-  // Given "Ver Solicitudes", it's likely showing what the customer requested.
-  // But let's assume for now we just display what was passed or default.
-  
-  // Actually, looking at the UI, it looks like a selection. 
-  // But usually the payer decides. Let's assume it's display-only or current status for now,
-  // but implemented as visual radio selection.
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +65,7 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header: Title and Tag
+            // ... (Header code remains safely implicitly here if just viewing context, but since we are replacing a chunk, we ensure continuity)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -83,7 +91,7 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
                        color: Color(0xFFFFA600),
                        fontWeight: FontWeight.bold,
                        fontSize: 14,
-                     ),
+                       ),
                    ),
                  ),
               ],
@@ -100,7 +108,6 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
             ),
 
             const SizedBox(height: 24),
-            // Section Title
              Center(
                child: Text(
                  widget.isProduct ? 'Producto Elegido' : 'Servicio Elegido',
@@ -183,18 +190,57 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
 
             // Payment Methods
             _buildPaymentMethodCard(
-              icon: Icons.people_outline, // Placeholder for handshake/people icon
+              icon: Icons.people_outline, 
               text: 'Pago en fisico',
               isSelected: widget.paymentMethod == 'fisico',
-              isCustomIcon: true, // To simulate the handshake icon if possible or use standard
+              isCustomIcon: true, 
             ),
             const SizedBox(height: 12),
             _buildPaymentMethodCard(
-              icon: Icons.account_balance_wallet_outlined, // Placeholder for tickets/money
+              icon: Icons.account_balance_wallet_outlined, 
               text: 'Pago por tranferencia',
               isSelected: widget.paymentMethod == 'transferencia',
               isCustomIcon: false,
             ),
+
+            if (widget.paymentMethod == 'transferencia' && widget.transferReceiptPath != null) ...[
+              const SizedBox(height: 20),
+              Text(
+                'Comprobante de Pago',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
+                ),
+              ),
+              const SizedBox(height: 10),
+              GestureDetector(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (_) => Dialog(
+                      child: InteractiveViewer(
+                        child: Image.file(
+                          File(widget.transferReceiptPath!),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+                child: Container(
+                  height: 200,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    color: Colors.grey[200],
+                    image: DecorationImage(
+                      image: FileImage(File(widget.transferReceiptPath!)),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ),
+            ],
 
             const SizedBox(height: 24),
             Text(
@@ -362,8 +408,36 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
                 ),
               ],
             ),
+            
+            const SizedBox(height: 30),
 
-            const SizedBox(height: 40),
+            // Botón de Chat con Cliente
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                   Navigator.push(
+                    context, 
+                    MaterialPageRoute(
+                      builder: (_) => ChatScreen(
+                        chatId: widget._chatId, 
+                        title: 'Chat con Cliente',
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.chat, size: 18),
+                label: const Text('Chat con Cliente'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF83002A),
+                  side: const BorderSide(color: Color(0xFF83002A)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+              ),
+            ),
+            const SizedBox(height: 30),
+
             // Actions Buttons
             if (widget.isProduct)
               SizedBox(
@@ -423,6 +497,45 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
+                         // Si se seleccionó una fecha, actualizar el pedido
+                         if (_selectedDate != null) {
+                             // Construir fecha completa si hay hora, sino solo fecha a medianoche
+                             DateTime fullDate = _selectedDate!;
+                             if (_selectedTime != null) {
+                               fullDate = DateTime(
+                                 _selectedDate!.year,
+                                 _selectedDate!.month,
+                                 _selectedDate!.day,
+                                 _selectedTime!.hour,
+                                 _selectedTime!.minute,
+                               );
+                             }
+                             
+                             // Extraer ID de la orden del título o usar lógica de mapping si fuera posible
+                             // IMPORTANTE: aquí asumimos que el widget.title tiene el formato "Pedido: ID"
+                             // O mejor, necesitaremos pasar el orderId a este screen.
+                             // Por ahora usemos la lógica de extracción del título que ya tenemos en _chatId pero para el ID puro
+                            
+                             String orderId = '';
+                             if (widget.title.startsWith("Pedido: ")) {
+                                orderId = widget.title.replaceAll("Pedido: ", "");
+                                
+                                // Actualizar en Provider
+                                // Necesitamos acceso al OrderProvider aquí. 
+                                // Ojo: Este screen puede ser usado para servicios que no son Orders.
+                                // Verificamos si es Product/Order antes de intentar actualizar.
+                                if (widget.isProduct) {
+                                   try {
+                                     // Importante: asegúrate de importar Provider al inicio del archivo si no está
+                                      Provider.of<OrderProvider>(context, listen: false)
+                                        .updateOrderDeliveryDate(orderId, fullDate);
+                                   } catch (e) {
+                                     print("Error updating delivery date: $e");
+                                   }
+                                }
+                             }
+                         }
+
                         Navigator.pop(context, 'Aceptado');
                       },
                       style: ElevatedButton.styleFrom(

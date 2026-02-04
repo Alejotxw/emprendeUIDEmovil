@@ -13,6 +13,7 @@ import 'providers/user_profile_provider.dart';
 import 'providers/order_provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/event_provider.dart';
+import 'providers/review_provider.dart'; // Import del ReviewProvider
 
 // Pantallas modo Emprendedor
 import 'screens/emprendedor_taek/solicitudes.dart';
@@ -47,6 +48,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => OrderProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => EventProvider()),
+        ChangeNotifierProvider(create: (_) => ReviewProvider()), // Provider de Reseñas
       ],
       child: const MyApp(),
     ),
