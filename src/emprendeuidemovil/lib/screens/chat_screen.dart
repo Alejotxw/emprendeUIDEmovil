@@ -3,14 +3,19 @@ import 'package:provider/provider.dart';
 import '../providers/chat_provider.dart';
 import '../models/chat_message.dart';
 
+
 class ChatScreen extends StatelessWidget {
-  const ChatScreen({super.key});
+  final String chatId;
+  final String title;
+  
+  // Default to 'default' chat ID and 'Asistente Virtual' title if not provided
+  const ChatScreen({super.key, this.chatId = 'default', this.title = 'Asistente Virtual'});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Asistente Virtual'),
+        title: Text(title),
         backgroundColor: const Color.fromARGB(255, 152, 2, 7),
         foregroundColor: Colors.white,
       ),
@@ -19,18 +24,19 @@ class ChatScreen extends StatelessWidget {
           Expanded(
             child: Consumer<ChatProvider>(
               builder: (context, chatProvider, child) {
+                final messages = chatProvider.getMessages(chatId);
                 return ListView.builder(
                   padding: const EdgeInsets.all(16.0),
-                  itemCount: chatProvider.messages.length,
+                  itemCount: messages.length,
                   itemBuilder: (context, index) {
-                    final message = chatProvider.messages[index];
+                    final message = messages[index];
                     return _MessageBubble(message: message);
                   },
                 );
               },
             ),
           ),
-          if (context.watch<ChatProvider>().isTyping)
+          if (chatId == 'default' && context.watch<ChatProvider>().isTyping)
             const Padding(
               padding: EdgeInsets.all(8.0),
               child: Text(
@@ -38,7 +44,7 @@ class ChatScreen extends StatelessWidget {
                 style: TextStyle(fontStyle: FontStyle.italic, color: Color.fromARGB(255, 81, 81, 81)),
               ),
             ),
-          const _MessageInput(),
+          _MessageInput(chatId: chatId, isAI: chatId == 'default'),
         ],
       ),
     );
@@ -80,7 +86,10 @@ class _MessageBubble extends StatelessWidget {
 }
 
 class _MessageInput extends StatefulWidget {
-  const _MessageInput();
+  final String chatId;
+  final bool isAI;
+  
+  const _MessageInput({required this.chatId, required this.isAI});
 
   @override
   State<_MessageInput> createState() => _MessageInputState();
@@ -92,7 +101,13 @@ class _MessageInputState extends State<_MessageInput> {
   void _sendMessage() {
     if (_controller.text.trim().isEmpty) return;
     
-    context.read<ChatProvider>().sendMessage(_controller.text);
+    // Check if we are handling the default AI chat or a specific chat
+    context.read<ChatProvider>().sendMessageToChat(
+      widget.chatId, 
+      _controller.text, 
+      isUser: true, // Always user sending from UI
+      isAI: widget.isAI
+    );
     _controller.clear();
   }
 

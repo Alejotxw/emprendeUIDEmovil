@@ -77,6 +77,7 @@ class _SolicitudesScreenState extends State<SolicitudesScreen> {
       // 2. PRODUCTOS/PEDIDOS YA PAGADOS (Aparecen aquí para el emprendedor)
       ...orderProvider.orders.map((order) => {
             'title': 'Pedido: ${order.id}',
+            'orderId': order.id,
             'tag': 'Producto',
             'description': order.items.map((i) => i.displayName).join(', '),
             'price': order.total.toStringAsFixed(2),
@@ -85,6 +86,7 @@ class _SolicitudesScreenState extends State<SolicitudesScreen> {
             'requesterName': 'Cliente (Pago Realizado)',
             'items': order.items.map((i) => {'name': i.displayName, 'detail': 'Pagado', 'price': i.service.price.toString()}).toList(),
             'paymentMethod': order.paymentMethod,
+            'transferReceiptPath': order.transferReceiptPath,
             'deliveryTime': 'Inmediata', // O la lógica de tiempo que prefieras
             'isOrder': true,
             'isProduct': true,
@@ -218,13 +220,25 @@ class _SolicitudesScreenState extends State<SolicitudesScreen> {
           paymentMethod: solicitud['paymentMethod'],
           description: solicitud['description'],
           isProduct: solicitud['isProduct'] ?? false,
+          transferReceiptPath: solicitud['transferReceiptPath'],
         ),
       ),
     );
 
     if (result != null && mounted) {
       final cartProvider = Provider.of<CartProvider>(context, listen: false);
-      if (solicitud['isFromProvider'] == true) {
+      final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+
+      if (solicitud['isOrder'] == true && solicitud['orderId'] != null) {
+         // ACTUALIZACIÓN DE ESTADO PARA PEDIDOS DE PRODUCTOS
+         if (result == 'Aceptado') {
+           // Cambiamos a 'Aceptado' (o 'En Camino' según preferencia)
+           orderProvider.updateOrderStatus(solicitud['orderId'], 'Aceptado', const Color(0xFF4CAF50)); 
+         } else if (result == 'Rechazado') {
+           orderProvider.updateOrderStatus(solicitud['orderId'], 'Rechazado', Colors.red);
+         }
+      } else if (solicitud['isFromProvider'] == true) {
+        // ACTUALIZACIÓN DE ESTADO PARA SERVICIOS (Usando CartProvider)
         final CartItem item = solicitud['cartItemRef'];
         if (result == 'Aceptado') {
           cartProvider.updateStatus(item.service, CartStatus.accepted);

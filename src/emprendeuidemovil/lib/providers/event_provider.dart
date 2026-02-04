@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 class EventModel {
   final String id;
   final String title;
-  final DateTime datetime;
+  final DateTime startDateTime;
+  final DateTime endDateTime;
   final String description;
   final String contact;
   final String? image;
@@ -12,7 +13,8 @@ class EventModel {
   EventModel({
     required this.id,
     required this.title,
-    required this.datetime,
+    required this.startDateTime,
+    required this.endDateTime,
     required this.description,
     required this.contact,
     this.image,
@@ -29,7 +31,8 @@ class EventProvider extends ChangeNotifier {
     final newEvent = EventModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: data['title'],
-      datetime: DateTime.parse(data['datetime']),
+      startDateTime: DateTime.parse(data['startDateTime']),
+      endDateTime: DateTime.parse(data['endDateTime']),
       description: data['description'],
       contact: data['contact'],
       image: data['image'],
@@ -45,7 +48,8 @@ class EventProvider extends ChangeNotifier {
       _events[index] = EventModel(
         id: id,
         title: data['title'],
-        datetime: DateTime.parse(data['datetime']),
+        startDateTime: DateTime.parse(data['startDateTime']),
+        endDateTime: DateTime.parse(data['endDateTime']),
         description: data['description'],
         contact: data['contact'],
         image: data['image'],

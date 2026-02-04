@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/order_provider.dart';
 import '../../models/cart_item.dart'; 
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class PaymentScreen extends StatefulWidget {
   final bool isServicePayment;
@@ -14,6 +16,17 @@ class PaymentScreen extends StatefulWidget {
 
 class _PaymentScreenState extends State<PaymentScreen> {
   String _selectedPaymentMethod = '';  // '' = ninguno, 'fisico' o 'transferencia'
+  File? _transferImage;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage() async {
+    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _transferImage = File(pickedFile.path);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -125,6 +138,39 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             ],
                           ),
                         ),
+                        const SizedBox(height: 20),
+                        const Text(
+                          'Comprobante de Transferencia',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 10),
+                        Center(
+                          child: GestureDetector(
+                            onTap: _pickImage,
+                            child: Container(
+                              width: double.infinity,
+                              height: 200,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: Colors.grey),
+                              ),
+                              child: _transferImage != null
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Image.file(_transferImage!, fit: BoxFit.cover),
+                                    )
+                                  : Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.upload_file, size: 50, color: Colors.grey[600]),
+                                        const SizedBox(height: 10),
+                                        Text('Subir imagen del comprobante', style: TextStyle(color: Colors.grey[700])),
+                                      ],
+                                    ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                 ],
@@ -167,11 +213,21 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                 ? List.from(cartProvider.servicios) 
                                 : List.from(cartProvider.productos);
 
+                            // Validación extra para transferencia
+                            if (_selectedPaymentMethod == 'transferencia' && _transferImage == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                content: Text('Por favor sube el comprobante de transferencia'),
+                                backgroundColor: Colors.red,
+                              ));
+                              return;
+                            }
+
                             // Guardamos el pedido (esto alimentará la pantalla de pedidos)
                             orderProvider.addOrder(
                               itemsAPagar,
                               total, // Usamos el total calculado correctamente
                               _selectedPaymentMethod,
+                              transferReceiptPath: _transferImage?.path,
                             );
 
                             // Notificación de éxito

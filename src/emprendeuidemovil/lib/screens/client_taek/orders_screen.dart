@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import '../../providers/order_provider.dart';
 import '../../models/order_model.dart';
 import '../../models/cart_item.dart';
+import '../chat_screen.dart';
+import '../../providers/review_provider.dart';
 
 class OrdersScreen extends StatelessWidget {
   const OrdersScreen({super.key});
@@ -25,7 +27,7 @@ class OrdersScreen extends StatelessWidget {
               itemCount: orders.length,
               itemBuilder: (context, index) {
                 final order = orders[index];
-                return _buildOrderCard(order);
+                return _buildOrderCard(context, order);
               },
             ),
     );
@@ -47,7 +49,7 @@ class OrdersScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildOrderCard(OrderModel order) {
+  Widget _buildOrderCard(BuildContext context, OrderModel order) {
     final NumberFormat currency = NumberFormat.simpleCurrency(locale: 'es_CO');
     final DateFormat dateFormat = DateFormat('yyyy-MM-dd HH:mm');
 
@@ -82,6 +84,24 @@ class OrdersScreen extends StatelessWidget {
               'Fecha: ${dateFormat.format(order.date)}',
               style: TextStyle(color: Colors.grey[600], fontSize: 13),
             ),
+            if (order.deliveryDate != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 4.0),
+                child: Row(
+                  children: [
+                    const Icon(Icons.local_shipping_outlined, size: 14, color: Color(0xFFC8102E)),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Entrega programada: ${dateFormat.format(order.deliveryDate!)}',
+                      style: const TextStyle(
+                        color: Color(0xFFC8102E), 
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             const Divider(height: 24, thickness: 1),
             
             // Lista de items
@@ -111,6 +131,57 @@ class OrdersScreen extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+            
+            const SizedBox(height: 16),
+            // Botón de Chat
+            SizedBox(
+              width: double.infinity,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                         Navigator.push(
+                          context, // Valid context here as we are in _buildOrderCard called from build
+                          MaterialPageRoute(
+                            builder: (_) => ChatScreen(
+                              chatId: 'order-${order.id}', 
+                              title: 'Chat Pedido ${order.id}',
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.chat, size: 18),
+                      label: const Text('Chat', style: TextStyle(fontSize: 12)),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFFC8102E),
+                        side: const BorderSide(color: Color(0xFFC8102E)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8), // Compact
+                      ),
+                    ),
+                  ),
+
+                  // Si el pedido fue aceptado (por el emprendedor), mostramos botón de confirnar entrega
+                  if (order.status == 'Aceptado' || order.status == 'En Camino') ...[
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => _confirmarEntrega(context, order),
+                        icon: const Icon(Icons.check_circle, size: 18),
+                        label: const Text('Recibido', style: TextStyle(fontSize: 12)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8), // Compact
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
           ],
         ),
@@ -184,6 +255,98 @@ class OrdersScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _confirmarEntrega(BuildContext context, OrderModel order) {
+    // 1. Actualizar estado del pedido a 'Entregado'
+    Provider.of<OrderProvider>(context, listen: false).updateOrderStatus(
+      order.id, 
+      'Entregado', 
+      Colors.green
+    );
+
+    // 2. Mostrar diálogo de reseña
+    // Usamos el nombre del emprendimiento del primer item si existe, o 'Emprendimiento' genérico
+    final nombreEmprendimiento = order.items.isNotEmpty 
+        ? order.items.first.service.name 
+        : 'Emprendimiento';
+    _mostrarDialogoResena(context, nombreEmprendimiento);
+  }
+
+  void _mostrarDialogoResena(BuildContext context, String nombreEmprendimiento) {
+    int rating = 5;
+    final TextEditingController commentController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              title: Text('Califica a $nombreEmprendimiento'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('¿Qué tal estuvo tu pedido?'),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (index) {
+                      return IconButton(
+                        onPressed: () {
+                          setStateDialog(() {
+                            rating = index + 1;
+                          });
+                        },
+                        icon: Icon(
+                          index < rating ? Icons.star : Icons.star_border,
+                          color: Colors.amber,
+                          size: 32,
+                        ),
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: commentController,
+                    decoration: const InputDecoration(
+                      hintText: 'Escribe un comentario...',
+                      border: OutlineInputBorder(),
+                    ),
+                    maxLines: 3,
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Omitir'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    // Guardar reseña en ReviewProvider
+                    if (commentController.text.isNotEmpty) {
+                      Provider.of<ReviewProvider>(context, listen: false).addReview(
+                        nombreEmprendimiento,
+                        "Cliente", // Nombre del usuario actual (debería venir del UserProfileProvider)
+                        commentController.text,
+                        rating,
+                      );
+                    }
+                    
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('¡Gracias por tu calificación!')),
+                    );
+                  },
+                  child: const Text('Enviar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }
