@@ -1,157 +1,49 @@
+# 📋 Documentación de Requerimientos: EmprendeUIDE
 
-### Requerimientos Funcionales
-----------------------------------------------
+## 1. Requerimientos Funcionales (RF)
 
-**RF1. Creación de emprendimiento**
-- Mostrar formulario para ingresar nombre, descripción, categoría, contacto, imagen/logo y estado.
+1.  **RF01:** Registro de nuevos usuarios con correo y contraseña.
+2.  **RF02:** Inicio de sesión con validación de credenciales.
+3.  **RF03:** Diferenciación automática de interfaces por rol (Cliente/Emprendedor).
+4.  **RF04:** Visualización de lista de emprendimientos en la pantalla principal.
+5.  **RF05:** Búsqueda y filtrado de servicios por categorías.
+6.  **RF06:** Acceso al detalle completo de cada emprendimiento y sus productos.
+7.  **RF07:** Sistema de marcación de emprendimientos favoritos.
+8.  **RF08:** Gestión de carrito de compras (agregar, eliminar y editar cantidad).
+9.  **RF09:** Procesamiento de pedidos y selección de métodos de pago.
+10. **RF10:** Visualización del historial de pedidos realizados.
+11. **RF11:** Creación de nuevos emprendimientos mediante formularios dinámicos.
+12. **RF12:** Gestión de catálogo propio para usuarios emprendedores.
+13. **RF13:** Recepción y gestión de solicitudes de servicios en tiempo real.
+14. **RF14:** Cambio de estado de solicitudes (Aceptar/Rechazar).
+15. **RF15:** Módulo de chat directo para soporte y negociación.
+16. **RF16:** Calificación de servicios mediante sistema de estrellas.
+17. **RF17:** Publicación de comentarios y reseñas en perfiles públicos.
+18. **RF18:** Respuesta a reseñas por parte del emprendedor.
+19. **RF19:** Gestión de eventos institucionales por parte del administrador.
+20. **RF20:** Edición de perfil de usuario (foto, nombre y descripción).
 
-**RF2. Verificación de campos obligatorios**
-- Comprobar campos completos antes de guardar/publicar.
+---
 
-**RF3. Acceso según tipo de usuario**
-- Permitir acceso por rol (cliente/emprendedor) post-login, mostrando panel correspondiente.
+## 2. Requerimientos No Funcionales (RNF)
 
-**RF4. Edición del perfil del usuario**
-- Permitir cambiar nombre y foto en sección de perfil.
-
-**RF5. Actualización de información del perfil**
-- Guardar nombre actualizado y subir/asociar nueva foto.
-
-**RF6. Visualización de emprendimientos propios**
-- Mostrar emprendimientos registrados al emprendedor.
-
-**RF7. Edición y eliminación de emprendimientos**
-- Permitir modificar/eliminar con confirmación.
-
-**RF8. Visualización del catálogo de emprendimientos**
-- Mostrar listado de emprendimientos activos.
-
-**RF9. Filtrado y acceso al detalle del emprendimiento**
-- Filtrar por categoría y acceder a detalles.
-
-**RF10. Visualización de estadísticas generales**
-- Mostrar total de usuarios, emprendimientos y publicaciones al admin.
-
-**RF11. Filtrado de estadísticas por fechas**
-- Ajustar estadísticas por rango de fechas.
-
-**RF12. Registro de calificaciones y comentarios**
-- Permitir calificación y comentario por emprendimiento.
-
-**RF13. Control de calificaciones repetidas**
-- Evitar calificaciones repetidas y mostrar mensaje.
-
-**RF14. Visualización de notificaciones**
-- Mostrar notificaciones ordenadas por fecha descendente.
-
-**RF15. Visualización de datos de contacto del emprendimiento**
-- Mostrar teléfono y email si registrados.
-
-**RF16. Registro de nuevos usuarios**
-- Permitir registro con datos básicos.
-
-**RF17. Inicio y cierre de sesión**
-- Permitir login y logout.
-
-**RF18. Recuperación de contraseña**
-- Permitir recuperación de contraseña.
-
-**RF19. Cambio de rol de usuario**
-- Permitir cambio de cliente a emprendedor en perfil.
-
-**RF20. Publicación y despublicación de emprendimientos**
-- Permitir activar/desactivar visibilidad.
-
-**RF21. Visualización del estado del emprendimiento**
-- Mostrar estado activo/inactivo.
-
-**RF22. Búsqueda por nombre del emprendimiento**
-- Buscar por nombre o parte.
-
-**RF23. Visualización de calificaciones promedio**
-- Mostrar promedio de calificaciones.
-
-**RF24. Acceso al historial de calificaciones**
-- Visualizar comentarios y calificaciones.
-
-**RF25. Visualización de información básica del emprendedor**
-- Mostrar info básica asociada a emprendimiento.
-
-----------------------------------------------
-### Requerimientos No Funcionales (RNF)
-----------------------------------------------
-
-**RNF1. Validación de imágenes**
-- Permitir solo JPG/PNG hasta 5MB.
-
-**RNF2. Longitud mínima de la descripción**
-- Descripción mínimo 50 caracteres.
-
-**RNF3. Seguridad de la sesión del usuario**
-- Mantener sesión segura contra accesos no autorizados.
-
-**RNF4. Mensajes claros ante errores de inicio de sesión**
-- Mostrar mensaje claro rápido por credenciales incorrectas.
-
-**RNF5. Consistencia de la información del perfil**
-- Actualizar datos sin errores ni inconsistencias.
-
-**RNF6. Rapidez al actualizar la imagen de perfil**
-- Actualizar foto rápidamente sin afectar UX.
-
-**RNF7. Confiabilidad en cambios de emprendimientos**
-- Editar/eliminar sin pérdida de info.
-
-**RNF8. Tiempo de carga del listado de emprendimientos**
-- Cargar listado rápidamente al ingresar.
-
-**RNF9. Rapidez en los filtros del catálogo**
-- Aplicar filtros de forma rápida.
-
-**RNF10. Orden del contenido mostrado**
-- Mostrar ordenado por categoría/relevancia.
-
-**RNF11. Rendimiento del panel de estadísticas**
-- Cargar estadísticas sin demoras.
-
-**RNF12. Visualización clara de estadísticas**
-- Mostrar con gráficos claros y fáciles.
-
-**RNF13. Actualización del promedio de calificaciones**
-- Actualizar promedio rápidamente con nuevas valoraciones.
-
-**RNF14. Respuesta inmediata del sistema de calificación**
-- Reaccionar inmediatamente al interactuar.
-
-**RNF15. Rapidez en la entrega de notificaciones**
-- Entregar notificaciones poco después del evento.
-
-**RNF16. Almacenamiento confiable de notificaciones**
-- Guardar notificaciones incluso offline.
-
-**RNF17. Funcionamiento correcto de enlaces de contacto**
-- Abrir enlaces sin errores.
-
-**RNF18. Presentación clara de los métodos de contacto**
-- Mostrar métodos ordenados y identificables.
-
-**RNF19. Usabilidad del sistema**
-- Fácil de usar para no técnicos.
-
-**RNF20. Diseño adaptable a distintos dispositivos**
-- Adaptable a móvil, tablet y PC.
-
-**RNF21. Disponibilidad del sistema**
-- Disponible sin interrupciones frecuentes.
-
-**RNF22. Protección de la información del usuario**
-- Proteger datos personales.
-
-**RNF23. Mensajes claros y comprensibles**
-- Mensajes claros y entendibles.
-
-**RNF24. Estabilidad del sistema**
-- Funcionamiento sin crashes en uso normal.
-
-**RNF25. Experiencia fluida de navegación**
-- Navegación rápida sin retrasos.
+1.  **RNF01:** Desarrollo multiplataforma utilizando el framework Flutter.
+2.  **RNF02:** Persistencia de datos en tiempo real mediante Firebase.
+3.  **RNF03:** Soporte para Modo Oscuro (Dark Mode) dinámico.
+4.  **RNF04:** Gestión de estado eficiente utilizando el paquete Provider.
+5.  **RNF05:** Escalabilidad del texto para accesibilidad visual.
+6.  **RNF06:** Arquitectura modular desacoplada (Modelos, Proveedores, Pantallas).
+7.  **RNF07:** Tiempo de respuesta en carga de datos menor a 2 segundos.
+8.  **RNF08:** Interfaz de usuario intuitiva basada en Material Design.
+9.  **RNF09:** Validación estricta de campos en todos los formularios.
+10. **RNF10:** Seguridad en la autenticación mediante Firebase Auth.
+11. **RNF11:** Manejo de imágenes optimizado para bajo consumo de datos.
+12. **RNF12:** Navegación fluida mediante una barra inferior persistente.
+13. **RNF13:** Colores corporativos basados en la identidad de la UIDE.
+14. **RNF14:** Manejo de errores controlados para falta de conexión a internet.
+15. **RNF15:** Consumo optimizado de batería en dispositivos móviles.
+16. **RNF16:** Código fuente documentado y legible para mantenimiento.
+17. **RNF17:** Iconografía personalizada y descriptiva para cada acción.
+18. **RNF18:** Protección de la privacidad del usuario en la configuración.
+19. **RNF19:** Alta disponibilidad de los servicios en la nube.
+20. **RNF20:** Notificaciones locales para alertas de pedidos y mensajes.
