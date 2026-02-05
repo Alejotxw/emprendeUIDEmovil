@@ -14,21 +14,7 @@ class SolicitudesScreen extends StatefulWidget {
 }
 
 class _SolicitudesScreenState extends State<SolicitudesScreen> {
-  final List<Map<String, dynamic>> _solicitudesEstaticas = [
-    {
-      'tag': 'Servicio',
-      'title': 'Diseño Web',
-      'description': 'Preparo postres y dulces.',
-      'price': '5.00',
-      'status': 'Aceptado',
-      'statusColor': const Color(0xFF4CAF50),
-      'requesterName': 'Juan Perez',
-      'items': [{'name': 'Landing Page', 'detail': 'HTML/CSS', 'price': '5.00'}],
-      'paymentMethod': 'fisico',
-      'deliveryTime': '14:00 PM', // Hora de entrega
-      'isProduct': false,
-    },
-  ];
+  final List<Map<String, dynamic>> _solicitudesEstaticas = [];
 
   @override
   Widget build(BuildContext context) {

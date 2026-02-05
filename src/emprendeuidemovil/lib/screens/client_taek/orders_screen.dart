@@ -50,7 +50,7 @@ class OrdersScreen extends StatelessWidget {
   }
 
   Widget _buildOrderCard(BuildContext context, OrderModel order) {
-    final NumberFormat currency = NumberFormat.simpleCurrency(locale: 'es_CO');
+    final NumberFormat currency = NumberFormat.simpleCurrency(locale: 'en_US');
     final DateFormat dateFormat = DateFormat('yyyy-MM-dd HH:mm');
 
     return Card(
@@ -163,22 +163,28 @@ class OrdersScreen extends StatelessWidget {
                     ),
                   ),
 
-                  // Si el pedido fue aceptado (por el emprendedor), mostramos botón de confirnar entrega
-                  if (order.status == 'Aceptado' || order.status == 'En Camino') ...[
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => _confirmarEntrega(context, order),
-                        icon: const Icon(Icons.check_circle, size: 18),
-                        label: const Text('Recibido', style: TextStyle(fontSize: 12)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8), // Compact
+                  // Mostrar botón de confirmar entrega (Recibido)
+                  // Regla: Si hay productos, mostrar siempre (mientras no esté entregado)
+                  // Si solo hay servicios, mostrar cuando esté Aceptado o En Camino
+                  if (order.status != 'Entregado') ...[
+                    if (order.items.any((item) => item.isActualProduct) || 
+                        order.status == 'Aceptado' || 
+                        order.status == 'En Camino') ...[
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _confirmarEntrega(context, order),
+                          icon: const Icon(Icons.check_circle, size: 18),
+                          label: const Text('Recibido', style: TextStyle(fontSize: 12)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8), // Compact
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ],
                 ],
               ),

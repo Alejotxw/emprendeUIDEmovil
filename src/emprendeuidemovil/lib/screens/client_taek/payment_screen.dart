@@ -100,12 +100,28 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         const SizedBox(height: 8),
                         Container(
                           width: double.infinity,
-                          height: 150,
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
-                            color: Colors.grey[300],
+                            color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[800] : Colors.grey[200],
+                            border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[700]! : Colors.grey.shade300),
                           ),
-                          child: const Center(child: Text('Mapa Placeholder (Integra Google Maps aquí)')),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.location_on, color: Color(0xFFC8102E)),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'Sede Loja Universidad Internacional del Ecuador',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     )
@@ -248,9 +264,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             if (mounted) Navigator.of(context).popUntil((route) => route.isFirst);
                           }
                         : null,
-                    child: const Text(
-                      'Pagar',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    child: Text(
+                      _selectedPaymentMethod == 'fisico' ? 'Notificar' : 'Pagar',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),

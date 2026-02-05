@@ -444,7 +444,29 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Para productos, al dar Enviar lo marcamos como aceptado para el flujo
+                    // Actualizar fecha de entrega si se seleccionó
+                    if (_selectedDate != null) {
+                      DateTime fullDate = _selectedDate!;
+                      if (_selectedTime != null) {
+                        fullDate = DateTime(
+                          _selectedDate!.year,
+                          _selectedDate!.month,
+                          _selectedDate!.day,
+                          _selectedTime!.hour,
+                          _selectedTime!.minute,
+                        );
+                      }
+                      
+                      if (widget.title.startsWith("Pedido: ")) {
+                        String orderId = widget.title.replaceAll("Pedido: ", "");
+                        try {
+                          Provider.of<OrderProvider>(context, listen: false)
+                              .updateOrderDeliveryDate(orderId, fullDate);
+                        } catch (e) {
+                          debugPrint("Error updating delivery date: $e");
+                        }
+                      }
+                    }
                     Navigator.pop(context, 'Aceptado');
                   },
                   style: ElevatedButton.styleFrom(
