@@ -13,6 +13,7 @@ import '../../providers/event_provider.dart';
 import 'dart:io';
 import '../../widgets/dashboard_widget.dart';
 import '../../widgets/emprendimiento_servicio_list.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -20,7 +21,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-  void _showNotificationsDialog(BuildContext context, NotificationProvider provider) {
+void _showNotificationsDialog(BuildContext context, NotificationProvider provider) {
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
@@ -30,8 +31,7 @@ class HomeScreen extends StatefulWidget {
         width: double.maxFinite,
         child: provider.notifications.isEmpty
             ? const Text('No hay mensajes nuevos')
-            : // Busca esta parte en tu home_screen.dart
-              ListView.builder(
+            : ListView.builder(
                 shrinkWrap: true,
                 itemCount: provider.notifications.length,
                 itemBuilder: (context, index) {
@@ -373,10 +373,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-                  
                 ),
               ),
-              
             ),
           ),
           body: CustomScrollView(
@@ -491,13 +489,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   ),
                                 ),
-                              ),
+                            ),
                           );
                         }).toList(),
                       ),
                     ),
                   );
                 },
+              ),
+              
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -529,6 +529,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
+              
               // Categorías SIEMPRE visibles
               SliverToBoxAdapter(
                 child: Padding(
@@ -544,6 +545,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
+              
               // Título TOP/Resultados con sugerencia si no hay resultados
               SliverToBoxAdapter(
                 child: Padding(
@@ -567,6 +569,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
+              
               // Grid TOP/Resultados (con navegación a detalle)
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -596,46 +599,50 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
+              
               // Sección "Todos"/Más resultados (con navegación a detalle)
-              if (_searchQuery.isEmpty || filteredServices.isNotEmpty)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                    child: Text(
-                      _searchQuery.isEmpty ? 'Todos los Emprendimientos' : 'Más resultados',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFFC8102E)),
-                    ),
-                  ),
-                ),
-              if (_searchQuery.isEmpty || filteredServices.isNotEmpty)
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 80),
-                  sliver: SliverGrid(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.78,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                    ),
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        int startIndex = _searchQuery.isEmpty ? topServices.length : 0;
-                        if (index + startIndex >= filteredServices.length) return null;
-                        final service = filteredServices[index + startIndex];
-                        return ServiceCard(
-                          service: service,
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DetailScreen(service: service),
-                            ),
+              ...(_searchQuery.isEmpty || filteredServices.isNotEmpty
+                  ? [
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                          child: Text(
+                            _searchQuery.isEmpty ? 'Todos los Emprendimientos' : 'Más resultados',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFFC8102E)),
                           ),
-                        );
-                      },
-                      childCount: _searchQuery.isNotEmpty ? filteredServices.length : (serviceProvider.allServices.length - topServices.length),
-                    ),
-                  ),
-                ),
+                        ),
+                      ),
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 80),
+                        sliver: SliverGrid(
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.78,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                          ),
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              int startIndex = _searchQuery.isEmpty ? topServices.length : 0;
+                              if (index + startIndex >= filteredServices.length) return null;
+                              final service = filteredServices[index + startIndex];
+                              return ServiceCard(
+                                service: service,
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DetailScreen(service: service),
+                                  ),
+                                ),
+                              );
+                            },
+                            childCount: _searchQuery.isNotEmpty ? filteredServices.length : (serviceProvider.allServices.length - topServices.length),
+                          ),
+                        ),
+                      ),
+                    ]
+                  : []),
+              
               // No resultados con sugerencia
               if (_searchQuery.isNotEmpty && filteredServices.isEmpty)
                 SliverFillRemaining(
@@ -656,8 +663,6 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
-
-
 
   Widget _buildCategoryChip(String label, VoidCallback onTap) {
     IconData icon = _getCategoryIcon(label);
