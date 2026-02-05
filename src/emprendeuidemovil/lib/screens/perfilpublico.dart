@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
-import '../../models/service_model.dart';
+import 'package:provider/provider.dart';
+import '../models/service_model.dart';
+import '../providers/user_profile_provider.dart';
 
 class PerfilPublicoScreen extends StatelessWidget {
   final ServiceModel service;
@@ -19,7 +21,7 @@ class PerfilPublicoScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            _buildHeader(),
+            _buildHeader(context),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -61,39 +63,49 @@ class PerfilPublicoScreen extends StatelessWidget {
   }
 
   // Encabezado con foto y nombre
-  Widget _buildHeader() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 30),
-      decoration: const BoxDecoration(
-        color: Color(0xFFC8102E),
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
-      ),
-      child: Column(
-        children: [
-          CircleAvatar(
-            radius: 50,
-            backgroundColor: Colors.white,
-            child: CircleAvatar(
-              radius: 46,
-              backgroundImage: _getImage(service.imageUrl),
-            ),
+  Widget _buildHeader(BuildContext context) {
+    return Consumer<UserProfileProvider>(
+      builder: (context, userProfile, child) {
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 30),
+          decoration: const BoxDecoration(
+            color: Color(0xFFC8102E),
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
           ),
-          const SizedBox(height: 12),
-          Text(
-            service.name,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+          child: Column(
+            children: [
+              CircleAvatar(
+                radius: 50,
+                backgroundColor: Colors.white,
+                child: CircleAvatar(
+                  radius: 46,
+                  backgroundColor: const Color(0xFF83002A),
+                  backgroundImage: userProfile.imagePath != null
+                      ? FileImage(File(userProfile.imagePath!))
+                      : null,
+                  child: userProfile.imagePath == null
+                      ? const Icon(Icons.person, color: Colors.white, size: 40)
+                      : null,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                service.name,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              Text(
+                userProfile.name.isNotEmpty ? userProfile.name : 'Emprendedor UIDE',
+                style: const TextStyle(color: Colors.white70, fontSize: 14),
+              ),
+            ],
           ),
-          const Text(
-            'Emprendedor UIDE',
-            style: TextStyle(color: Colors.white70, fontSize: 14),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
