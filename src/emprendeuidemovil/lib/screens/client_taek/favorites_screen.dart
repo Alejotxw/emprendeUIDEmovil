@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/service_provider.dart';
 import '../../widgets/service_card.dart';
+import 'detail_screen.dart';
 
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
@@ -32,7 +33,12 @@ class FavoritesScreen extends StatelessWidget {
                     final service = favorites[index];
                     return ServiceCard(
                       service: service,
-                      onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Ver ${service.name}'))),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DetailScreen(service: service),
+                        ),
+                      ),
                     );
                   },
                 ),

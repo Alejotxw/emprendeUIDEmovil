@@ -10,6 +10,7 @@ class ServiceModel {
   final String imageUrl;
   final List<ProductItem> products;
   final List<ServiceItem> services;
+  final String location;
   final bool isMine; // Indicates if this service belongs to the current user
 
   const ServiceModel({
@@ -24,6 +25,7 @@ class ServiceModel {
     this.imageUrl = 'assets/placeholder_service.png',
     this.products = const [],
     this.services = const [],
+    this.location = 'Sede Loja Universidad Internacional del Ecuador',
     this.isMine = false,
   });
 
@@ -39,6 +41,7 @@ class ServiceModel {
     String? imageUrl,
     List<ProductItem>? products,
     List<ServiceItem>? services,
+    String? location,
     bool? isMine,
   }) {
     return ServiceModel(
@@ -53,6 +56,7 @@ class ServiceModel {
       imageUrl: imageUrl ?? this.imageUrl,
       products: products ?? this.products,
       services: services ?? this.services,
+      location: location ?? this.location,
       isMine: isMine ?? this.isMine,
     );
   }

@@ -21,6 +21,7 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
       'subtitle': service.subtitle,
       'category': service.category,
       'imagePath': service.imageUrl,
+      'location': service.location,
       'isDraft': false, // ServiceModel doesn't have isDraft yet
       'services': [
         ...service.services.map((s) => {
@@ -111,6 +112,7 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
                            rating: 5.0,
                            reviewCount: 0,
                            imageUrl: data['imagePath'] ?? '',
+                           location: data['location'] ?? 'Sede Loja Universidad Internacional del Ecuador',
                            isMine: true,
                            services: servicesList,
                            products: productsList,
@@ -203,6 +205,7 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
                                       category: data['category'],
                                       price: basePrice,
                                       imageUrl: data['imagePath'] ?? service.imageUrl,
+                                      location: data['location'] ?? service.location,
                                       services: servicesList,
                                       products: productsList,
                                     );

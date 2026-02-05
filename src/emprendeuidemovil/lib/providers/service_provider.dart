@@ -113,7 +113,7 @@ class ServiceProvider extends ChangeNotifier {
       ServiceModel(id: '12', name: 'Roberto Silva', subtitle: 'Accesorios para eventos', category: 'Accesorios', price: 6.0, rating: 4.1, reviewCount: 7, isFavorite: false),
 
     ];
-    _favorites = _allServices.where((s) => s.isFavorite).map((s) => s.id).toSet() as Set<String>;  // Cast explícito
+    _favorites = _allServices.where((s) => s.isFavorite).map((s) => s.id).toSet();
     notifyListeners();
   }
 

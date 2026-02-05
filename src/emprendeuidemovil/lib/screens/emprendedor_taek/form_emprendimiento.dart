@@ -89,6 +89,7 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
       'subtitle': _descriptionController.text,
       'category': _selectedCategory,
       'services': _services,
+      'location': 'Sede Loja Universidad Internacional del Ecuador',
       'isDraft': isDraft,
       'imagePath': _selectedImage?.path,
     };

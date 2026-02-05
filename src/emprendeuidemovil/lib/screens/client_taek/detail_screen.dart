@@ -130,7 +130,7 @@ class _DetailScreenState extends State<DetailScreen> {
                       ),
                       const SizedBox(height: 16),
                       _buildInfoCard('Horario', 'Lun-Vie 10:00-16:00'),
-                      _buildInfoCard('Ubicación', 'Dirección mock, Quito, Ecuador'),
+                      _buildInfoCard('Ubicación', widget.service.location),
                       const SizedBox(height: 24),
                       // --- SECCIÓN DE SERVICIOS ---
                       if (widget.service.services.isNotEmpty) ...[
