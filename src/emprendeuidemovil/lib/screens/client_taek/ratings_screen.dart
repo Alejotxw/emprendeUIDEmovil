@@ -8,7 +8,7 @@ class RatingsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Rating de Servicios'),
-        backgroundColor: const Color(0xFFC8102E),
+        backgroundColor: const Color(0xFF83002A),
         foregroundColor: Colors.white,
       ),
       body: const Center(

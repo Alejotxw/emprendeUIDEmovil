@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/settings_provider.dart';
-import '../providers/user_profile_provider.dart'; // Agregado
-import 'dart:io'; // Agregado
 import 'client_taek/edit_profile_screen.dart';  // Import para navegación a edición
 import 'client_taek/support_screen.dart';
 import 'client_taek/privacy_screen.dart';
-import 'product_registration_screen.dart'; // Nueva pantalla de registro de producto
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -29,7 +24,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text('Configuraciones'),
-        backgroundColor: const Color(0xFFC8102E),
+        backgroundColor: const Color(0xFF83002A),
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
@@ -41,103 +36,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Consumer<UserProfileProvider>(
-                  builder: (context, userProfile, child) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 30,
-                              backgroundColor: const Color(0xFFC8102E),
-                              backgroundImage: userProfile.imagePath != null
-                                  ? FileImage(File(userProfile.imagePath!))
-                                  : null,
-                              child: userProfile.imagePath == null
-                                  ? const Icon(Icons.person, color: Colors.white)
-                                  : null,
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Mi Perfil',
-                                      style: TextStyle(
-                                          fontSize: 18, fontWeight: FontWeight.bold)),
-                                  const SizedBox(height: 4),
-                                  Text('Nombre: ${userProfile.name}',
-                                      style: const TextStyle(fontSize: 16)),
-                                  Text('Teléfono: ${userProfile.phone}',
-                                      style: const TextStyle(fontSize: 16)),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            icon: const Icon(Icons.edit, color: Colors.white),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.orange,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                            ),
-                            onPressed: () {
-                              // Navega a pantalla de edición completa
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => EditProfileScreen(
-                                          initialName: userProfile.name,
-                                          initialPhone: userProfile.phone,
-                                          initialImage: userProfile.imagePath,
-                                        )),
-                              );
-                            },
-                            label: const Text('Editar'),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Apariencia
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Apariencia', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text('Mi Perfil', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
-                    Consumer<SettingsProvider>(
-                      builder: (context, settings, child) {
-                        return Column(
-                          children: [
-                            SwitchListTile(
-                              title: const Text('Modo oscuro'),
-                              subtitle: const Text('Cambiar entre tema claro y oscuro'),
-                              value: settings.darkMode,
-                              onChanged: (value) => settings.setDarkMode(value),
-                              activeColor: const Color(0xFFC8102E),
-                            ),
-                            SwitchListTile(
-                              title: const Text('Fuente grande'),
-                              subtitle: const Text('Aumentar el tamaño del texto'),
-                              value: settings.largeFont,
-                              onChanged: (value) => settings.setLargeFont(value),
-                              activeColor: const Color(0xFFC8102E),
-                            ),
-                          ],
-                        );
-                      },
+                    const Text('Nombre: Sebastián Chocho', style: TextStyle(fontSize: 16)),
+                    const SizedBox(height: 8),
+                    const Text('Teléfono: 09931762', style: TextStyle(fontSize: 16)),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.edit, color: Colors.white),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        onPressed: () {
+                          // Navega a pantalla de edición completa
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => EditProfileScreen()),  // Non-const para fix error
+                          );
+                        },
+                        label: const Text('Editar'),
+                      ),
                     ),
                   ],
                 ),
@@ -157,13 +82,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       title: const Text('Recibe actualizaciones importantes'),
                       value: _generalNotifications,
                       onChanged: (value) => setState(() => _generalNotifications = value),
-                      activeColor: const Color(0xFFC8102E),
+                      activeColor: const Color(0xFF83002A),
                     ),
                     SwitchListTile(
                       title: const Text('Estado de tus solicitudes'),
                       value: _requestNotifications,
                       onChanged: (value) => setState(() => _requestNotifications = value),
-                      activeColor: const Color(0xFFC8102E),
+                      activeColor: const Color(0xFF83002A),
                     ),
                   ],
                 ),
@@ -185,7 +110,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Chip(
                           label: const Text('Español'),
                           backgroundColor: Colors.orange[100],
-                          labelStyle: const TextStyle(color: Color(0xFFC8102E)),
+                          labelStyle: const TextStyle(color: Color(0xFF83002A)),
                         ),
                       ],
                     ),
@@ -194,11 +119,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
             // Privacidad y Seguridad (navega a sub-pantalla)
             Card(
               child: ListTile(
-                leading: const Icon(Icons.privacy_tip, color: Color(0xFFC8102E)),
+                leading: const Icon(Icons.privacy_tip, color: Color(0xFF83002A)),
                 title: const Text('Privacidad y Seguridad'),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: () {
@@ -210,7 +134,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
+            // Ayuda y Soporte (navega a sub-pantalla)
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.help_outline, color: Color(0xFF83002A)),
+                title: const Text('Ayuda y Soporte'),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SupportScreen()),  // Non-const para fix error
+                  );
+                },
+              ),
+            ),
             const SizedBox(height: 16),
             // Acerca de UIDE V1
             Card(
@@ -219,7 +156,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.warning, color: Colors.red, size: 24),
+                    const Icon(Icons.warning, color: Color.fromARGB(255, 120, 13, 5), size: 24),
                     const SizedBox(height: 8),
                     const Text('Acerca de UIDE V1', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),

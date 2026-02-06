@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../models/cart_item.dart';
 import '../../models/service_model.dart';
-import 'payment_screen.dart';
+import '../client_taek/payment_screen.dart';  // Import para navegación a PaymentScreen
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -13,77 +13,147 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  int _selectedTab = 0; // 0: Servicios, 1: Productos
+  int _selectedTab = 0;  // 0: Servicios, 1: Productos
 
   @override
   Widget build(BuildContext context) {
     return Consumer<CartProvider>(
       builder: (context, cartProvider, child) {
-        // CORRECCIÓN: Declaramos 'items' una sola vez
-        final bool isServiceTab = _selectedTab == 0;
-        final List<CartItem> items = isServiceTab ? cartProvider.servicios : cartProvider.productos;
+        final List<CartItem> items = _selectedTab == 0 ? cartProvider.servicios : cartProvider.productos;
         final bool isEmpty = items.isEmpty;
-
-        // Lógica de validación para el botón
-        final bool hasPending = isServiceTab && items.any((item) => item.status == CartStatus.pending);
-        final bool hasRejected = isServiceTab && items.any((item) => item.status == CartStatus.rejected);
-
-        // Configuración dinámica del botón según la pestaña
-        String buttonText;
-        bool canPay;
-        Color buttonColor;
-
-        if (isServiceTab) {
-          if (hasRejected) {
-            buttonText = 'Solicitud Rechazada';
-            canPay = false;
-            buttonColor = Colors.red;
-          } else if (hasPending) {
-            buttonText = 'Esperando Aceptación';
-            canPay = false;
-            buttonColor = Colors.grey;
-          } else {
-            buttonText = 'Pagar Servicio';
-            canPay = items.isNotEmpty;
-            buttonColor = Colors.orange;
-          }
-        } else {
-          buttonText = 'Comprar Productos';
-          canPay = items.isNotEmpty;
-          buttonColor = Colors.orange;
-        }
 
         return Scaffold(
           appBar: AppBar(
             title: const Text('Mi Carrito'),
-            backgroundColor: const Color(0xFFC8102E),
+            backgroundColor: const Color(0xFF83002A),
             foregroundColor: Colors.white,
           ),
           body: Column(
             children: [
-              // Selector de pestañas
+              // Toggle Buttons: Servicios / Productos
               Container(
-                color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.grey[100],
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildTabButton('Servicios', 0),
-                    const SizedBox(width: 12),
-                    _buildTabButton('Productos', 1),
+                color: const Color.fromARGB(255, 255, 255, 255),
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: ToggleButtons(
+                  isSelected: [_selectedTab == 0, _selectedTab == 1],
+                  onPressed: (index) => setState(() => _selectedTab = index),
+                  borderRadius: BorderRadius.circular(8),
+                  selectedColor: Colors.white,
+                  fillColor: _selectedTab == 0 ? Colors.orange[600] : Colors.orange[600],
+                  borderColor: Colors.grey,
+                  selectedBorderColor: _selectedTab == 0 ? Colors.orange[600] : Colors.orange[600],
+                  children: const [
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                      child: Text('Servicios'),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                      child: Text('Productos'),
+                    ),
                   ],
                 ),
               ),
-              // Lista de Items
               Expanded(
                 child: isEmpty
-                    ? const Center(child: Text('Tu carrito está vacío'))
+                    ? const Center(child: Text('Tu carrito está vacío. ¡Agrega algo!'))
                     : ListView.builder(
+                        padding: const EdgeInsets.all(16),
                         itemCount: items.length,
-                        itemBuilder: (context, index) => _buildCartItem(items[index], cartProvider),
+                        itemBuilder: (context, index) {
+                          final CartItem item = items[index];
+                          final bool isServiceTab = _selectedTab == 0;
+                          final Color statusColor = item.status == CartStatus.accepted ? Colors.green : Colors.orange;
+                          final String statusText = item.status == CartStatus.accepted ? 'Aceptada' : 'Pendiente';
+
+                          return Card(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      // Chip naranja para categoría/nombre del item
+                                      Expanded(
+                                        child: Chip(
+                                          label: Text(item.service.category),
+                                          backgroundColor: Colors.orange[300],
+                                          labelStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                                        ),
+                                      ),
+                                      // Chip status (solo para servicios)
+                                      if (isServiceTab)
+                                        Chip(
+                                          label: Text(statusText),
+                                          backgroundColor: statusColor.withOpacity(0.2),
+                                          labelStyle: TextStyle(color: statusColor, fontWeight: FontWeight.bold),
+                                        ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  // Nombre del item
+                                  Text(
+                                    item.displayName,
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  // Vendedor
+                                  Text(
+                                    item.service.name,
+                                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  // Precio
+                                  Text(
+                                    '\$${item.service.price.toStringAsFixed(2)}',
+                                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFC8102E)),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  // Comentario para servicios
+                                  if (isServiceTab && item.comment != null && item.comment!.isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 4),
+                                      child: Text(
+                                        'Comentario: ${item.comment}',
+                                        style: const TextStyle(fontSize: 12, color: Colors.blue, fontStyle: FontStyle.italic),
+                                      ),
+                                    ),
+                                  // Row de botones
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(Icons.edit, color: Colors.blue),
+                                            onPressed: () => _showEditDialog(context, cartProvider, item),
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(Icons.delete, color: Colors.red),
+                                            onPressed: () {
+                                              cartProvider.removeFromCart(item.service, product: item.product, serviceItem: item.serviceItem);
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                      // Para productos: Muestra quantity actualizado
+                                      if (!isServiceTab)
+                                        Text(
+                                          'Cantidad: ${item.quantity}',
+                                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                                        ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
                       ),
               ),
-              // Botón de Pago
+              // Botón Forma de Pago (solo si hay items)
               if (!isEmpty)
                 Padding(
                   padding: const EdgeInsets.all(16),
@@ -91,14 +161,16 @@ class _CartScreenState extends State<CartScreen> {
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: buttonColor,
+                        backgroundColor: Colors.orange,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                      onPressed: canPay 
-                        ? () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PaymentScreen()))
-                        : null,
-                      child: Text(buttonText, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => PaymentScreen()),  // Removí const para fix error
+                        );
+                      },
+                      child: const Text('Forma de Pago', style: TextStyle(fontSize: 18)),
                     ),
                   ),
                 ),
@@ -109,120 +181,84 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  // Widget para los botones de las pestañas
-  // Dentro de _CartScreenState en cart_screen.dart
-
-Widget _buildTabButton(String label, int index) {
-    bool isSelected = _selectedTab == index;
-    return GestureDetector(
-      onTap: () => setState(() => _selectedTab = index),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFC8102E) : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: const Color(0xFFC8102E)),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(color: isSelected ? Colors.white : const Color(0xFFC8102E), fontWeight: FontWeight.bold),
-        ),
-      ),
-    );
-  }
-
-
-
-Widget _buildCartItem(CartItem item, CartProvider cartProvider) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            const Icon(Icons.shopping_bag, color: Color(0xFFC8102E), size: 40),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(item.displayName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      ),
-                      // BOTÓN EDITAR DESCRIPCIÓN
-                      if (_selectedTab == 0 && item.status == CartStatus.pending)
-                        IconButton(
-                          icon: const Icon(Icons.edit_note, color: Colors.blue),
-                          onPressed: () => _showEditCommentDialog(context, item, cartProvider),
-                        ),
-                    ],
-                  ),
-                  Text(item.comment ?? 'Sin descripción', style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic)),
-                  const SizedBox(height: 8),
-                  _buildStatusBadge(item.status),
-                  const SizedBox(height: 4),
-                  Text(
-                    '\$${item.price.toStringAsFixed(2)} x ${item.quantity}',
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFC8102E)),
-                  ),
-                ],
-              ),
+  // Diálogo para editar (comentario para servicios, quantity para productos)
+  void _showEditDialog(BuildContext context, CartProvider cartProvider, CartItem item) {
+    if (_selectedTab == 0) {  // Servicios: Editar comentario
+      final TextEditingController commentController = TextEditingController(text: item.comment ?? '');
+      showDialog(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Editar Comentario'),
+          content: TextField(
+            controller: commentController,
+            decoration: const InputDecoration(
+              hintText: 'Describe lo que necesitas...',
+              border: OutlineInputBorder(),
             ),
-            IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: () => cartProvider.removeFromCart(item.service, product: item.product, serviceItem: item.serviceItem),
+            maxLines: 3,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (commentController.text.isNotEmpty) {
+                  cartProvider.updateComment(item.service, commentController.text, product: item.product, serviceItem: item.serviceItem);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Comentario actualizado')));
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('El comentario no puede estar vacío')));
+                }
+                Navigator.pop(dialogContext);
+              },
+              child: const Text('Guardar'),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-// DIÁLOGO PARA EDITAR EL COMENTARIO
-void _showEditCommentDialog(BuildContext context, CartItem item, CartProvider cartProvider) {
-    final TextEditingController controller = TextEditingController(text: item.comment);
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Editar descripción'),
-        content: TextField(controller: controller, maxLines: 3, decoration: const InputDecoration(hintText: "Detalles del servicio...")),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
-          ElevatedButton(
-            onPressed: () {
-              cartProvider.updateComment(item.service, controller.text, product: item.product, serviceItem: item.serviceItem);
-              Navigator.pop(context);
-            },
-            child: const Text('Guardar'),
+      );
+    } else {  // Productos: Editar quantity
+      int newQuantity = item.quantity;
+      showDialog(
+        context: context,
+        builder: (dialogContext) => StatefulBuilder(
+          builder: (dialogContext, setDialogState) => AlertDialog(
+            title: const Text('Editar Cantidad'),
+            content: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.remove),
+                  onPressed: () => setDialogState(() => newQuantity = newQuantity > 1 ? newQuantity - 1 : 1),
+                ),
+                Text('$newQuantity'),
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: () => setDialogState(() => newQuantity++),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: const Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () {
+                  if (newQuantity > 0) {
+                    cartProvider.updateQuantity(item.service, newQuantity - item.quantity, product: item.product, serviceItem: item.serviceItem);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Cantidad actualizada a $newQuantity')));
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('La cantidad debe ser mayor a 0')));
+                  }
+                  Navigator.pop(dialogContext);
+                },
+                child: const Text('Guardar'),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
-  }
-
-  // Widget del "Cuadrito" de estado (Badge)
-  Widget _buildStatusBadge(CartStatus status) {
-    Color color = status == CartStatus.accepted ? Colors.green : (status == CartStatus.rejected ? Colors.red : Colors.orange);
-    String text = status == CartStatus.accepted ? 'Aceptado' : (status == CartStatus.rejected ? 'Rechazado' : 'Pendiente');
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(8), border: Border.all(color: color)),
-      child: Text(text, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold)),
-    );
+        ),
+      );
+    }
   }
 }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.grey[300]),
-          const SizedBox(height: 16),
-          const Text('Tu carrito está vacío', style: TextStyle(fontSize: 18, color: Colors.grey)),
-        ],
-      ),
-    );
-  }

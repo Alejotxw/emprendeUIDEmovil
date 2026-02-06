@@ -1,249 +1,274 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:emprendeuidemovil/screens/emprendedor_taek/detalle_solicitud.dart';
-import '../../providers/cart_provider.dart';
-import '../../providers/order_provider.dart'; // Nuevo
-import '../../providers/notification_provider.dart'; // Nuevo
-import '../../models/cart_item.dart';
 
-class SolicitudesScreen extends StatefulWidget {
+class SolicitudesScreen extends StatelessWidget {
   const SolicitudesScreen({super.key});
 
   @override
-  State<SolicitudesScreen> createState() => _SolicitudesScreenState();
-}
-
-class _SolicitudesScreenState extends State<SolicitudesScreen> {
-  final List<Map<String, dynamic>> _solicitudesEstaticas = [
-    {
-      'tag': 'Servicio',
-      'title': 'Diseño Web',
-      'description': 'Preparo postres y dulces.',
-      'price': '5.00',
-      'status': 'Aceptado',
-      'statusColor': const Color(0xFF4CAF50),
-      'requesterName': 'Juan Perez',
-      'items': [{'name': 'Landing Page', 'detail': 'HTML/CSS', 'price': '5.00'}],
-      'paymentMethod': 'fisico',
-      'deliveryTime': '14:00 PM', // Hora de entrega
-      'isProduct': false,
-    },
-  ];
-
-  @override
   Widget build(BuildContext context) {
-    // Escuchamos ambos Providers
-    final cartProvider = Provider.of<CartProvider>(context);
-    final orderProvider = Provider.of<OrderProvider>(context);
-
-    // Combinamos: Estáticos + Servicios del Carrito + Pedidos (Productos) ya pagados
-    final List<Map<String, dynamic>> listaCombinada = [
-      ..._solicitudesEstaticas,
-      
-      // 1. SERVICIOS QUE ESTÁN EN EL CARRITO (Esperando aprobación)
-      ...cartProvider.servicios.map((item) => {
-            'cartItemRef': item,
-            'tag': 'Servicio',
-            'title': item.displayName,
-            'description': item.comment ?? 'Sin descripción',
-            'price': item.price.toStringAsFixed(2),
-            'status': _traducirEstado(item.status),
-            'statusColor': _obtenerColorEstado(item.status),
-            'requesterName': 'Cliente',
-            'items': [{'name': item.displayName, 'detail': item.service.name, 'price': item.price.toString()}],
-            'paymentMethod': 'Pendiente',
-            'isFromProvider': true,
-            'deliveryTime': 'Por definir', 
-            'isProduct': false,
-          }),
-
-      // 2. PRODUCTOS QUE ESTÁN EN EL CARRITO (Si el flujo lo requiere)
-      ...cartProvider.productos.map((item) => {
-            'cartItemRef': item,
-            'tag': 'Producto',
-            'title': item.displayName,
-            'description': 'Pedido de producto',
-            'price': item.price.toStringAsFixed(2),
-            'status': _traducirEstado(item.status),
-            'statusColor': _obtenerColorEstado(item.status),
-            'requesterName': 'Cliente',
-            'items': [{'name': item.displayName, 'detail': 'Cantidad: ${item.quantity}', 'price': item.price.toString()}],
-            'paymentMethod': 'Pendiente',
-            'isFromProvider': true,
-            'deliveryTime': 'Inmediata', 
-            'isProduct': true,
-          }),
-
-      // 2. PRODUCTOS/PEDIDOS YA PAGADOS (Aparecen aquí para el emprendedor)
-      ...orderProvider.orders.map((order) => {
-            'title': 'Pedido: ${order.id}',
-            'tag': 'Producto',
-            'description': order.items.map((i) => i.displayName).join(', '),
-            'price': order.total.toStringAsFixed(2),
-            'status': 'Pagado',
-            'statusColor': Colors.blue,
-            'requesterName': 'Cliente (Pago Realizado)',
-            'items': order.items.map((i) => {'name': i.displayName, 'detail': 'Pagado', 'price': i.service.price.toString()}).toList(),
-            'paymentMethod': order.paymentMethod,
-            'deliveryTime': 'Inmediata', // O la lógica de tiempo que prefieras
-            'isOrder': true,
-            'isProduct': true,
-          }),
-    ];
-
     return Scaffold(
-      backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF121212) : Colors.white,
+      backgroundColor: Colors.white,
       body: Column(
         children: [
+          // Header
           Container(
             width: double.infinity,
             padding: const EdgeInsets.only(top: 50, bottom: 20, left: 24, right: 24),
             decoration: const BoxDecoration(
               color: Color(0xFF83002A),
-              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
+              ),
             ),
             child: const Center(
               child: Text(
-                'Solicitudes Recibidas',
-                style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
-          Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.62, // Ajustado para que quepa el botón nuevo
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-              ),
-              itemCount: listaCombinada.length,
-              itemBuilder: (context, index) {
-                return _buildSolicitudCard(context, index, listaCombinada[index]);
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSolicitudCard(BuildContext context, int index, Map<String, dynamic> solicitud) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.withOpacity(0.3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GestureDetector(
-            onTap: () => _manejarTap(context, index, solicitud),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    height: 60, 
-                    decoration: BoxDecoration(color: const Color(0xFF83002A), borderRadius: BorderRadius.circular(15))
-                  ),
+                'Ver Solicitudes',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(solicitud['title'], style: const TextStyle(fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
-                      Text('Entrega: ${solicitud['deliveryTime']}', style: const TextStyle(fontSize: 10, color: Colors.blueGrey)),
-                      const SizedBox(height: 4),
-                      Text('\$${solicitud['price']}', style: const TextStyle(color: Color(0xFF83002A), fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 8),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        decoration: BoxDecoration(color: solicitud['statusColor'], borderRadius: BorderRadius.circular(8)),
-                        alignment: Alignment.center,
-                        child: Text(
-                          solicitud['isProduct'] ? 'PRODUCTO - ${solicitud['status']}' : 'SERVICIO - ${solicitud['status']}', 
-                          style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)
-                        ),
-                      ),
-                    ],
-                  ),
+              ),
+            ),
+          ),
+          
+          Expanded(
+            child: GridView.count(
+              padding: const EdgeInsets.all(16),
+              crossAxisCount: 2,
+              childAspectRatio: 0.70, // Adjust for card height
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              children: [
+                _buildSolicitudCard(
+                  context, // Pass context for navigation
+                  tag: 'Web',
+                  title: 'Diseño Web',
+                  description: 'Modelo Web.',
+                  price: '5.00',
+                  status: 'Aceptado',
+                  statusColor: const Color(0xFF4CAF50),
+                  notificationCount: 0,
+                  requesterName: 'Juan Perez', // Dummy data
+                  items: [
+                     {'name': 'Landing Page', 'detail': 'HTML/CSS', 'price': '5.00'}
+                  ],
+                ),
+                _buildSolicitudCard(
+                  context,
+                  tag: 'Diseño',
+                  title: 'Diseño Grafico',
+                  description: 'Publicidad',
+                  price: '10.00',
+                  status: 'Pendiente',
+                  statusColor: Colors.grey,
+                  notificationCount: 0,
+                  requesterName: 'Maria Lopez',
+                  items: [
+                     {'name': 'Logo Design', 'detail': 'Vector', 'price': '10.00'}
+                  ],
+                ),
+                _buildSolicitudCard(
+                  context,
+                  tag: 'Movil',
+                  title: 'Comida Casera',
+                  description: 'Postre',
+                  price: '3.25',
+                  status: 'Ver pedido',
+                  statusColor: const Color(0xFFFFA600),
+                  notificationCount: 1,
+                  requesterName: 'Kevin Giron',
+                   items: [
+                     {'name': 'Web', 'detail': 'React', 'price': '2.50'}, // Matching image content just for demo despite "Comida" title
+                     {'name': 'Movil', 'detail': 'Flutter', 'price': '2.50'}
+                  ],
+                  // Override title/tag to match image if needed, but keeping card data for now
+                ),
+                _buildSolicitudCard(
+                  context,
+                  tag: 'Web',
+                  title: 'Comida Casera',
+                  description: 'Postre',
+                  price: '6.50',
+                  status: 'Ver pedido',
+                  statusColor: const Color(0xFFFFA600),
+                  notificationCount: 2,
+                  requesterName: 'Ana Smith',
+                  items: [
+                     {'name': 'Pastel', 'detail': 'Chocolate', 'price': '6.50'}
+                  ],
                 ),
               ],
             ),
           ),
-          const Spacer(),
-          // BOTÓN ENVIAR NOTIFICACIÓN
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                ),
-                onPressed: () {
-                  final notiProvider = Provider.of<NotificationProvider>(context, listen: false);
-                  notiProvider.addNotification(
-                    "Actualización de Pedido", 
-                    "Tu pedido '${solicitud['title']}' está siendo procesado."
-                  );
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Notificación enviada al cliente')));
-                },
-                child: const Text('Enviar Noti', style: TextStyle(fontSize: 11, color: Colors.white)),
-              ),
-            ),
-          ),
+          
+          // Bottom padding to avoid overlap with bottom nav
+          const SizedBox(height: 80),
         ],
       ),
     );
   }
 
-  void _manejarTap(BuildContext context, int index, Map<String, dynamic> solicitud) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => DetalleSolicitudScreen(
-          title: solicitud['title'],
-          requesterName: solicitud['requesterName'],
-          tag: solicitud['tag'],
-          items: List<Map<String, String>>.from(solicitud['items']),
-          paymentMethod: solicitud['paymentMethod'],
-          description: solicitud['description'],
-          isProduct: solicitud['isProduct'] ?? false,
+  Widget _buildSolicitudCard(
+    BuildContext context, {
+    required String tag,
+    required String title,
+    required String description,
+    required String price,
+    required String status,
+    required Color statusColor,
+    required int notificationCount,
+    required String requesterName,
+    required List<Map<String, String>> items,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetalleSolicitudScreen(
+              title: title,
+              requesterName: requesterName,
+              tag: tag,
+              items: items,
+              paymentMethod: 'fisico', // Default for demo
+              description: description,
+            ),
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.grey.shade400),
         ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+          // Image Placeholder (Red Box)
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Container(
+              height: 80,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: const Color(0xFF83002A),
+                borderRadius: BorderRadius.circular(15),
+              ),
+            ),
+          ),
+          
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Tag and Notification Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFE0B2), // Light yellow/orange
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        tag,
+                        style: const TextStyle(
+                          color: Color(0xFFFFA600),
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    if (notificationCount > 0)
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFDD835), // Yellow circle
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          notificationCount.toString(),
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                
+                const SizedBox(height: 8),
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        description,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '\$$price',
+                      style: const TextStyle(
+                         fontSize: 14,
+                         fontWeight: FontWeight.bold,
+                         color: Color(0xFF83002A),
+                      ),
+                    ),
+                  ],
+                ),
+                
+                const SizedBox(height: 12),
+                Center(
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    decoration: BoxDecoration(
+                      color: statusColor,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      status,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+            ),
+          )
+        ],
       ),
-    );
-
-    if (result != null && mounted) {
-      final cartProvider = Provider.of<CartProvider>(context, listen: false);
-      if (solicitud['isFromProvider'] == true) {
-        final CartItem item = solicitud['cartItemRef'];
-        if (result == 'Aceptado') {
-          cartProvider.updateStatus(item.service, CartStatus.accepted);
-        } else if (result == 'Rechazado') {
-          cartProvider.updateStatus(item.service, CartStatus.rejected);
-        }
-      }
-    }
-  }
-
-  String _traducirEstado(CartStatus status) {
-    if (status == CartStatus.accepted) return 'Aceptado';
-    if (status == CartStatus.rejected) return 'Rechazado';
-    return 'Pendiente';
-  }
-
-  Color _obtenerColorEstado(CartStatus status) {
-    if (status == CartStatus.accepted) return const Color(0xFF4CAF50);
-    if (status == CartStatus.rejected) return Colors.red;
-    return const Color(0xFFFFA600);
+    )); // Close GestureDetector & Container
   }
 }
