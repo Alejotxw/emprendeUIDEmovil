@@ -17,7 +17,13 @@ function isInstitutionalEmail(email) {
 // ========== REGISTRO ==========
 router.post("/register", async (req, res) => {
   try {
-    const { nombre, email, password, rol } = req.body;
+    let { nombre, email, password, rol } = req.body;
+
+// 🔥 NORMALIZAMOS el rol
+rol = rol?.trim().toLowerCase();
+
+    console.log("👉 ROL RECIBIDO:", rol);
+
 
     if (!nombre || !email || !password || !rol) {
       return res.status(400).json({ message: "Faltan datos (nombre, email, password o rol)" });
@@ -55,9 +61,14 @@ router.post("/register", async (req, res) => {
     const docRef = await usersRef.add(newUser);
 
     return res.status(201).json({
-      message: "Registro exitoso",
-      userId: docRef.id,
-    });
+  message: "Registro exitoso",
+  user: {
+    id: docRef.id,
+    nombre,
+    email,
+    rol,
+  },
+});
   } catch (error) {
     console.error("Error en /auth/register:", error);
     return res.status(500).json({ message: "Error en el servidor" });
