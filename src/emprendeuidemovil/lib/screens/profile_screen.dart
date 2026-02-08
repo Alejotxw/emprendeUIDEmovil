@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:emprendeuidemovil/screens/emprendedor_taek/comentarios_servicios.dart';
 import 'package:emprendeuidemovil/screens/emprendedor_taek/configuracion_emprendedor.dart';
 
-
 // Imports del modo cliente (ajusta si los nombres son diferentes)
 import '../screens/client_taek/reviews_screen.dart';
 
@@ -17,6 +16,7 @@ import 'package:emprendeuidemovil/providers/user_role_provider.dart';
 import 'package:emprendeuidemovil/providers/user_profile_provider.dart';
 import 'dart:io'; // Para FileImage
 import 'login_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -50,15 +50,21 @@ class ProfileScreen extends StatelessWidget {
                       const SizedBox(height: 32),
 
                       // Opciones según el rol
-                      if (currentRole == UserRole.emprendedor) ..._buildEmprendedorOptions(context)
-                      else ..._buildClienteOptions(context),
+                      if (currentRole == UserRole.emprendedor)
+                        ..._buildEmprendedorOptions(context)
+                      else
+                        ..._buildClienteOptions(context),
 
                       const SizedBox(height: 40),
                       _buildLogoutButton(context),
                       const SizedBox(height: 40),
                       const Text(
                         "TAEK versión 1.0",
-                        style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       const SizedBox(height: 100), // Espacio para la bottom bar
                     ],
@@ -85,7 +91,11 @@ class ProfileScreen extends StatelessWidget {
       ),
       child: const Text(
         'Mi Perfil',
-        style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+        ),
         textAlign: TextAlign.center,
       ),
     );
@@ -94,6 +104,7 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildProfileInfo() {
     return Consumer<UserProfileProvider>(
       builder: (context, userProfile, child) {
+        final user = FirebaseAuth.instance.currentUser;
         return Column(
           children: [
             Container(
@@ -108,25 +119,30 @@ class ProfileScreen extends StatelessWidget {
                   ? Image.file(
                       File(userProfile.imagePath!),
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const Icon(Icons.person, size: 60, color: Colors.white),
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.person,
+                        size: 60,
+                        color: Colors.white,
+                      ),
                     )
                   : const Icon(Icons.person, size: 60, color: Colors.white),
             ),
             const SizedBox(height: 16),
             Text(
-              userProfile.name,
+              user?.displayName ?? userProfile.name,
               style: const TextStyle(
-                  color: Color(0xFF83002A),
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold),
+                color: Color(0xFF83002A),
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            const Text(
-              'sechochosi@uide.edu.ec',
+            Text(
+              user?.email ?? '',
               style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 14,
-                  decoration: TextDecoration.underline),
+                color: Colors.grey,
+                fontSize: 14,
+                decoration: TextDecoration.underline,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
@@ -139,7 +155,11 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRoleSwitcher(BuildContext context, UserRoleProvider roleProvider, UserRole currentRole) {
+  Widget _buildRoleSwitcher(
+    BuildContext context,
+    UserRoleProvider roleProvider,
+    UserRole currentRole,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -150,7 +170,11 @@ class ProfileScreen extends StatelessWidget {
               margin: const EdgeInsets.only(right: 12),
               height: 45,
               decoration: BoxDecoration(
-                color: currentRole == UserRole.cliente ? const Color(0xFFFFA600) : (Theme.of(context).brightness == Brightness.dark ? Colors.transparent : Colors.white),
+                color: currentRole == UserRole.cliente
+                    ? const Color(0xFFFFA600)
+                    : (Theme.of(context).brightness == Brightness.dark
+                          ? Colors.transparent
+                          : Colors.white),
                 borderRadius: BorderRadius.circular(25),
                 border: Border.all(color: const Color(0xFFFFA600), width: 1),
               ),
@@ -158,7 +182,11 @@ class ProfileScreen extends StatelessWidget {
               child: Text(
                 'Cliente',
                 style: TextStyle(
-                  color: currentRole == UserRole.cliente ? Colors.white : (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+                  color: currentRole == UserRole.cliente
+                      ? Colors.white
+                      : (Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.black),
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -173,7 +201,11 @@ class ProfileScreen extends StatelessWidget {
               margin: const EdgeInsets.only(left: 12),
               height: 45,
               decoration: BoxDecoration(
-                color: currentRole == UserRole.emprendedor ? const Color(0xFFFFA600) : (Theme.of(context).brightness == Brightness.dark ? Colors.transparent : Colors.white),
+                color: currentRole == UserRole.emprendedor
+                    ? const Color(0xFFFFA600)
+                    : (Theme.of(context).brightness == Brightness.dark
+                          ? Colors.transparent
+                          : Colors.white),
                 borderRadius: BorderRadius.circular(25),
                 border: Border.all(color: const Color(0xFFFFA600), width: 1),
               ),
@@ -181,7 +213,11 @@ class ProfileScreen extends StatelessWidget {
               child: Text(
                 'Emprendedor',
                 style: TextStyle(
-                  color: currentRole == UserRole.emprendedor ? Colors.white : (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+                  color: currentRole == UserRole.emprendedor
+                      ? Colors.white
+                      : (Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.black),
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -199,14 +235,22 @@ class ProfileScreen extends StatelessWidget {
         context,
         'Reseñas',
         Icons.rate_review,
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ComentariosServiciosScreen())),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ComentariosServiciosScreen()),
+        ),
       ),
       const SizedBox(height: 16),
       _buildMenuOption(
         context,
         'Configuraciones',
         Icons.settings,
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ConfiguracionEmprendedorScreen())),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const ConfiguracionEmprendedorScreen(),
+          ),
+        ),
       ),
     ];
   }
@@ -217,41 +261,75 @@ class ProfileScreen extends StatelessWidget {
         leading: const Icon(Icons.rate_review, color: Color(0xFF83002A)),
         title: const Text('Reseñas'),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ReviewsScreen())),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ReviewsScreen()),
+        ),
       ),
       ListTile(
         leading: const Icon(Icons.shopping_cart, color: Color(0xFF83002A)),
         title: const Text('Mis Pedidos'),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OrdersScreen())),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const OrdersScreen()),
+        ),
       ),
       ListTile(
         leading: const Icon(Icons.settings, color: Color(0xFF83002A)),
         title: const Text('Configuraciones'),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const SettingsScreen()),
+        ),
       ),
     ];
   }
 
-  Widget _buildMenuOption(BuildContext context, String title, IconData icon, {VoidCallback? onTap}) {
+  Widget _buildMenuOption(
+    BuildContext context,
+    String title,
+    IconData icon, {
+    VoidCallback? onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
+          color: Theme.of(context).brightness == Brightness.dark
+              ? const Color(0xFF1E1E1E)
+              : Colors.white,
           borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : Colors.grey.shade400),
+          border: Border.all(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.grey.shade800
+                : Colors.grey.shade400,
+          ),
         ),
         child: Row(
           children: [
             Icon(icon, color: const Color(0xFF83002A)),
             const SizedBox(width: 16),
             Expanded(
-              child: Text(title, style: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black, fontSize: 15, fontWeight: FontWeight.w500)),
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.black,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
-            Icon(Icons.chevron_right, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+            Icon(
+              Icons.chevron_right,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : Colors.black,
+            ),
           ],
         ),
       ),
@@ -260,8 +338,9 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildLogoutButton(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        // Tu lógica de logout: navegar al LoginScreen
+      onTap: () async {
+        await FirebaseAuth.instance.signOut();
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -271,14 +350,23 @@ class ProfileScreen extends StatelessWidget {
         width: 250,
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.dark ? Colors.transparent : const Color.fromARGB(255, 255, 255, 255),
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.transparent
+              : const Color.fromARGB(255, 255, 255, 255),
           borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: const Color.fromARGB(255, 255, 33, 33), width: 1.5),
+          border: Border.all(
+            color: const Color.fromARGB(255, 255, 33, 33),
+            width: 1.5,
+          ),
         ),
         alignment: Alignment.center,
         child: const Text(
           'CERRAR SESIÓN',
-          style: TextStyle(color: Color.fromARGB(255, 255, 33, 33), fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Color.fromARGB(255, 255, 33, 33),
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );

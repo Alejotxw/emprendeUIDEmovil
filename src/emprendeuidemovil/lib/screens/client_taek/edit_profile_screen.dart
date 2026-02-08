@@ -3,6 +3,9 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:provider/provider.dart';
 import '../../providers/user_profile_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final String initialName;
@@ -75,7 +78,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ? FileImage(File(_imagePath!))
                         : null,
                     child: _imagePath == null
-                        ? const Icon(Icons.person, size: 60, color: Colors.white)
+                        ? const Icon(
+                            Icons.person,
+                            size: 60,
+                            color: Colors.white,
+                          )
                         : null,
                   ),
                   Container(
@@ -84,14 +91,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       color: Colors.orange,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.camera_alt,
-                        color: Colors.white, size: 20),
+                    child: const Icon(
+                      Icons.camera_alt,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // Nombre Completo
             TextField(
               controller: _nameController,
@@ -102,7 +112,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // Celular
             TextField(
               controller: _phoneController,
@@ -115,7 +125,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               keyboardType: TextInputType.phone,
             ),
             const SizedBox(height: 40),
-            
+
             // Botones Cancelar / Guardar Cambios
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -124,7 +134,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
                   ),
                   onPressed: () => Navigator.pop(context),
                   child: const Text('Cancelar'),
@@ -133,18 +146,60 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
                   ),
-                  onPressed: () {
-                    // Actualizar provider
+                  onPressed: () async {
+                    final user = FirebaseAuth.instance.currentUser;
+
+                    if (user == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Usuario no autenticado')),
+                      );
+                      return;
+                    }
+
+                    String? photoUrl;
+
+                    // 👉 Subir imagen si existe
+                    if (_imagePath != null) {
+                      final file = File(_imagePath!);
+
+                      final ref = FirebaseStorage.instance
+                          .ref()
+                          .child('profile_photos')
+                          .child('${user.uid}.jpg');
+
+                      await ref.putFile(file);
+
+                      photoUrl = await ref.getDownloadURL();
+                    }
+
+                    // 👉 Guardar en Firestore
+                    await FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(user.uid)
+                        .set({
+                          'name': _nameController.text.trim(),
+                          'phone': _phoneController.text.trim(),
+                          'photoUrl': photoUrl,
+                          'email': user.email,
+                          'updatedAt': FieldValue.serverTimestamp(),
+                        }, SetOptions(merge: true));
+
+                    // 👉 Mantener tu provider local (no lo quitamos)
                     context.read<UserProfileProvider>().updateProfile(
-                          name: _nameController.text,
-                          phone: _phoneController.text,
-                          imagePath: _imagePath,
-                        );
-                    
+                      name: _nameController.text,
+                      phone: _phoneController.text,
+                      imagePath: _imagePath,
+                    );
+
                     ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Cambios guardados')));
+                      const SnackBar(content: Text('Cambios guardados')),
+                    );
+
                     Navigator.pop(context);
                   },
                   child: const Text('Guardar Cambios'),

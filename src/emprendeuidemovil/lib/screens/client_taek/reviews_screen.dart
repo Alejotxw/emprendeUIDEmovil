@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/review_provider.dart';
+import '../../providers/service_provider.dart';
 
 class ReviewsScreen extends StatefulWidget {
   const ReviewsScreen({super.key});
@@ -49,6 +50,19 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
             itemBuilder: (context, index) {
               final review = reviews[index];
 
+              final servicesProvider = Provider.of<ServiceProvider>(
+                context,
+                listen: false,
+              );
+
+              final service = servicesProvider.allServices
+                  .where((s) => s.id == review.serviceId)
+                  .toList();
+
+              final serviceName = service.isNotEmpty
+                  ? service.first.name
+                  : review.serviceId;
+
               return Card(
                 elevation: 4,
                 margin: const EdgeInsets.only(bottom: 16),
@@ -62,7 +76,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                     children: [
                       // ---- ID del emprendimiento (por ahora)
                       Text(
-                        "Emprendimiento: ${review.serviceId}",
+                        "Emprendimiento: $serviceName",
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,

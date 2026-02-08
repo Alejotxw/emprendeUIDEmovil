@@ -1,22 +1,74 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_model.dart';
 
 class AuthService {
-  Future<UserModel> register({
-    required String email,
-    required String password,
-    required String name,
-  }) async {
-    // Mock: Simula registro exitoso
-    await Future.delayed(const Duration(seconds: 1));
-    return UserModel(id: 'mock_id', email: email, name: name);
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // ------------------------
+  // Usuario actual
+  // ------------------------
+  User? getCurrentUser() {
+    return _firebaseAuth.currentUser;
   }
 
-  Future<UserModel?> login({required String email, required String password}) async {
-    // Mock login
-    await Future.delayed(const Duration(seconds: 1));
-    if (email == 'test@example.com' && password == '123') {
-      return UserModel(id: 'user1', email: email, name: 'Test User');
+  // ------------------------
+  // LOGIN
+  // ------------------------
+  Future<UserModel?> login(String email, String password) async {
+    try {
+      final credential = await _firebaseAuth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      final user = credential.user;
+
+      if (user == null) return null;
+
+      return UserModel(
+        id: user.uid,
+        email: user.email ?? '',
+        name: user.displayName ?? '',
+      );
+    } on FirebaseAuthException catch (e) {
+      print('Login error: ${e.code}');
+      return null;
     }
-    return null;
+  }
+
+  // ------------------------
+  // REGISTER
+  // ------------------------
+  Future<UserModel> register({
+    required String nombre,
+    required String email,
+    required String password,
+    required String rol,
+  }) async {
+    final credential = await _firebaseAuth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+
+    final user = credential.user;
+
+    if (user == null) {
+      throw Exception('No se pudo crear el usuario');
+    }
+
+    // Guardar nombre en Auth
+    await user.updateDisplayName(nombre);
+
+    // Guardar perfil en Firestore
+    await _firestore.collection('users').doc(user.uid).set({
+      'nombre': nombre,
+      'email': email,
+      'rol': rol, // cliente | emprendedor
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+
+    return UserModel(id: user.uid, email: email, name: nombre);
   }
 }

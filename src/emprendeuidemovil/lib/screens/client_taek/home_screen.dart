@@ -3,10 +3,11 @@ import 'package:provider/provider.dart';
 import '../../providers/service_provider.dart';
 import '../../models/service_model.dart';
 import '../../widgets/service_card.dart';
-import 'detail_screen.dart';  // Import para navegación a detalle
+import 'detail_screen.dart'; // Import para navegación a detalle
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import '../../providers/notification_provider.dart'; 
+import '../../providers/notification_provider.dart';
 import '../../providers/event_provider.dart';
 import 'dart:io';
 
@@ -17,7 +18,10 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-  void _showNotificationsDialog(BuildContext context, NotificationProvider provider) {
+void _showNotificationsDialog(
+  BuildContext context,
+  NotificationProvider provider,
+) {
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
@@ -35,8 +39,14 @@ class HomeScreen extends StatefulWidget {
                   final noti = provider.notifications[index];
 
                   return ListTile(
-                    leading: const Icon(Icons.info_outline, color: Color(0xFFC8102E)),
-                    title: Text(noti.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    leading: const Icon(
+                      Icons.info_outline,
+                      color: Color(0xFFC8102E),
+                    ),
+                    title: Text(
+                      noti.title,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     subtitle: Text(noti.message),
                     trailing: Text(
                       "${noti.timestamp.hour}:${noti.timestamp.minute.toString().padLeft(2, '0')}",
@@ -47,7 +57,10 @@ class HomeScreen extends StatefulWidget {
               ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cerrar')),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cerrar'),
+        ),
       ],
     ),
   );
@@ -55,8 +68,16 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final List<String> _categories = [
-    'Bienestar', 'Eventos', 'Mascotas', 'Tecnologia', 'Gastronomia',
-    'Moda', 'Diseño', 'Educación', 'Hogar', 'Movilidad',
+    'Bienestar',
+    'Eventos',
+    'Mascotas',
+    'Tecnologia',
+    'Gastronomia',
+    'Moda',
+    'Diseño',
+    'Educación',
+    'Hogar',
+    'Movilidad',
   ];
 
   String _searchQuery = '';
@@ -67,14 +88,22 @@ class _HomeScreenState extends State<HomeScreen> {
     final lowerQuery = query.toLowerCase();
     final suggestions = <String>[];
     // Sugiere categorías que coincidan
-    suggestions.addAll(_categories.where((cat) => cat.toLowerCase().contains(lowerQuery)).toList());
+    suggestions.addAll(
+      _categories
+          .where((cat) => cat.toLowerCase().contains(lowerQuery))
+          .toList(),
+    );
     // Sugiere nombres de servicios (del provider)
     final provider = Provider.of<ServiceProvider>(context, listen: false);
-    suggestions.addAll(provider.allServices
-        .where((s) => s.name.toLowerCase().contains(lowerQuery))
-        .map((s) => s.name)
-        .take(5));  // Limita a 5 para no sobrecargar
-    return suggestions.isNotEmpty ? suggestions : ['No hay opciones exactas. Prueba con "${lowerQuery}" relacionado'];
+    suggestions.addAll(
+      provider.allServices
+          .where((s) => s.name.toLowerCase().contains(lowerQuery))
+          .map((s) => s.name)
+          .take(5),
+    ); // Limita a 5 para no sobrecargar
+    return suggestions.isNotEmpty
+        ? suggestions
+        : ['No hay opciones exactas. Prueba con "${lowerQuery}" relacionado'];
   }
 
   void _showEventDetails(Map<String, dynamic> event) {
@@ -85,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (dt == null) return '---';
       return "${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}";
     }
-    
+
     String formatTime(DateTime? dt) {
       if (dt == null) return '--:--';
       return "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
@@ -110,7 +139,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: Text(
                       event['title'] ?? 'Detalles',
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -124,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            
+
             // Content
             Flexible(
               child: SingleChildScrollView(
@@ -132,33 +165,52 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (event['image'] != null && event['image'].toString().isNotEmpty)
+                    if (event['image'] != null &&
+                        event['image'].toString().isNotEmpty)
                       Container(
                         margin: const EdgeInsets.only(bottom: 20),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
-                          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(15),
                           child: event['image'].toString().startsWith('http')
                               ? Image.network(
-                                  event['image'], 
-                                  height: 180, 
-                                  width: double.infinity, 
+                                  event['image'],
+                                  height: 180,
+                                  width: double.infinity,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (c,o,s) => Container(height: 180, color: Colors.grey[200], child: const Center(child: Icon(Icons.broken_image, size: 40))),
+                                  errorBuilder: (c, o, s) => Container(
+                                    height: 180,
+                                    color: Colors.grey[200],
+                                    child: const Center(
+                                      child: Icon(Icons.broken_image, size: 40),
+                                    ),
+                                  ),
                                 )
                               : Image.file(
-                                  File(event['image']), 
-                                  height: 180, 
-                                  width: double.infinity, 
+                                  File(event['image']),
+                                  height: 180,
+                                  width: double.infinity,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (c,o,s) => Container(height: 180, color: Colors.grey[200], child: const Center(child: Icon(Icons.broken_image, size: 40))),
+                                  errorBuilder: (c, o, s) => Container(
+                                    height: 180,
+                                    color: Colors.grey[200],
+                                    child: const Center(
+                                      child: Icon(Icons.broken_image, size: 40),
+                                    ),
+                                  ),
                                 ),
                         ),
                       ),
-                    
+
                     // Fechas
                     Container(
                       padding: const EdgeInsets.all(12),
@@ -169,38 +221,68 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       child: Column(
                         children: [
-                          _buildDetailRow(Icons.calendar_today, "Inicio", "${formatDate(start)}  ⏰ ${formatTime(start)}"),
+                          _buildDetailRow(
+                            Icons.calendar_today,
+                            "Inicio",
+                            "${formatDate(start)}  ⏰ ${formatTime(start)}",
+                          ),
                           const Divider(height: 16),
-                          _buildDetailRow(Icons.event_available, "Fin", "${formatDate(end)}  ⏰ ${formatTime(end)}"),
+                          _buildDetailRow(
+                            Icons.event_available,
+                            "Fin",
+                            "${formatDate(end)}  ⏰ ${formatTime(end)}",
+                          ),
                         ],
                       ),
                     ),
 
                     const SizedBox(height: 16),
-                    const Text("Descripción", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    const Text(
+                      "Descripción",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                     const SizedBox(height: 6),
                     Text(
                       event['description'] ?? 'Sin descripción detallada.',
                       style: TextStyle(color: Colors.grey[700], height: 1.4),
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    const Text("Contacto", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    const Text(
+                      "Contacto",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                         Container(
-                           padding: const EdgeInsets.all(8),
-                           decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle),
-                           child: const Icon(Icons.phone, color: Colors.white, size: 16),
-                         ),
-                         const SizedBox(width: 10),
-                         Expanded(
-                           child: Text(
-                             event['contact'] ?? 'No disponible',
-                             style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
-                           ),
-                         ),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                            color: Colors.green,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.phone,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            event['contact'] ?? 'No disponible',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -232,6 +314,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
     return Consumer<ServiceProvider>(
       builder: (context, serviceProvider, child) {
         List<ServiceModel> filteredServices = serviceProvider.allServices;
@@ -240,8 +323,8 @@ class _HomeScreenState extends State<HomeScreen> {
           filteredServices = serviceProvider.allServices.where((service) {
             final query = _searchQuery.toLowerCase();
             return service.name.toLowerCase().contains(query) ||
-                   service.subtitle.toLowerCase().contains(query) ||
-                   service.category.toLowerCase().contains(query);
+                service.subtitle.toLowerCase().contains(query) ||
+                service.category.toLowerCase().contains(query);
           }).toList();
         }
 
@@ -273,9 +356,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Hola, Alejandro',
-                            style: TextStyle(
+                          Text(
+                            'Hola, ${user?.displayName ?? user?.email ?? 'Usuario'}',
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
                               color: Colors.white,
@@ -288,8 +371,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                 alignment: Alignment.center,
                                 children: [
                                   IconButton(
-                                    icon: const Icon(Icons.notifications, color: Colors.white),
-                                    onPressed: () => _showNotificationsDialog(context, notiProvider),
+                                    icon: const Icon(
+                                      Icons.notifications,
+                                      color: Colors.white,
+                                    ),
+                                    onPressed: () => _showNotificationsDialog(
+                                      context,
+                                      notiProvider,
+                                    ),
                                   ),
                                   if (notiProvider.notifications.isNotEmpty)
                                     Positioned(
@@ -298,10 +387,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                       child: Container(
                                         padding: const EdgeInsets.all(2),
                                         decoration: BoxDecoration(
-                                          color: Colors.orange, // Color llamativo para el contador
-                                          borderRadius: BorderRadius.circular(10),
+                                          color: Colors
+                                              .orange, // Color llamativo para el contador
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
                                         ),
-                                        constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                                        constraints: const BoxConstraints(
+                                          minWidth: 16,
+                                          minHeight: 16,
+                                        ),
                                         child: Text(
                                           '${notiProvider.notifications.length}',
                                           style: const TextStyle(
@@ -324,7 +419,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       // Autocomplete para sugerencias (Buscador)
                       Autocomplete<String>(
                         optionsBuilder: (TextEditingValue textEditingValue) {
-                          if (textEditingValue.text.isEmpty) return const Iterable<String>.empty();
+                          if (textEditingValue.text.isEmpty)
+                            return const Iterable<String>.empty();
                           return _getSuggestions(textEditingValue.text);
                         },
                         onSelected: (String selection) {
@@ -333,47 +429,60 @@ class _HomeScreenState extends State<HomeScreen> {
                             _searchController.text = selection;
                           });
                         },
-                        fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-                          _searchController.text = _searchQuery;
-                          return Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: TextField(
-                              controller: controller ?? _searchController,
-                              focusNode: focusNode,
-                              onChanged: (value) => setState(() => _searchQuery = value),
-                              onSubmitted: (value) => setState(() => _searchQuery = value),
-                              style: const TextStyle(color: Colors.white),
-                              decoration: InputDecoration(
-                                hintText: _searchQuery.isEmpty
-                                    ? '¿Qué necesitas hoy? Busca servicios'
-                                    : null,
-                                hintStyle: const TextStyle(color: Colors.white70, fontSize: 14),
-                                prefixIcon: const Icon(Icons.search, color: Colors.white70),
-                                suffixIcon: _searchQuery.isNotEmpty
-                                    ? IconButton(
-                                        icon: const Icon(Icons.clear, color: Colors.white70),
-                                        onPressed: () {
-                                          _searchController.clear();
-                                          setState(() => _searchQuery = '');
-                                        },
-                                      )
-                                    : null,
-                                border: InputBorder.none,
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                              ),
-                            ),
-                          );
-                        },
+                        fieldViewBuilder:
+                            (context, controller, focusNode, onFieldSubmitted) {
+                              _searchController.text = _searchQuery;
+                              return Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: TextField(
+                                  controller: controller ?? _searchController,
+                                  focusNode: focusNode,
+                                  onChanged: (value) =>
+                                      setState(() => _searchQuery = value),
+                                  onSubmitted: (value) =>
+                                      setState(() => _searchQuery = value),
+                                  style: const TextStyle(color: Colors.white),
+                                  decoration: InputDecoration(
+                                    hintText: _searchQuery.isEmpty
+                                        ? '¿Qué necesitas hoy? Busca servicios'
+                                        : null,
+                                    hintStyle: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 14,
+                                    ),
+                                    prefixIcon: const Icon(
+                                      Icons.search,
+                                      color: Colors.white70,
+                                    ),
+                                    suffixIcon: _searchQuery.isNotEmpty
+                                        ? IconButton(
+                                            icon: const Icon(
+                                              Icons.clear,
+                                              color: Colors.white70,
+                                            ),
+                                            onPressed: () {
+                                              _searchController.clear();
+                                              setState(() => _searchQuery = '');
+                                            },
+                                          )
+                                        : null,
+                                    border: InputBorder.none,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 12,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
                       ),
                     ],
                   ),
-                  
                 ),
               ),
-              
             ),
           ),
           body: CustomScrollView(
@@ -381,7 +490,9 @@ class _HomeScreenState extends State<HomeScreen> {
               // --- SECCIÓN DE EVENTOS (CARRUSEL) ---
               Consumer<EventProvider>(
                 builder: (context, eventProvider, child) {
-                  final events = eventProvider.events.where((e) => e.status == 'published').toList();
+                  final events = eventProvider.events
+                      .where((e) => e.status == 'published')
+                      .toList();
 
                   // Si no hay datos o la lista está vacía, no muestra NADA
                   if (events.isEmpty) {
@@ -395,7 +506,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         options: CarouselOptions(
                           height: 200,
                           // Solo activa el autoPlay si hay más de un evento
-                          autoPlay: events.length > 1, 
+                          autoPlay: events.length > 1,
                           autoPlayInterval: const Duration(seconds: 5),
                           enlargeCenterPage: true,
                           // Evita el scroll infinito si solo hay un evento
@@ -406,7 +517,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           // Adaptamos el EventModel a un Map simple para la función _showEventDetails
                           final eventMap = {
                             'title': event.title,
-                            'startDateTime': event.startDateTime.toIso8601String(),
+                            'startDateTime': event.startDateTime
+                                .toIso8601String(),
                             'endDateTime': event.endDateTime.toIso8601String(),
                             'description': event.description,
                             'contact': event.contact,
@@ -422,43 +534,44 @@ class _HomeScreenState extends State<HomeScreen> {
                             },
                             behavior: HitTestBehavior.translucent,
                             child: Container(
-                                width: MediaQuery.of(context).size.width,
+                              width: MediaQuery.of(context).size.width,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                color: Colors.grey[200], // Fondo mientras carga
+                                image: imageUrl.isNotEmpty
+                                    ? DecorationImage(
+                                        image: imageUrl.startsWith('http')
+                                            ? NetworkImage(imageUrl)
+                                            : FileImage(File(imageUrl))
+                                                  as ImageProvider,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : null,
+                              ),
+                              child: Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(15),
-                                  color: Colors.grey[200], // Fondo mientras carga
-                                  image: imageUrl.isNotEmpty
-                                      ? DecorationImage(
-                                          image: imageUrl.startsWith('http')
-                                              ? NetworkImage(imageUrl)
-                                              : FileImage(File(imageUrl)) as ImageProvider,
-                                          fit: BoxFit.cover,
-                                        )
-                                      : null,
-                                ),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(15),
-                                    gradient: LinearGradient(
-                                      begin: Alignment.bottomCenter,
-                                      end: Alignment.center,
-                                      colors: [
-                                        Colors.black.withOpacity(0.8),
-                                        Colors.transparent
-                                      ],
-                                    ),
+                                  gradient: LinearGradient(
+                                    begin: Alignment.bottomCenter,
+                                    end: Alignment.center,
+                                    colors: [
+                                      Colors.black.withOpacity(0.8),
+                                      Colors.transparent,
+                                    ],
                                   ),
-                                  padding: const EdgeInsets.all(12),
-                                  alignment: Alignment.bottomLeft,
-                                  child: Text(
-                                    event.title,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                ),
+                                padding: const EdgeInsets.all(12),
+                                alignment: Alignment.bottomLeft,
+                                child: Text(
+                                  event.title,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
+                            ),
                           );
                         }).toList(),
                       ),
@@ -473,10 +586,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      children: _categories.map((category) => Padding(
-                        padding: const EdgeInsets.only(right: 12),
-                        child: _buildCategoryChip(category, () => _onCategoryTap(category)),
-                      )).toList(),
+                      children: _categories
+                          .map(
+                            (category) => Padding(
+                              padding: const EdgeInsets.only(right: 12),
+                              child: _buildCategoryChip(
+                                category,
+                                () => _onCategoryTap(category),
+                              ),
+                            ),
+                          )
+                          .toList(),
                     ),
                   ),
                 ),
@@ -489,15 +609,26 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _searchQuery.isEmpty ? 'TOP Destacadas' : (hasExactResults ? 'Resultados de búsqueda ($_searchQuery)' : 'Opciones sugeridas'),
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFFC8102E)),
+                        _searchQuery.isEmpty
+                            ? 'TOP Destacadas'
+                            : (hasExactResults
+                                  ? 'Resultados de búsqueda ($_searchQuery)'
+                                  : 'Opciones sugeridas'),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Color(0xFFC8102E),
+                        ),
                       ),
                       if (suggestionText.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 4),
                           child: Text(
                             suggestionText,
-                            style: const TextStyle(fontSize: 14, color: Colors.grey),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey,
+                            ),
                           ),
                         ),
                     ],
@@ -516,7 +647,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
-                      final servicesToShow = _searchQuery.isEmpty ? topServices : filteredServices;
+                      final servicesToShow = _searchQuery.isEmpty
+                          ? topServices
+                          : filteredServices;
                       if (index >= servicesToShow.length) return null;
                       final service = servicesToShow[index];
                       return ServiceCard(
@@ -524,12 +657,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => DetailScreen(service: service),
+                            builder: (context) =>
+                                DetailScreen(service: service),
                           ),
                         ),
                       );
                     },
-                    childCount: _searchQuery.isEmpty ? topServices.length : filteredServices.length,
+                    childCount: _searchQuery.isEmpty
+                        ? topServices.length
+                        : filteredServices.length,
                   ),
                 ),
               ),
@@ -539,8 +675,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                     child: Text(
-                      _searchQuery.isEmpty ? 'Todos los Emprendimientos' : 'Más resultados',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFFC8102E)),
+                      _searchQuery.isEmpty
+                          ? 'Todos los Emprendimientos'
+                          : 'Más resultados',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Color(0xFFC8102E),
+                      ),
                     ),
                   ),
                 ),
@@ -548,28 +690,36 @@ class _HomeScreenState extends State<HomeScreen> {
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 80),
                   sliver: SliverGrid(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.78,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.78,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                        ),
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
-                        int startIndex = _searchQuery.isEmpty ? topServices.length : 0;
-                        if (index + startIndex >= filteredServices.length) return null;
+                        int startIndex = _searchQuery.isEmpty
+                            ? topServices.length
+                            : 0;
+                        if (index + startIndex >= filteredServices.length)
+                          return null;
                         final service = filteredServices[index + startIndex];
                         return ServiceCard(
                           service: service,
                           onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => DetailScreen(service: service),
+                              builder: (context) =>
+                                  DetailScreen(service: service),
                             ),
                           ),
                         );
                       },
-                      childCount: _searchQuery.isNotEmpty ? filteredServices.length : (serviceProvider.allServices.length - topServices.length),
+                      childCount: _searchQuery.isNotEmpty
+                          ? filteredServices.length
+                          : (serviceProvider.allServices.length -
+                                topServices.length),
                     ),
                   ),
                 ),
@@ -582,7 +732,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         const Text('No se encontraron resultados exactos.'),
                         const SizedBox(height: 8),
-                        Text('Opciones sugeridas: ${_getSuggestions(_searchQuery).join(', ')}'),
+                        Text(
+                          'Opciones sugeridas: ${_getSuggestions(_searchQuery).join(', ')}',
+                        ),
                       ],
                     ),
                   ),
@@ -593,8 +745,6 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
-
-
 
   Widget _buildCategoryChip(String label, VoidCallback onTap) {
     IconData icon = _getCategoryIcon(label);
@@ -609,16 +759,15 @@ class _HomeScreenState extends State<HomeScreen> {
             height: 50,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFFF5E8E8),  // Fondo rojo claro
-              border: Border.all(color: const Color(0xFFC8102E), width: 1),  // Borde rojo
+              color: const Color(0xFFF5E8E8), // Fondo rojo claro
+              border: Border.all(
+                color: const Color(0xFFC8102E),
+                width: 1,
+              ), // Borde rojo
             ),
-            child: Icon(
-              icon,
-              size: 24,
-              color: const Color(0xFFC8102E),
-            ),
+            child: Icon(icon, size: 24, color: const Color(0xFFC8102E)),
           ),
-          const SizedBox(height: 4),  // Pegado abajo
+          const SizedBox(height: 4), // Pegado abajo
           // Nombre de categoría
           Text(
             label,
@@ -638,17 +787,28 @@ class _HomeScreenState extends State<HomeScreen> {
 
   IconData _getCategoryIcon(String category) {
     switch (category) {
-      case 'Bienestar': return Icons.spa_outlined;
-      case 'Eventos': return Icons.event_outlined;
-      case 'Mascotas': return Icons.pets_outlined;
-      case 'Tecnologia': return Icons.computer_outlined;
-      case 'Gastronomia': return Icons.restaurant_outlined;
-      case 'Moda': return Icons.checkroom_outlined;
-      case 'Diseño': return Icons.brush_outlined;
-      case 'Educación': return Icons.school_outlined;
-      case 'Hogar': return Icons.home_outlined;
-      case 'Movilidad': return Icons.directions_car_outlined;
-      default: return Icons.category_outlined;
+      case 'Bienestar':
+        return Icons.spa_outlined;
+      case 'Eventos':
+        return Icons.event_outlined;
+      case 'Mascotas':
+        return Icons.pets_outlined;
+      case 'Tecnologia':
+        return Icons.computer_outlined;
+      case 'Gastronomia':
+        return Icons.restaurant_outlined;
+      case 'Moda':
+        return Icons.checkroom_outlined;
+      case 'Diseño':
+        return Icons.brush_outlined;
+      case 'Educación':
+        return Icons.school_outlined;
+      case 'Hogar':
+        return Icons.home_outlined;
+      case 'Movilidad':
+        return Icons.directions_car_outlined;
+      default:
+        return Icons.category_outlined;
     }
   }
 
@@ -660,14 +820,16 @@ class _HomeScreenState extends State<HomeScreen> {
       _searchController.text = category;
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Mostrando ${filtered.length} servicios en $category')),
+      SnackBar(
+        content: Text('Mostrando ${filtered.length} servicios en $category'),
+      ),
     );
   }
 
   void _showServiceDetail(ServiceModel service) {
     // Esta función ya no se usa directamente; navegación en onTap
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Detalles de ${service.name}')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Detalles de ${service.name}')));
   }
 }

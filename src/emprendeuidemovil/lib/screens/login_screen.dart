@@ -2,9 +2,58 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/user_role_provider.dart';
+import '../services/auth_service.dart';
 
-class LoginScreen extends StatelessWidget {
+import 'client_taek/register_screen.dart';
+
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  bool _loading = false;
+
+  Future<void> _login() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Completa correo y contraseña')),
+      );
+      return;
+    }
+
+    setState(() => _loading = true);
+
+    final authService = AuthService();
+
+    final user = await authService.login(email, password);
+
+    setState(() => _loading = false);
+
+    if (!mounted) return;
+
+    if (user != null) {
+      // Por ahora seguimos usando el rol cliente por defecto
+      Provider.of<UserRoleProvider>(
+        context,
+        listen: false,
+      ).setRole(UserRole.cliente);
+
+      Navigator.pushReplacementNamed(context, '/main');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Correo o contraseña incorrectos')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +78,7 @@ class LoginScreen extends StatelessWidget {
 
               // Campo de correo
               TextField(
+                controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
@@ -48,6 +98,7 @@ class LoginScreen extends StatelessWidget {
 
               // Campo de contraseña
               TextField(
+                controller: _passwordController,
                 obscureText: true,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
@@ -76,64 +127,35 @@ class LoginScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  onPressed: () {
-                    Navigator.pushReplacementNamed(context, '/main');
-                  },
-                  child: const Text(
-                    'Ingresar',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  onPressed: _loading ? null : _login,
+                  child: _loading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          'Ingresar',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
 
               const SizedBox(height: 40),
+              const SizedBox(height: 16),
 
-              // --- SECCIÓN DE BOTONES DEMO ---
-              const Text(
-                'Modo Demo',
-                style: TextStyle(color: Colors.white70, fontSize: 14),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                  );
+                },
+                child: const Text(
+                  '¿No tienes cuenta? Regístrate',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
-              const SizedBox(height: 15),
-              Row(
-                children: [
-                  // Botón Demo Cliente
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        Provider.of<UserRoleProvider>(context, listen: false).setRole(UserRole.cliente);
-                        Navigator.pushReplacementNamed(context, '/main');
-                      },
-                      icon: const Icon(Icons.person, color: Colors.white),
-                      label: const Text('Cliente', style: TextStyle(color: Colors.white)),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.white54),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 15),
-                  // Botón Demo Admin
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        Provider.of<UserRoleProvider>(context, listen: false).setRole(UserRole.emprendedor);
-                        Navigator.pushReplacementNamed(context, '/admin');
-                      },
-                      icon: const Icon(Icons.admin_panel_settings, color: Colors.white),
-                      label: const Text('Admin', style: TextStyle(color: Colors.white)),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.white54),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 40),
             ],
           ),
         ),

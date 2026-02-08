@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 import '../../providers/review_provider.dart';
+import '../../providers/service_provider.dart';
 
 class ComentariosServiciosScreen extends StatefulWidget {
   const ComentariosServiciosScreen({super.key});
@@ -130,6 +131,16 @@ class CommentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    final servicesProvider = Provider.of<ServiceProvider>(
+      context,
+      listen: false,
+    );
+
+    final service = servicesProvider.allServices
+        .where((s) => s.id == serviceId)
+        .toList();
+
+    final serviceName = service.isNotEmpty ? service.first.name : serviceId;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -143,7 +154,7 @@ class CommentCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Servicio: $serviceId",
+            "Servicio: $serviceName",
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,

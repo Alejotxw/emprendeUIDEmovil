@@ -56,3 +56,12 @@ build/
 
 # Otros
 *.log
+
+# Firebase
+**/google-services.json
+firebase.json
+
+# Flutter generated
+linux/flutter/generated_*
+windows/flutter/generated_*
+macos/Flutter/GeneratedPluginRegistrant.swift

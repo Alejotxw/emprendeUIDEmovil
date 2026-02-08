@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/cart_item.dart';
 import '../../services/auth_service.dart';
-import '../../models/user_model.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -12,15 +10,14 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nombreCtrl = TextEditingController();
-  final _emailCtrl = TextEditingController();
-  final _passwordCtrl = TextEditingController();
 
-  bool rolVendedor = true;
-  bool rolComprador = false;
-  bool loading = false;
+  final TextEditingController _nombreCtrl = TextEditingController();
+  final TextEditingController _emailCtrl = TextEditingController();
+  final TextEditingController _passwordCtrl = TextEditingController();
 
-  final _authService = AuthService();
+  bool _loading = false;
+
+  final AuthService _authService = AuthService();
 
   @override
   void dispose() {
@@ -34,6 +31,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final email = _emailCtrl.text.trim();
+
     if (!email.endsWith('@uide.edu.ec')) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -43,143 +41,164 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    // --- Determinar UN solo rol ---
-    String? rolSeleccionado;
-    if (rolVendedor && !rolComprador) {
-      rolSeleccionado = 'vendedor';
-    } else if (!rolVendedor && rolComprador) {
-      rolSeleccionado = 'comprador';
-    } else {
-      // o ninguno marcado, o los dos marcados
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Debe elegir solo un rol: vendedor o comprador'),
-        ),
-      );
-      return;
-    }
+    setState(() => _loading = true);
 
     try {
-      setState(() => loading = true);
-
-      final UserModel user = await _authService.register(
+      await _authService.register(
         nombre: _nombreCtrl.text.trim(),
         email: email,
-        password: _passwordCtrl.text,
-        rol: rolSeleccionado, // <-- ahora sí mandamos UN rol válido
+        password: _passwordCtrl.text.trim(),
+        rol: 'cliente', // ← fijo por ahora
       );
+
+      if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Usuario ${user.nombre} registrado con éxito')),
+        const SnackBar(content: Text('Usuario registrado correctamente')),
       );
 
-      // Después de registrarse, lo mando al login
       Navigator.pop(context);
     } catch (e) {
+      if (!mounted) return;
+
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
-      setState(() => loading = false);
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Color(0xFF90063a);
-    const buttonColor = Color(0xFFdaa520);
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Registro'),
-        backgroundColor: primaryColor,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _nombreCtrl,
-                decoration: const InputDecoration(labelText: 'Nombre completo'),
-                validator: (value) => (value == null || value.isEmpty)
-                    ? 'Campo obligatorio'
-                    : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _emailCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Correo institucional',
+      backgroundColor: const Color(0xFF90063a),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                const SizedBox(height: 30),
+
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                  ),
                 ),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) => (value == null || value.isEmpty)
-                    ? 'Campo obligatorio'
-                    : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _passwordCtrl,
-                decoration: const InputDecoration(labelText: 'Contraseña'),
-                obscureText: true,
-                validator: (value) => (value == null || value.length < 6)
-                    ? 'Mínimo 6 caracteres'
-                    : null,
-              ),
-              const SizedBox(height: 16),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Selecciona tu rol',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+
+                const SizedBox(height: 30),
+
+                const Text(
+                  'Crear Cuenta',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              CheckboxListTile(
-                title: const Text('Vendedor'),
-                value: rolVendedor,
-                onChanged: (val) {
-                  setState(() {
-                    rolVendedor = val ?? false;
-                    if (rolVendedor) rolComprador = false; // solo uno a la vez
-                  });
-                },
-              ),
-              CheckboxListTile(
-                title: const Text('Comprador'),
-                value: rolComprador,
-                onChanged: (val) {
-                  setState(() {
-                    rolComprador = val ?? false;
-                    if (rolComprador) rolVendedor = false; // solo uno a la vez
-                  });
-                },
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: buttonColor,
-                    shape: RoundedRectangleBorder(
+
+                const SizedBox(height: 40),
+
+                // Nombre
+                TextFormField(
+                  controller: _nombreCtrl,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.person, color: Colors.white),
+                    hintText: 'Nombre completo',
+                    hintStyle: const TextStyle(color: Colors.white70),
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.1),
+                    border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
                     ),
                   ),
-                  onPressed: loading ? null : _onRegister,
-                  child: loading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
-                          'Registrarme',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Campo obligatorio'
+                      : null,
                 ),
-              ),
-            ],
+
+                const SizedBox(height: 20),
+
+                // Correo
+                TextFormField(
+                  controller: _emailCtrl,
+                  keyboardType: TextInputType.emailAddress,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.email, color: Colors.white),
+                    hintText: 'Correo institucional',
+                    hintStyle: const TextStyle(color: Colors.white70),
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.1),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Campo obligatorio'
+                      : null,
+                ),
+
+                const SizedBox(height: 20),
+
+                // Contraseña
+                TextFormField(
+                  controller: _passwordCtrl,
+                  obscureText: true,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.lock, color: Colors.white),
+                    hintText: 'Contraseña',
+                    hintStyle: const TextStyle(color: Colors.white70),
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.1),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  validator: (value) => value == null || value.length < 6
+                      ? 'Mínimo 6 caracteres'
+                      : null,
+                ),
+
+                const SizedBox(height: 30),
+
+                // Botón registrar
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFdaa520),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: _loading ? null : _onRegister,
+                    child: _loading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                            'Registrarse',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
