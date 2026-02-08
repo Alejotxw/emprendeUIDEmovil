@@ -1,1 +1,16 @@
-backend/serviceAccountKey.json
+src/backend/node_modules
+src/backend/serviceAccountKey.json
+src/backend/.env
+
+# Flutter / Android
+android/build/
+linux/flutter/generated_*
+build/
+
+# Dart
+.dart_tool/
+.packages
+.pub-cache/
+
+# Otros
+*.log

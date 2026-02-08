@@ -43,3 +43,16 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Flutter / Android
+android/build/
+linux/flutter/generated_*
+build/
+
+# Dart
+.dart_tool/
+.packages
+.pub-cache/
+
+# Otros
+*.log

@@ -4,23 +4,28 @@ const { db } = require("./firebase");
 
 const router = express.Router();
 
-// ⚠️ CAMBIA esto por el dominio real de tu correo institucional
+// dominio institucional
 const INSTITUTION_DOMAIN = "@uide.edu.ec";
 
-// Roles permitidos
+// roles permitidos
 const VALID_ROLES = ["vendedor", "comprador", "ambos"];
 
 function isInstitutionalEmail(email) {
-  return email.endsWith(INSTITUTION_DOMAIN);
+  return email.toLowerCase().endsWith(INSTITUTION_DOMAIN);
 }
 
-// ========== REGISTRO ==========
+// ===============================
+// REGISTRO
+// POST /auth/register
+// ===============================
 router.post("/register", async (req, res) => {
   try {
     const { nombre, email, password, rol } = req.body;
 
     if (!nombre || !email || !password || !rol) {
-      return res.status(400).json({ message: "Faltan datos (nombre, email, password o rol)" });
+      return res
+        .status(400)
+        .json({ message: "Faltan datos (nombre, email, password o rol)" });
     }
 
     if (!isInstitutionalEmail(email)) {
@@ -36,6 +41,7 @@ router.post("/register", async (req, res) => {
     }
 
     const usersRef = db.collection("users");
+
     const snapshot = await usersRef.where("email", "==", email).get();
 
     if (!snapshot.empty) {
@@ -49,6 +55,9 @@ router.post("/register", async (req, res) => {
       email,
       password: hashedPassword,
       rol,
+      telefono: "",
+      direccion: "",
+      fotoPerfil: "",
       createdAt: new Date(),
     };
 
@@ -64,13 +73,18 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// ========== LOGIN ==========
+// ===============================
+// LOGIN
+// POST /auth/login
+// ===============================
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: "Faltan datos (email o password)" });
+      return res
+        .status(400)
+        .json({ message: "Faltan datos (email o password)" });
     }
 
     if (!isInstitutionalEmail(email)) {
@@ -87,11 +101,15 @@ router.post("/login", async (req, res) => {
     }
 
     let userDoc;
+
     snapshot.forEach((doc) => {
       userDoc = { id: doc.id, ...doc.data() };
     });
 
-    const isValidPassword = await bcrypt.compare(password, userDoc.password);
+    const isValidPassword = await bcrypt.compare(
+      password,
+      userDoc.password
+    );
 
     if (!isValidPassword) {
       return res.status(401).json({ message: "Credenciales inválidas" });
@@ -111,8 +129,11 @@ router.post("/login", async (req, res) => {
     return res.status(500).json({ message: "Error en el servidor" });
   }
 });
-// ========== OBTENER PERFIL DE USUARIO ==========
+
+// ===============================
+// OBTENER PERFIL
 // GET /auth/user/:uid
+// ===============================
 router.get("/user/:uid", async (req, res) => {
   try {
     const { uid } = req.params;
@@ -128,17 +149,67 @@ router.get("/user/:uid", async (req, res) => {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    const userData = userDoc.data();
+    const data = userDoc.data();
 
     return res.json({
-      uid: userDoc.id,
-      nombre: userData.nombre,
-      email: userData.email,
-      roles: userData.roles || [],
-      creadoEn: userData.createdAt || null,
+      id: userDoc.id,
+      nombre: data.nombre,
+      email: data.email,
+      rol: data.rol,
+      telefono: data.telefono || "",
+      direccion: data.direccion || "",
+      fotoPerfil: data.fotoPerfil || "",
+      creadoEn: data.createdAt || null,
     });
   } catch (error) {
-    console.error("Error en GET /auth/user/:uid:", error);
+    console.error("Error GET /auth/user/:uid:", error);
+    return res.status(500).json({ message: "Error en el servidor" });
+  }
+});
+
+// ===============================
+// ACTUALIZAR PERFIL
+// PUT /auth/user/:uid
+// ===============================
+router.put("/user/:uid", async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const { nombre, telefono, direccion, fotoPerfil, rol } = req.body;
+
+    if (!uid) {
+      return res.status(400).json({ message: "Falta el uid" });
+    }
+
+    const userRef = db.collection("users").doc(uid);
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    const dataToUpdate = {};
+
+    if (nombre !== undefined) dataToUpdate.nombre = nombre;
+    if (telefono !== undefined) dataToUpdate.telefono = telefono;
+    if (direccion !== undefined) dataToUpdate.direccion = direccion;
+    if (fotoPerfil !== undefined) dataToUpdate.fotoPerfil = fotoPerfil;
+
+    if (rol !== undefined) {
+      if (!VALID_ROLES.includes(rol)) {
+        return res.status(400).json({
+          message: `Rol inválido. Debe ser: ${VALID_ROLES.join(", ")}`,
+        });
+      }
+      dataToUpdate.rol = rol;
+    }
+
+    await userRef.update(dataToUpdate);
+
+    return res.json({
+      message: "Perfil actualizado correctamente",
+    });
+  } catch (error) {
+    console.error("Error PUT /auth/user/:uid:", error);
     return res.status(500).json({ message: "Error en el servidor" });
   }
 });

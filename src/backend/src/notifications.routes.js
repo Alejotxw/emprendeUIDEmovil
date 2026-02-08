@@ -118,4 +118,38 @@ router.get("/:uid", async (req, res) => {
   }
 });
 
+// ===============================
+// MARCAR NOTIFICACIÓN COMO LEÍDA
+// PUT /notifications/:uid/:notificationId/read
+// ===============================
+router.put("/:uid/:notificationId/read", async (req, res) => {
+  try {
+    const { uid, notificationId } = req.params;
+
+    const ref = db
+      .collection("users")
+      .doc(uid)
+      .collection("notifications")
+      .doc(notificationId);
+
+    const snap = await ref.get();
+
+    if (!snap.exists) {
+      return res.status(404).json({ message: "Notificación no encontrada" });
+    }
+
+    await ref.update({
+      read: true,
+    });
+
+    res.json({ message: "Notificación marcada como leída" });
+
+  } catch (error) {
+    console.error("Error PUT /notifications/read:", error);
+    res.status(500).json({ message: "Error al marcar notificación" });
+  }
+});
+
+
+
 module.exports = router;

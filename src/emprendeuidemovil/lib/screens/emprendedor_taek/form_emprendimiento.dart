@@ -8,14 +8,15 @@ class FormEmprendimientoScreen extends StatefulWidget {
   const FormEmprendimientoScreen({super.key, this.entrepreneurship});
 
   @override
-  State<FormEmprendimientoScreen> createState() => _FormEmprendimientoScreenState();
+  State<FormEmprendimientoScreen> createState() =>
+      _FormEmprendimientoScreenState();
 }
 
 class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
   // Controllers
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
-  
+
   // Service Controllers
   final TextEditingController _serviceNameController = TextEditingController();
   final TextEditingController _serviceDescController = TextEditingController();
@@ -38,21 +39,64 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.entrepreneurship?['title'] ?? '');
-    _descriptionController = TextEditingController(text: widget.entrepreneurship?['subtitle'] ?? '');
+
+    _nameController = TextEditingController(
+      text: widget.entrepreneurship?['title'] ?? '',
+    );
+    _descriptionController = TextEditingController(
+      text: widget.entrepreneurship?['subtitle'] ?? '',
+    );
     _selectedCategory = widget.entrepreneurship?['category'] ?? 'Comida';
+
     if (widget.entrepreneurship?['imagePath'] != null) {
       _selectedImage = File(widget.entrepreneurship!['imagePath']);
     }
-    
-    if (widget.entrepreneurship != null && widget.entrepreneurship!['services'] != null) {
-       _services = List<Map<String, String>>.from(widget.entrepreneurship!['services'].map((item) {
-         // Ensure type cast is correct and map keys match
-         return Map<String, String>.from(item);
-       }));
+
+    if (widget.entrepreneurship != null &&
+        widget.entrepreneurship!['services'] != null) {
+      _services = List<Map<String, String>>.from(
+        widget.entrepreneurship!['services'].map((item) {
+          return Map<String, String>.from(item);
+        }),
+      );
     } else {
       _services = [];
     }
+
+    // ✅ CARGAR HORARIO
+    final schedule = widget.entrepreneurship?['schedule'];
+
+    if (schedule != null) {
+      final List days = schedule['days'] ?? [];
+
+      _selectedDays
+        ..clear()
+        ..addAll(days.map((e) => e.toString()));
+
+      if (schedule['open'] != null && schedule['open'] != '') {
+        _openTime = _parseTime(schedule['open']);
+      }
+
+      if (schedule['close'] != null && schedule['close'] != '') {
+        _closeTime = _parseTime(schedule['close']);
+      }
+    }
+  }
+
+  TimeOfDay _parseTime(String time) {
+    final parts = time.split(' ');
+    final hm = parts[0].split(':');
+
+    int hour = int.parse(hm[0]);
+    final minute = int.parse(hm[1]);
+
+    if (parts.length > 1) {
+      final isPm = parts[1].toUpperCase() == 'PM';
+      if (isPm && hour < 12) hour += 12;
+      if (!isPm && hour == 12) hour = 0;
+    }
+
+    return TimeOfDay(hour: hour, minute: minute);
   }
 
   Future<void> _selectTime(BuildContext context, bool isOpenTime) async {
@@ -85,17 +129,27 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
 
   void _saveAndExit({bool isDraft = false}) {
     final data = {
-      'title': _nameController.text.isNotEmpty ? _nameController.text : 'Borrador',
+      'title': _nameController.text.isNotEmpty
+          ? _nameController.text
+          : 'Borrador',
       'subtitle': _descriptionController.text,
       'category': _selectedCategory,
       'services': _services,
       'isDraft': isDraft,
       'imagePath': _selectedImage?.path,
+
+      // ✅ AÑADIR ESTO
+      'schedule': {
+        'days': _selectedDays.toList(),
+        'open': _openTime.format(context),
+        'close': _closeTime.format(context),
+      },
     };
 
     if (!isDraft && _nameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Ingresa el nombre del emprendimiento")));
+        const SnackBar(content: Text("Ingresa el nombre del emprendimiento")),
+      );
       return;
     }
 
@@ -113,105 +167,141 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
         return false;
       },
       child: Scaffold(
-      backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF121212) : Colors.white,
-      body: Column(
-        children: [
-          _buildTopBar(context),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                   // Information Header
-                   Text(
-                     "Información Basica",
-                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
-                   ),
-                   const SizedBox(height: 16),
+        backgroundColor: Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xFF121212)
+            : Colors.white,
+        body: Column(
+          children: [
+            _buildTopBar(context),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Information Header
+                    Text(
+                      "Información Basica",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
 
-                   // Image Picker
-                   GestureDetector(
-                     onTap: _pickImage,
-                     child: Container(
-                       height: 180,
-                       width: double.infinity,
-                       decoration: BoxDecoration(
-                         color: _selectedImage == null 
-                             ? (Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.grey.shade100)
-                             : null,
-                         borderRadius: BorderRadius.circular(20),
-                         border: Border.all(color: Colors.grey.shade300),
-                         image: _selectedImage != null
-                             ? DecorationImage(
-                                 image: FileImage(_selectedImage!),
-                                 fit: BoxFit.cover,
-                               )
-                             : null,
-                       ),
-                       child: _selectedImage == null
-                           ? Column(
-                               mainAxisAlignment: MainAxisAlignment.center,
-                               children: [
-                                 Icon(Icons.add_a_photo, 
-                                   size: 50, 
-                                   color: Theme.of(context).brightness == Brightness.dark ? Colors.grey : Colors.grey.shade400
-                                 ),
-                                 const SizedBox(height: 10),
-                                 Text(
-                                   "Agregar Imagen del Emprendimiento",
-                                   style: TextStyle(
-                                     color: Theme.of(context).brightness == Brightness.dark ? Colors.grey : Colors.grey.shade500
-                                   ),
-                                 ),
-                               ],
-                             )
-                           : Stack(
-                               children: [
-                                 Positioned(
-                                   right: 10,
-                                   top: 10,
-                                   child: Container(
-                                     padding: const EdgeInsets.all(4),
-                                     decoration: const BoxDecoration(
-                                       color: Colors.black54,
-                                       shape: BoxShape.circle,
-                                     ),
-                                     child: const Icon(Icons.edit, color: Colors.white, size: 20),
-                                   ),
-                                 ),
-                               ],
-                             ),
-                     ),
-                   ),
-                   const SizedBox(height: 20),
+                    // Image Picker
+                    GestureDetector(
+                      onTap: _pickImage,
+                      child: Container(
+                        height: 180,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: _selectedImage == null
+                              ? (Theme.of(context).brightness == Brightness.dark
+                                    ? const Color(0xFF1E1E1E)
+                                    : Colors.grey.shade100)
+                              : null,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.grey.shade300),
+                          image: _selectedImage != null
+                              ? DecorationImage(
+                                  image: FileImage(_selectedImage!),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
+                        ),
+                        child: _selectedImage == null
+                            ? Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.add_a_photo,
+                                    size: 50,
+                                    color:
+                                        Theme.of(context).brightness ==
+                                            Brightness.dark
+                                        ? Colors.grey
+                                        : Colors.grey.shade400,
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    "Agregar Imagen del Emprendimiento",
+                                    style: TextStyle(
+                                      color:
+                                          Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? Colors.grey
+                                          : Colors.grey.shade500,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Stack(
+                                children: [
+                                  Positioned(
+                                    right: 10,
+                                    top: 10,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.black54,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.edit,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
 
-                   // Name Input
-                   const Text("Nombre del emprendimiento", style: TextStyle(fontWeight: FontWeight.bold)),
-                   const SizedBox(height: 8),
-                   TextField(
-                     controller: _nameController,
-                     style: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
-                     decoration: InputDecoration(
-                       filled: true,
-                       fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
-                       hintText: 'Ej. Delicias Caseras',
-                       hintStyle: TextStyle(color: Colors.grey.shade400),
-                       border: OutlineInputBorder(
-                         borderRadius: BorderRadius.circular(20),
-                         borderSide: BorderSide(color: Colors.grey.shade300),
-                       ),
-                       enabledBorder: OutlineInputBorder(
-                         borderRadius: BorderRadius.circular(20),
-                         borderSide: BorderSide(color: Colors.grey.shade300),
-                       ),
-                     ),
-                   ),
-                   const SizedBox(height: 20),
+                    // Name Input
+                    const Text(
+                      "Nombre del emprendimiento",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _nameController,
+                      style: TextStyle(
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.black,
+                      ),
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor:
+                            Theme.of(context).brightness == Brightness.dark
+                            ? const Color(0xFF1E1E1E)
+                            : Colors.white,
+                        hintText: 'Ej. Delicias Caseras',
+                        hintStyle: TextStyle(color: Colors.grey.shade400),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
 
-                   // Categories
-                   const Text("Categoria", style: TextStyle(fontWeight: FontWeight.bold)),
-                   const SizedBox(height: 12),
+                    // Categories
+                    const Text(
+                      "Categoria",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 12),
                     // First row - 5 categories
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -234,166 +324,225 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                         _buildCategoryItem("Movilidad", Icons.directions_car),
                       ],
                     ),
-                   const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                   // Description
-                   const Text("Descripción", style: TextStyle(fontWeight: FontWeight.bold)),
-                   const SizedBox(height: 8),
-                   TextField(
-                     controller: _descriptionController,
-                     maxLines: 4,
-                     decoration: InputDecoration(
-                       hintText: 'Describe tu emprendimiento',
-                       hintStyle: TextStyle(color: Colors.grey.shade400),
-                       border: OutlineInputBorder(
-                         borderRadius: BorderRadius.circular(20),
-                         borderSide: BorderSide(color: Colors.grey.shade300),
-                       ),
-                       enabledBorder: OutlineInputBorder(
-                         borderRadius: BorderRadius.circular(20),
-                         borderSide: BorderSide(color: Colors.grey.shade300),
-                       ),
-                     ),
-                   ),
-                   const SizedBox(height: 20),
+                    // Description
+                    const Text(
+                      "Descripción",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _descriptionController,
+                      maxLines: 4,
+                      decoration: InputDecoration(
+                        hintText: 'Describe tu emprendimiento',
+                        hintStyle: TextStyle(color: Colors.grey.shade400),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
 
-                   // Location (Placeholder)
-                   const Text("Ubicación", style: TextStyle(fontWeight: FontWeight.bold)),
-                   const SizedBox(height: 8),
-                   Container(
-                     width: double.infinity,
-                     padding: const EdgeInsets.all(16),
-                     decoration: BoxDecoration(
-                       color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.grey.shade100,
-                       borderRadius: BorderRadius.circular(15),
-                       border: Border.all(color: Colors.grey.shade300),
-                     ),
-                     child: Row(
-                       children: [
-                         const Icon(Icons.location_on, color: Color(0xFF83002A), size: 30),
-                         const SizedBox(width: 12),
-                         Expanded(
-                           child: Text(
-                             "Sede Loja Universidad Internacional del Ecuador",
-                             style: TextStyle(
-                                 fontSize: 14,
-                                 fontWeight: FontWeight.bold,
-                                 color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87),
-                           ),
-                         ),
-                       ],
-                     ),
-                   ),
-                   const SizedBox(height: 20),
+                    // Location (Placeholder)
+                    const Text(
+                      "Ubicación",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? const Color(0xFF1E1E1E)
+                            : Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.location_on,
+                            color: Color(0xFF83002A),
+                            size: 30,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              "Sede Loja Universidad Internacional del Ecuador",
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color:
+                                    Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? Colors.white
+                                    : Colors.black87,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
 
-                   // Schedule
-                   const Text("Horario de Atención", style: TextStyle(fontWeight: FontWeight.bold)),
-                   const SizedBox(height: 8),
-                   _buildSchedulePicker(),
-                   const SizedBox(height: 20),
+                    // Schedule
+                    const Text(
+                      "Horario de Atención",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildSchedulePicker(),
+                    const SizedBox(height: 20),
 
-                   // Services Header
-                   Row(
-                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                     children: [
-                       const Text("Servicios / Productos", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                       Container(
-                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                         decoration: BoxDecoration(
-                           color: const Color(0xFFFFA600),
-                           borderRadius: BorderRadius.circular(15),
-                         ),
-                         child: Text(
-                           "${_services.length} Servicios",
-                           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-                         ),
-                       )
-                     ],
-                   ),
-                   const SizedBox(height: 16),
+                    // Services Header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Servicios / Productos",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFA600),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Text(
+                            "${_services.length} Servicios",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
 
-                   // Services List
-                   ..._services.asMap().entries.map((entry) {
+                    // Services List
+                    ..._services.asMap().entries.map((entry) {
                       return _buildServiceCard(entry.key + 1, entry.value);
-                   }).toList(),
+                    }).toList(),
 
-                   const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                   // Add New Service Form
-                   _buildAddServiceForm(),
+                    // Add New Service Form
+                    _buildAddServiceForm(),
 
-                   const SizedBox(height: 40),
+                    const SizedBox(height: 40),
 
-                   // Action Buttons
-                   Row(
-                     children: [
-                       Expanded(
+                    // Action Buttons
+                    Row(
+                      children: [
+                        Expanded(
                           child: OutlinedButton(
                             onPressed: () => _saveAndExit(isDraft: true),
-                           style: OutlinedButton.styleFrom(
-                             padding: const EdgeInsets.symmetric(vertical: 16),
-                             side: const BorderSide(color: Color(0xFF83002A)),
-                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                           ),
-                           child: const Text("Guardar Borrador", style: TextStyle(color: Color(0xFF83002A), fontWeight: FontWeight.bold)),
-                         ),
-                       ),
-                       const SizedBox(width: 12),
-                       Expanded(
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              side: const BorderSide(color: Color(0xFF83002A)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                            child: const Text(
+                              "Guardar Borrador",
+                              style: TextStyle(
+                                color: Color(0xFF83002A),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
                           child: ElevatedButton(
                             onPressed: () => _saveAndExit(isDraft: false),
-                           style: ElevatedButton.styleFrom(
-                             padding: const EdgeInsets.symmetric(vertical: 16),
-                             backgroundColor: const Color(0xFF83002A),
-                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                           ),
-                           child: Text(
-                             widget.entrepreneurship != null ? "Guardar Cambios" : "Crear Emprendimiento", 
-                             style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)
-                           ),
-                         ),
-                       ),
-                     ],
-                   ),
-                   if (widget.entrepreneurship != null) ...[
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              backgroundColor: const Color(0xFF83002A),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                            child: Text(
+                              widget.entrepreneurship != null
+                                  ? "Guardar Cambios"
+                                  : "Crear Emprendimiento",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (widget.entrepreneurship != null) ...[
                       const SizedBox(height: 12),
                       SizedBox(
                         width: double.infinity,
                         child: TextButton(
                           onPressed: () {
-                             // Confirm delete
-                             showDialog(
-                               context: context, 
-                               builder: (context) => AlertDialog(
-                                 title: const Text("Eliminar Emprendimiento"),
-                                 content: const Text("¿Estás seguro de que quieres eliminar este emprendimiento?"),
-                                 actions: [
-                                   TextButton(
-                                     onPressed: () => Navigator.pop(context), 
-                                     child: const Text("Cancelar")
-                                   ),
-                                   TextButton(
-                                     onPressed: () {
-                                       Navigator.pop(context); // Close dialog
-                                       Navigator.pop(context, {'action': 'delete'}); // Return delete action
-                                     }, 
-                                     child: const Text("Eliminar", style: TextStyle(color: Colors.red))
-                                   ),
-                                 ],
-                               )
-                             );
+                            // Confirm delete
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text("Eliminar Emprendimiento"),
+                                content: const Text(
+                                  "¿Estás seguro de que quieres eliminar este emprendimiento?",
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text("Cancelar"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context); // Close dialog
+                                      Navigator.pop(context, {
+                                        'action': 'delete',
+                                      }); // Return delete action
+                                    },
+                                    child: const Text(
+                                      "Eliminar",
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
                           },
-                          child: const Text("Eliminar Emprendimiento", style: TextStyle(color: Colors.red)),
+                          child: const Text(
+                            "Eliminar Emprendimiento",
+                            style: TextStyle(color: Colors.red),
+                          ),
                         ),
-                      )
-                   ],
-                   const SizedBox(height: 20),
-                ],
+                      ),
+                    ],
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }
@@ -447,15 +596,21 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
             height: 60,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: isSelected ? (isDark ? Colors.grey.shade800 : Colors.grey.shade100) : (isDark ? const Color(0xFF1E1E1E) : Colors.white),
+              color: isSelected
+                  ? (isDark ? Colors.grey.shade800 : Colors.grey.shade100)
+                  : (isDark ? const Color(0xFF1E1E1E) : Colors.white),
               border: Border.all(
-                color: isSelected ? const Color(0xFF83002A) : (isDark ? Colors.grey : Colors.black),
+                color: isSelected
+                    ? const Color(0xFF83002A)
+                    : (isDark ? Colors.grey : Colors.black),
                 width: isSelected ? 2 : 1,
               ),
             ),
             child: Icon(
               icon,
-              color: isSelected ? const Color(0xFF83002A) : (isDark ? Colors.white : Colors.black),
+              color: isSelected
+                  ? const Color(0xFF83002A)
+                  : (isDark ? Colors.white : Colors.black),
             ),
           ),
           const SizedBox(height: 8),
@@ -481,7 +636,10 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Días:", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          const Text(
+            "Días:",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          ),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -491,11 +649,15 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                 label: Text(day),
                 selected: isSelected,
                 selectedColor: const Color(0xFF83002A),
-                backgroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : null,
+                backgroundColor: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.grey.shade800
+                    : null,
                 labelStyle: TextStyle(
-                  color: isSelected 
-                      ? Colors.white 
-                      : (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+                  color: isSelected
+                      ? Colors.white
+                      : (Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.black),
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
                 onSelected: (selected) {
@@ -511,7 +673,10 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
             }).toList(),
           ),
           const Divider(height: 24),
-          const Text("Horas:", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          const Text(
+            "Horas:",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          ),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -532,17 +697,28 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.grey.shade100,
+          color: Theme.of(context).brightness == Brightness.dark
+              ? const Color(0xFF1E1E1E)
+              : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: Colors.grey.shade300),
         ),
         child: Column(
           children: [
-            Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+            Text(
+              label,
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+            ),
             const SizedBox(height: 4),
             Text(
               time.format(context),
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white
+                    : Colors.black,
+              ),
             ),
           ],
         ),
@@ -555,7 +731,9 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xFF1E1E1E)
+            : Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: const Color(0xFF83002A), width: 1),
       ),
@@ -573,7 +751,11 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
             ),
             child: Text(
               "$index",
-              style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           const SizedBox(width: 16),
@@ -588,33 +770,50 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                     Expanded(
                       child: Text(
                         service['name']!,
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white
+                              : Colors.black,
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 8),
                     Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                            color: service['type'] == 'product' ? Colors.blue.shade100 : Colors.green.shade100,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: service['type'] == 'product' ? Colors.blue : Colors.green),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: service['type'] == 'product'
+                            ? Colors.blue.shade100
+                            : Colors.green.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: service['type'] == 'product'
+                              ? Colors.blue
+                              : Colors.green,
                         ),
-                        child: Text(
-                            service['type'] == 'product' ? 'Producto' : 'Servicio',
-                            style: TextStyle(
-                                fontSize: 10, 
-                                fontWeight: FontWeight.bold,
-                                color: service['type'] == 'product' ? Colors.blue.shade900 : Colors.green.shade900,
-                            ),
+                      ),
+                      child: Text(
+                        service['type'] == 'product' ? 'Producto' : 'Servicio',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: service['type'] == 'product'
+                              ? Colors.blue.shade900
+                              : Colors.green.shade900,
                         ),
+                      ),
                     ),
                     const SizedBox(width: 8),
                     InkWell(
                       onTap: () {
-                         setState(() {
-                           _services.removeAt(index - 1);
-                         });
+                        setState(() {
+                          _services.removeAt(index - 1);
+                        });
                       },
                       child: Container(
                         padding: const EdgeInsets.all(4),
@@ -622,42 +821,64 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.red),
                         ),
-                        child: const Icon(Icons.close, color: Colors.red, size: 16),
+                        child: const Icon(
+                          Icons.close,
+                          color: Colors.red,
+                          size: 16,
+                        ),
                       ),
                     ),
                   ],
                 ),
-                Text(service['description']!, style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+                Text(
+                  service['description']!,
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                ),
                 const SizedBox(height: 8),
                 Row(
-                    children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFA600),
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Text(
-                            "\$${service['price']}",
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFA600),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Text(
+                        "\$${service['price']}",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    if (service['stock'] != null &&
+                        service['stock']!.isNotEmpty) ...[
+                      const SizedBox(width: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Text(
+                          "Stock: ${service['stock']}",
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
                           ),
                         ),
-                        if (service['stock'] != null && service['stock']!.isNotEmpty) ...[
-                            const SizedBox(width: 12),
-                            Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                decoration: BoxDecoration(
-                                    color: Colors.grey.shade300,
-                                    borderRadius: BorderRadius.circular(15),
-                                ),
-                                child: Text(
-                                    "Stock: ${service['stock']}",
-                                    style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 12),
-                                ),
-                            ),
-                        ]
+                      ),
                     ],
-                )
+                  ],
+                ),
               ],
             ),
           ),
@@ -665,7 +886,7 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
       ),
     );
   }
-  
+
   Widget _buildAddServiceForm() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -677,110 +898,167 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Agregar nuevo item:", style: TextStyle(color: Colors.black54, fontSize: 16, fontWeight: FontWeight.bold)),
+          const Text(
+            "Agregar nuevo item:",
+            style: TextStyle(
+              color: Colors.black54,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 16),
           // Type Selector
           Row(
             children: [
-                Expanded(
-                    child: GestureDetector(
-                        onTap: () => setState(() => _newItemType = 'service'),
-                        child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            decoration: BoxDecoration(
-                                color: _newItemType == 'service' ? const Color(0xFFFFA600) : Colors.white,
-                                borderRadius: BorderRadius.circular(30),
-                                border: Border.all(color: const Color(0xFFFFA600))
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                                "Servicio",
-                                style: TextStyle(
-                                    fontWeight: _newItemType == 'service' ? FontWeight.bold : FontWeight.normal,
-                                    color: _newItemType == 'service' ? Colors.white : const Color(0xFFFFA600)
-                                )
-                            ),
-                        ),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(() => _newItemType = 'service'),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      color: _newItemType == 'service'
+                          ? const Color(0xFFFFA600)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(color: const Color(0xFFFFA600)),
                     ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                    child: GestureDetector(
-                        onTap: () => setState(() => _newItemType = 'product'),
-                        child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            decoration: BoxDecoration(
-                                color: _newItemType == 'product' ? const Color(0xFFFFA600) : Colors.white,
-                                borderRadius: BorderRadius.circular(30),
-                                border: Border.all(color: const Color(0xFFFFA600))
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                                "Producto",
-                                style: TextStyle(
-                                    fontWeight: _newItemType == 'product' ? FontWeight.bold : FontWeight.normal,
-                                    color: _newItemType == 'product' ? Colors.white : const Color(0xFFFFA600)
-                                )
-                            ),
-                        ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Servicio",
+                      style: TextStyle(
+                        fontWeight: _newItemType == 'service'
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                        color: _newItemType == 'service'
+                            ? Colors.white
+                            : const Color(0xFFFFA600),
+                      ),
                     ),
+                  ),
                 ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(() => _newItemType = 'product'),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      color: _newItemType == 'product'
+                          ? const Color(0xFFFFA600)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(color: const Color(0xFFFFA600)),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Producto",
+                      style: TextStyle(
+                        fontWeight: _newItemType == 'product'
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                        color: _newItemType == 'product'
+                            ? Colors.white
+                            : const Color(0xFFFFA600),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
-          _buildFormInput(_serviceNameController, "Nombre del ${_newItemType == 'product' ? 'producto' : 'servicio'}"),
+          _buildFormInput(
+            _serviceNameController,
+            "Nombre del ${_newItemType == 'product' ? 'producto' : 'servicio'}",
+          ),
           const SizedBox(height: 12),
           _buildFormInput(_serviceDescController, "Descripción breve"),
           const SizedBox(height: 12),
-          _buildFormInput(_servicePriceController, "Precio (Ej: \$5.00)", keyboardType: TextInputType.number),
+          _buildFormInput(
+            _servicePriceController,
+            "Precio (Ej: \$5.00)",
+            keyboardType: TextInputType.number,
+          ),
           if (_newItemType == 'product') ...[
-              const SizedBox(height: 12),
-              _buildFormInput(_serviceStockController, "Cantidad en Stock", keyboardType: TextInputType.number),
+            const SizedBox(height: 12),
+            _buildFormInput(
+              _serviceStockController,
+              "Cantidad en Stock",
+              keyboardType: TextInputType.number,
+            ),
           ],
           const SizedBox(height: 20),
           Center(
             child: ElevatedButton(
               onPressed: () {
-                 if (_serviceNameController.text.isNotEmpty && _servicePriceController.text.isNotEmpty) {
-                   setState(() {
-                     _services.add({
-                       'name': _serviceNameController.text,
-                       'description': _serviceDescController.text,
-                       'price': _servicePriceController.text,
-                       'stock': _newItemType == 'product' ? _serviceStockController.text : '',
-                       'type': _newItemType,
-                     });
-                     _serviceNameController.clear();
-                     _serviceDescController.clear();
-                     _servicePriceController.clear();
-                     _serviceStockController.clear();
-                   });
-                 }
+                if (_serviceNameController.text.isNotEmpty &&
+                    _servicePriceController.text.isNotEmpty) {
+                  setState(() {
+                    _services.add({
+                      'name': _serviceNameController.text,
+                      'description': _serviceDescController.text,
+                      'price': _servicePriceController.text,
+                      'stock': _newItemType == 'product'
+                          ? _serviceStockController.text
+                          : '',
+                      'type': _newItemType,
+                    });
+                    _serviceNameController.clear();
+                    _serviceDescController.clear();
+                    _servicePriceController.clear();
+                    _serviceStockController.clear();
+                  });
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFFFA600),
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 40,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
               ),
-              child: const Text("Agregar Item", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              child: const Text(
+                "Agregar Item",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
-          )
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildFormInput(TextEditingController controller, String hint, {TextInputType? keyboardType}) {
+  Widget _buildFormInput(
+    TextEditingController controller,
+    String hint, {
+    TextInputType? keyboardType,
+  }) {
     return TextField(
       controller: controller,
       keyboardType: keyboardType,
-      style: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+      style: TextStyle(
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Colors.white
+            : Colors.black,
+      ),
       decoration: InputDecoration(
         filled: true,
-        fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
+        fillColor: Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xFF1E1E1E)
+            : Colors.white,
         hintText: hint,
         hintStyle: TextStyle(color: Colors.grey.shade500),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
           borderSide: BorderSide(color: Colors.grey.shade300),

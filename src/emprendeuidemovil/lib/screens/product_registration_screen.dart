@@ -1,80 +1,66 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/service_model.dart';
-import '../constants/app_assets.dart';
+import 'package:provider/provider.dart';
+
+import '../../providers/product_provider.dart';
 
 class ProductRegistrationScreen extends StatefulWidget {
   const ProductRegistrationScreen({super.key});
 
   @override
-  State<ProductRegistrationScreen> createState() => _ProductRegistrationScreenState();
+  State<ProductRegistrationScreen> createState() =>
+      _ProductRegistrationScreenState();
 }
 
 class _ProductRegistrationScreenState extends State<ProductRegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
+
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _priceController = TextEditingController();
 
-  String? _selectedEmprendimientoId;
-  List<QueryDocumentSnapshot> _emprendimientos = [];
   bool _isLoading = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _loadEmprendimientos();
-  }
-
-  Future<void> _loadEmprendimientos() async {
-    try {
-      final snapshot = await FirebaseFirestore.instance.collection('emprendimientos').get();
-      setState(() {
-        _emprendimientos = snapshot.docs;
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al cargar emprendimientos: $e')),
-      );
-    }
-  }
+  // ⚠️ luego lo sacas de tu auth real
+  final String vendedorId = "TEMP_USER_ID";
+  final String vendedorNombre = "Vendedor demo";
+  final String rol = "vendedor";
 
   Future<void> _registerProduct() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_selectedEmprendimientoId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selecciona un emprendimiento')),
-      );
-      return;
-    }
 
     setState(() => _isLoading = true);
 
-    try {
-      await FirebaseFirestore.instance.collection('productos').add({
-        'name': _nameController.text,
-        'description': _descriptionController.text,
-        'price': double.parse(_priceController.text),
-        'emprendimientoId': _selectedEmprendimientoId,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+    final ok = await Provider.of<ProductProvider>(context, listen: false)
+        .createProduct(
+          title: _nameController.text.trim(),
+          description: _descriptionController.text.trim(),
+          price: double.parse(_priceController.text),
+          category: null,
+          imageUrl: null,
+          vendedorId: vendedorId,
+          vendedorNombre: vendedorNombre,
+          rol: rol,
+        );
 
+    setState(() => _isLoading = false);
+
+    if (!mounted) return;
+
+    if (ok) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Producto registrado exitosamente')),
+        const SnackBar(content: Text('Producto registrado correctamente')),
       );
 
-      // Limpiar formulario
       _formKey.currentState!.reset();
       _nameController.clear();
       _descriptionController.clear();
       _priceController.clear();
-      setState(() => _selectedEmprendimientoId = null);
-    } catch (e) {
+
+      Navigator.pop(context, true);
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al registrar producto: $e')),
+        const SnackBar(content: Text('Error al registrar producto')),
       );
-    } finally {
-      setState(() => _isLoading = false);
     }
   }
 
@@ -99,7 +85,7 @@ class _ProductRegistrationScreenState extends State<ProductRegistrationScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Nombre del producto
+              // Nombre
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
@@ -107,12 +93,13 @@ class _ProductRegistrationScreenState extends State<ProductRegistrationScreen> {
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null || value.trim().isEmpty) {
                     return 'Por favor ingresa el nombre del producto';
                   }
                   return null;
                 },
               ),
+
               const SizedBox(height: 16),
 
               // Descripción
@@ -124,12 +111,13 @@ class _ProductRegistrationScreenState extends State<ProductRegistrationScreen> {
                 ),
                 maxLines: 3,
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null || value.trim().isEmpty) {
                     return 'Por favor ingresa una descripción';
                   }
                   return null;
                 },
               ),
+
               const SizedBox(height: 16),
 
               // Precio
@@ -138,9 +126,11 @@ class _ProductRegistrationScreenState extends State<ProductRegistrationScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Precio',
                   border: OutlineInputBorder(),
-                  prefixText: '\$',
+                  prefixText: '\$ ',
                 ),
-                keyboardType: TextInputType.number,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Por favor ingresa el precio';
@@ -152,32 +142,9 @@ class _ProductRegistrationScreenState extends State<ProductRegistrationScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
 
-              // Dropdown de emprendimientos
-              DropdownButtonFormField<String>(
-                value: _selectedEmprendimientoId,
-                decoration: const InputDecoration(
-                  labelText: 'Emprendimiento',
-                  border: OutlineInputBorder(),
-                ),
-                items: _emprendimientos.map((doc) {
-                  return DropdownMenuItem(
-                    value: doc.id,
-                    child: Text(doc['title'] ?? 'Sin título'),
-                  );
-                }).toList(),
-                onChanged: (value) => setState(() => _selectedEmprendimientoId = value),
-                validator: (value) {
-                  if (value == null) {
-                    return 'Selecciona un emprendimiento';
-                  }
-                  return null;
-                },
-              ),
               const SizedBox(height: 32),
 
-              // Botón de registro
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -188,7 +155,14 @@ class _ProductRegistrationScreenState extends State<ProductRegistrationScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
                       : const Text('Registrar Producto'),
                 ),
               ),

@@ -106,6 +106,29 @@ router.get("/seller/:vendedorId", async (req, res) => {
   }
 });
 
+// ========== OBTENER PRODUCTO POR ID ==========
+// GET /products/:id
+router.get("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const productRef = db.collection("products").doc(id);
+    const productSnap = await productRef.get();
+
+    if (!productSnap.exists) {
+      return res.status(404).json({ message: "Producto no encontrado" });
+    }
+
+    return res.json({
+      id: productSnap.id,
+      ...productSnap.data(),
+    });
+  } catch (error) {
+    console.error("Error en GET /products/:id:", error);
+    return res.status(500).json({ message: "Error en el servidor" });
+  }
+});
+
 // ========== ACTUALIZAR PRODUCTO (VENDEDOR / AMBOS) ==========
 // PUT /products/:id
 router.put("/:id", async (req, res) => {

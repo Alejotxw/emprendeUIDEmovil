@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:emprendeuidemovil/screens/emprendedor_taek/form_emprendimiento.dart';
+
 import '../../providers/service_provider.dart';
 import '../../models/service_model.dart';
 
@@ -9,11 +10,11 @@ class MisEmprendimientosScreen extends StatefulWidget {
   const MisEmprendimientosScreen({super.key});
 
   @override
-  State<MisEmprendimientosScreen> createState() => _MisEmprendimientosScreenState();
+  State<MisEmprendimientosScreen> createState() =>
+      _MisEmprendimientosScreenState();
 }
 
 class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
-  // Helper to convert ServiceModel to Map for the form
   Map<String, dynamic> _serviceToMap(ServiceModel service) {
     return {
       'id': service.id,
@@ -21,20 +22,34 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
       'subtitle': service.subtitle,
       'category': service.category,
       'imagePath': service.imageUrl,
-      'isDraft': false, // ServiceModel doesn't have isDraft yet
+      'isDraft': false,
+
+      // ✅ IMPORTANTE
+      'schedule': service.schedule == null
+          ? null
+          : {
+              'days': service.schedule!.days,
+              'open': service.schedule!.open,
+              'close': service.schedule!.close,
+            },
+
       'services': [
-        ...service.services.map((s) => {
-          'name': s.name,
-          'description': s.description,
-          'price': s.price.toString(),
-          'type': 'service',
-        }),
-        ...service.products.map((p) => {
-          'name': p.name,
-          'description': p.description,
-          'price': p.price.toString(),
-          'type': 'product',
-        }),
+        ...service.services.map(
+          (s) => {
+            'name': s.name,
+            'description': s.description,
+            'price': s.price.toString(),
+            'type': 'service',
+          },
+        ),
+        ...service.products.map(
+          (p) => {
+            'name': p.name,
+            'description': p.description,
+            'price': p.price.toString(),
+            'type': 'product',
+          },
+        ),
       ],
     };
   }
@@ -42,15 +57,24 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
   @override
   Widget build(BuildContext context) {
     final serviceProvider = Provider.of<ServiceProvider>(context);
-    final myEmprendimientos = serviceProvider.myServices;
+
+    // por ahora mostramos todos
+    final myEmprendimientos = serviceProvider.allServices;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF121212) : Colors.white,
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? const Color(0xFF121212)
+          : Colors.white,
       body: Column(
         children: [
-          // Top Bar
+          // ---------------- HEADER ----------------
           Container(
-            padding: const EdgeInsets.only(top: 50, bottom: 20, left: 24, right: 24),
+            padding: const EdgeInsets.only(
+              top: 50,
+              bottom: 20,
+              left: 24,
+              right: 24,
+            ),
             decoration: const BoxDecoration(
               color: Color(0xFF83002A),
               borderRadius: BorderRadius.only(
@@ -73,50 +97,37 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
                   onPressed: () async {
                     final result = await Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const FormEmprendimientoScreen()),
+                      MaterialPageRoute(
+                        builder: (_) => const FormEmprendimientoScreen(),
+                      ),
                     );
 
                     if (result != null && result is Map<String, dynamic>) {
                       if (result['action'] == 'create') {
-                         final data = result['data'];
-                         
-                         final servicesList = (data['services'] as List).where((s) => s['type'] == 'service').map<ServiceItem>((s) => ServiceItem(
-                           name: s['name'],
-                           price: double.tryParse(s['price']) ?? 0.0,
-                           description: s['description']
-                         )).toList();
+                        final data = result['data'];
 
-                         final productsList = (data['services'] as List).where((s) => s['type'] == 'product').map<ProductItem>((s) => ProductItem(
-                           name: s['name'],
-                           price: double.tryParse(s['price']) ?? 0.0,
-                           description: s['description']
-                         )).toList();
+                        double basePrice = 0;
+                        if ((data['services'] as List).isNotEmpty) {
+                          basePrice =
+                              double.tryParse(data['services'][0]['price']) ??
+                              0;
+                        }
 
-                         // Calculate a base price (minimum or average)
-                         double basePrice = 0.0;
-                         if (servicesList.isNotEmpty || productsList.isNotEmpty) {
-                           final allPrices = [
-                             ...servicesList.map((s) => s.price),
-                             ...productsList.map((p) => p.price)
-                           ];
-                           basePrice = allPrices.reduce((a, b) => a < b ? a : b);
-                         }
-
-                         final newService = ServiceModel(
-                           id: DateTime.now().millisecondsSinceEpoch.toString(),
-                           name: data['title'],
-                           subtitle: data['subtitle'],
-                           category: data['category'],
-                           price: basePrice,
-                           rating: 5.0,
-                           reviewCount: 0,
-                           imageUrl: data['imagePath'] ?? '',
-                           isMine: true,
-                           services: servicesList,
-                           products: productsList,
-                         );
-
-                         serviceProvider.addService(newService);
+                        await serviceProvider.createService(
+                          title: data['title'],
+                          subtitle: data['subtitle'] ?? '',
+                          price: basePrice,
+                          category: data['category'],
+                          ownerId: "TEMP_USER_ID",
+                          imagePath: data['imagePath'] ?? '',
+                          schedule: data['schedule'],
+                          services: (data['services'] as List)
+                              .where((e) => e['type'] == 'service')
+                              .toList(),
+                          products: (data['services'] as List)
+                              .where((e) => e['type'] == 'product')
+                              .toList(),
+                        );
                       }
                     }
                   },
@@ -125,7 +136,10 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 10,
+                    ),
                   ),
                   child: const Text(
                     'Crear',
@@ -140,86 +154,95 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
             ),
           ),
 
-          // List of Emprendimientos
+          // ---------------- LISTA ----------------
           Expanded(
-            child: myEmprendimientos.isEmpty 
-              ? Center(
-                  child: Text(
-                    "No tienes emprendimientos aún",
-                    style: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.black54),
-                  ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: myEmprendimientos.length,
-                  itemBuilder: (context, index) {
-                    final service = myEmprendimientos[index];
-                    return Column(
-                      children: [
-                        _buildEmprendimientoCard(
-                          title: service.name,
-                          subtitle: service.subtitle,
-                          category: service.category,
-                          isDraft: false, 
-                          imagePath: service.imageUrl.startsWith('assets/') ? null : service.imageUrl,
-                          onPressed: () async {
-                             final result = await Navigator.push(
+            child: myEmprendimientos.isEmpty
+                ? Center(
+                    child: Text(
+                      "No tienes emprendimientos aún",
+                      style: TextStyle(
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white70
+                            : Colors.black54,
+                      ),
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: myEmprendimientos.length,
+                    itemBuilder: (context, index) {
+                      final service = myEmprendimientos[index];
+
+                      return Column(
+                        children: [
+                          _buildEmprendimientoCard(
+                            title: service.name,
+                            subtitle: service.subtitle,
+                            category: service.category,
+                            isDraft: false,
+                            imagePath: service.imageUrl.startsWith('assets/')
+                                ? null
+                                : service.imageUrl,
+                            onPressed: () async {
+                              final result = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => FormEmprendimientoScreen(
-                                    entrepreneurship: _serviceToMap(service)
+                                  builder: (_) => FormEmprendimientoScreen(
+                                    entrepreneurship: _serviceToMap(service),
                                   ),
                                 ),
                               );
 
-                              if (result != null && result is Map<String, dynamic>) {
-                                 if (result['action'] == 'update') {
-                                    final data = result['data'];
-                                    
-                                    final servicesList = (data['services'] as List).where((s) => s['type'] == 'service').map<ServiceItem>((s) => ServiceItem(
-                                      name: s['name'],
-                                      price: double.tryParse(s['price']) ?? 0.0,
-                                      description: s['description']
-                                    )).toList();
+                              if (result != null &&
+                                  result is Map<String, dynamic>) {
+                                if (result['action'] == 'update') {
+                                  final data = result['data'];
 
-                                    final productsList = (data['services'] as List).where((s) => s['type'] == 'product').map<ProductItem>((s) => ProductItem(
-                                      name: s['name'],
-                                      price: double.tryParse(s['price']) ?? 0.0,
-                                      description: s['description']
-                                    )).toList();
+                                  double basePrice = service.price;
+                                  if ((data['services'] as List).isNotEmpty) {
+                                    basePrice =
+                                        double.tryParse(
+                                          data['services'][0]['price'],
+                                        ) ??
+                                        service.price;
+                                  }
 
-                                    double basePrice = 0.0;
-                                    if (servicesList.isNotEmpty || productsList.isNotEmpty) {
-                                      final allPrices = [
-                                        ...servicesList.map((s) => s.price),
-                                        ...productsList.map((p) => p.price)
-                                      ];
-                                      basePrice = allPrices.reduce((a, b) => a < b ? a : b);
-                                    }
+                                  final List allItems = data['services'] ?? [];
 
-                                    final updatedService = service.copyWith(
-                                      name: data['title'],
-                                      subtitle: data['subtitle'],
-                                      category: data['category'],
-                                      price: basePrice,
-                                      imageUrl: data['imagePath'] ?? service.imageUrl,
-                                      services: servicesList,
-                                      products: productsList,
-                                    );
-                                    serviceProvider.updateService(updatedService);
-                                 } else if (result['action'] == 'delete') {
-                                    serviceProvider.deleteService(service.id);
-                                 }
+                                  final List servicesOnly = allItems
+                                      .where((e) => e['type'] == 'service')
+                                      .toList();
+
+                                  final List productsOnly = allItems
+                                      .where((e) => e['type'] == 'product')
+                                      .toList();
+
+                                  await serviceProvider.updateServiceRemote(
+                                    id: service.id,
+                                    title: data['title'],
+                                    subtitle: data['subtitle'],
+                                    category: data['category'],
+                                    price: basePrice,
+                                    imagePath: data['imagePath'] ?? '',
+                                    schedule: data['schedule'],
+                                    services: servicesOnly,
+                                    products: productsOnly,
+                                  );
+                                } else if (result['action'] == 'delete') {
+                                  await serviceProvider.deleteServiceRemote(
+                                    service.id,
+                                  );
+                                }
                               }
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        if (index == myEmprendimientos.length - 1)
-                           const SizedBox(height: 80), // Padding for bottom nav
-                      ],
-                    );
-                  },
-                ),
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          if (index == myEmprendimientos.length - 1)
+                            const SizedBox(height: 80),
+                        ],
+                      );
+                    },
+                  ),
           ),
         ],
       ),
@@ -236,21 +259,26 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xFF1E1E1E)
+            : Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : Colors.grey.shade400),
+        border: Border.all(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.grey.shade800
+              : Colors.grey.shade400,
+        ),
       ),
       child: Column(
         children: [
-          // Image / Color Block
           Container(
             height: 120,
             width: double.infinity,
             margin: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF83002A), // Placeholder color
+              color: const Color(0xFF83002A),
               borderRadius: BorderRadius.circular(16),
-              image: imagePath != null
+              image: imagePath != null && imagePath.isNotEmpty
                   ? DecorationImage(
                       image: FileImage(File(imagePath)),
                       fit: BoxFit.cover,
@@ -258,12 +286,11 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
                   : null,
             ),
           ),
-          
-          // Category Pill
+
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFECCF), // Light orange
+              color: const Color(0xFFFFECCF),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
@@ -275,31 +302,32 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
               ),
             ),
           ),
-          
+
           const SizedBox(height: 8),
 
-          // Title
           Text(
             title,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : Colors.black,
             ),
           ),
 
-          // Subtitle
           Text(
             subtitle,
             style: TextStyle(
               fontSize: 14,
-              color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade400 : Colors.grey.shade600,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.grey.shade400
+                  : Colors.grey.shade600,
             ),
           ),
 
           const SizedBox(height: 16),
 
-          // Action Button
           Padding(
             padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
             child: SizedBox(
@@ -307,7 +335,9 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
               child: ElevatedButton(
                 onPressed: onPressed,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isDraft ? Colors.grey : const Color(0xFFFFA600),
+                  backgroundColor: isDraft
+                      ? Colors.grey
+                      : const Color(0xFFFFA600),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

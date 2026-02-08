@@ -8,6 +8,7 @@ class ServiceModel {
   final int reviewCount;
   final bool isFavorite;
   final String imageUrl;
+  final ScheduleModel? schedule;
   final List<ProductItem> products;
   final List<ServiceItem> services;
   final bool isMine; // Indicates if this service belongs to the current user
@@ -25,6 +26,7 @@ class ServiceModel {
     this.products = const [],
     this.services = const [],
     this.isMine = false,
+    this.schedule,
   });
 
   ServiceModel copyWith({
@@ -40,6 +42,7 @@ class ServiceModel {
     List<ProductItem>? products,
     List<ServiceItem>? services,
     bool? isMine,
+    ScheduleModel? schedule, // ✅
   }) {
     return ServiceModel(
       id: id ?? this.id,
@@ -54,6 +57,7 @@ class ServiceModel {
       products: products ?? this.products,
       services: services ?? this.services,
       isMine: isMine ?? this.isMine,
+      schedule: schedule ?? this.schedule,
     );
   }
 
@@ -84,5 +88,17 @@ class ServiceItem {
     required this.name,
     required this.price,
     required this.description,
+  });
+}
+
+class ScheduleModel {
+  final List<String> days;
+  final String open;
+  final String close;
+
+  const ScheduleModel({
+    required this.days,
+    required this.open,
+    required this.close,
   });
 }

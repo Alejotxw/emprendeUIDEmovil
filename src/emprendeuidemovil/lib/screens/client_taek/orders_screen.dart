@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+
 import '../../providers/order_provider.dart';
 import '../../models/order_model.dart';
 import '../../models/cart_item.dart';
@@ -44,7 +45,10 @@ class OrdersScreen extends StatelessWidget {
       child: Text(
         order.status,
         style: TextStyle(
-            color: order.statusColor, fontWeight: FontWeight.bold, fontSize: 12),
+          color: order.statusColor,
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
+        ),
       ),
     );
   }
@@ -62,7 +66,6 @@ class OrdersScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Encabezado del pedido
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -70,8 +73,8 @@ class OrdersScreen extends StatelessWidget {
                   child: Text(
                     'Pedido ${order.id}',
                     style: const TextStyle(
-                      fontWeight: FontWeight.bold, 
-                      fontSize: 16
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -79,42 +82,50 @@ class OrdersScreen extends StatelessWidget {
                 _buildStatusBadge(order),
               ],
             ),
+
             const SizedBox(height: 8),
+
             Text(
               'Fecha: ${dateFormat.format(order.date)}',
               style: TextStyle(color: Colors.grey[600], fontSize: 13),
             ),
+
             if (order.deliveryDate != null)
               Padding(
                 padding: const EdgeInsets.only(top: 4.0),
                 child: Row(
                   children: [
-                    const Icon(Icons.local_shipping_outlined, size: 14, color: Color(0xFFC8102E)),
+                    const Icon(
+                      Icons.local_shipping_outlined,
+                      size: 14,
+                      color: Color(0xFFC8102E),
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       'Entrega programada: ${dateFormat.format(order.deliveryDate!)}',
                       style: const TextStyle(
-                        color: Color(0xFFC8102E), 
+                        color: Color(0xFFC8102E),
                         fontWeight: FontWeight.bold,
-                        fontSize: 13
+                        fontSize: 13,
                       ),
                     ),
                   ],
                 ),
               ),
+
             const Divider(height: 24, thickness: 1),
-            
-            // Lista de items
+
             const Text(
               'Detalles:',
               style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
             ),
+
             const SizedBox(height: 8),
+
             ...order.items.map((item) => _buildOrderItem(item, currency)),
-            
+
             const Divider(height: 24, thickness: 1),
-            
-            // Total
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -125,16 +136,16 @@ class OrdersScreen extends StatelessWidget {
                 Text(
                   currency.format(order.total),
                   style: const TextStyle(
-                    fontWeight: FontWeight.bold, 
+                    fontWeight: FontWeight.bold,
                     fontSize: 18,
-                    color: Color(0xFFC8102E)
+                    color: Color(0xFFC8102E),
                   ),
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
-            // Botón de Chat
+
             SizedBox(
               width: double.infinity,
               child: Row(
@@ -142,11 +153,11 @@ class OrdersScreen extends StatelessWidget {
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () {
-                         Navigator.push(
-                          context, // Valid context here as we are in _buildOrderCard called from build
+                        Navigator.push(
+                          context,
                           MaterialPageRoute(
                             builder: (_) => ChatScreen(
-                              chatId: 'order-${order.id}', 
+                              chatId: 'order-${order.id}',
                               title: 'Chat Pedido ${order.id}',
                             ),
                           ),
@@ -157,25 +168,38 @@ class OrdersScreen extends StatelessWidget {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFFC8102E),
                         side: const BorderSide(color: Color(0xFFC8102E)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8), // Compact
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 0,
+                          horizontal: 8,
+                        ),
                       ),
                     ),
                   ),
 
-                  // Si el pedido fue aceptado (por el emprendedor), mostramos botón de confirnar entrega
-                  if (order.status == 'Aceptado' || order.status == 'En Camino') ...[
+                  if (order.status == 'Aceptado' ||
+                      order.status == 'En Camino') ...[
                     const SizedBox(width: 8),
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: () => _confirmarEntrega(context, order),
                         icon: const Icon(Icons.check_circle, size: 18),
-                        label: const Text('Recibido', style: TextStyle(fontSize: 12)),
+                        label: const Text(
+                          'Recibido',
+                          style: TextStyle(fontSize: 12),
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
                           foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8), // Compact
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 0,
+                            horizontal: 8,
+                          ),
                         ),
                       ),
                     ),
@@ -191,6 +215,7 @@ class OrdersScreen extends StatelessWidget {
 
   Widget _buildOrderItem(CartItem item, NumberFormat currency) {
     final isProduct = item.isActualProduct;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
@@ -199,7 +224,9 @@ class OrdersScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: isProduct ? Colors.blue.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
+              color: isProduct
+                  ? Colors.blue.withOpacity(0.1)
+                  : Colors.orange.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -208,24 +235,34 @@ class OrdersScreen extends StatelessWidget {
               color: isProduct ? Colors.blue[700] : Colors.orange[700],
             ),
           ),
+
           const SizedBox(width: 12),
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   item.displayName,
-                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
                 ),
                 const SizedBox(height: 2),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: isProduct ? Colors.blue[50] : Colors.orange[50],
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(
-                      color: isProduct ? Colors.blue[200]! : Colors.orange[200]!,
-                      width: 0.5
+                      color: isProduct
+                          ? Colors.blue[200]!
+                          : Colors.orange[200]!,
+                      width: 0.5,
                     ),
                   ),
                   child: Text(
@@ -240,6 +277,7 @@ class OrdersScreen extends StatelessWidget {
               ],
             ),
           ),
+
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -249,7 +287,10 @@ class OrdersScreen extends StatelessWidget {
               ),
               Text(
                 currency.format(item.price * item.quantity),
-                style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                ),
               ),
             ],
           ),
@@ -259,22 +300,23 @@ class OrdersScreen extends StatelessWidget {
   }
 
   void _confirmarEntrega(BuildContext context, OrderModel order) {
-    // 1. Actualizar estado del pedido a 'Entregado'
-    Provider.of<OrderProvider>(context, listen: false).updateOrderStatus(
-      order.id, 
-      'Entregado', 
-      Colors.green
-    );
+    Provider.of<OrderProvider>(
+      context,
+      listen: false,
+    ).updateOrderStatus(order.id, 'Entregado', Colors.green);
 
-    // 2. Mostrar diálogo de reseña
-    // Usamos el nombre del emprendimiento del primer item si existe, o 'Emprendimiento' genérico
-    final nombreEmprendimiento = order.items.isNotEmpty 
-        ? order.items.first.service.name 
+    final nombreEmprendimiento = order.items.isNotEmpty
+        ? order.items.first.service.name
         : 'Emprendimiento';
-    _mostrarDialogoResena(context, nombreEmprendimiento);
+
+    _mostrarDialogoResena(context, nombreEmprendimiento, order);
   }
 
-  void _mostrarDialogoResena(BuildContext context, String nombreEmprendimiento) {
+  void _mostrarDialogoResena(
+    BuildContext context,
+    String nombreEmprendimiento,
+    OrderModel order,
+  ) {
     int rating = 5;
     final TextEditingController commentController = TextEditingController();
 
@@ -324,20 +366,37 @@ class OrdersScreen extends StatelessWidget {
                   child: const Text('Omitir'),
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                    // Guardar reseña en ReviewProvider
-                    if (commentController.text.isNotEmpty) {
-                      Provider.of<ReviewProvider>(context, listen: false).addReview(
-                        nombreEmprendimiento,
-                        "Cliente", // Nombre del usuario actual (debería venir del UserProfileProvider)
-                        commentController.text,
-                        rating,
-                      );
+                  onPressed: () async {
+                    if (order.items.isEmpty) {
+                      Navigator.pop(context);
+                      return;
                     }
-                    
+
+                    final firstItem = order.items.first;
+
+                    final serviceId = firstItem.service.id;
+
+                    // 👉 mientras no tengas auth real
+                    final ownerId = "TEMP_OWNER_ID";
+
+                    await Provider.of<ReviewProvider>(
+                      context,
+                      listen: false,
+                    ).addReview(
+                      serviceId: serviceId,
+                      ownerId: ownerId,
+                      userId: "TEMP_USER_ID",
+                      userName: "Cliente",
+                      rating: rating,
+                      comment: commentController.text,
+                    );
+
                     Navigator.pop(context);
+
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('¡Gracias por tu calificación!')),
+                      const SnackBar(
+                        content: Text('¡Gracias por tu calificación!'),
+                      ),
                     );
                   },
                   child: const Text('Enviar'),

@@ -14,6 +14,7 @@ import 'providers/order_provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/event_provider.dart';
 import 'providers/review_provider.dart'; // Import del ReviewProvider
+import 'providers/product_provider.dart';
 
 // Pantallas modo Emprendedor
 import 'screens/emprendedor_taek/solicitudes.dart';
@@ -29,7 +30,6 @@ import 'screens/profile_screen.dart';
 import 'screens/chat_screen.dart'; // Agregado
 import 'screens/login_screen.dart';
 import 'screens/admin_screen.dart';
-
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,7 +48,12 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => OrderProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => EventProvider()),
-        ChangeNotifierProvider(create: (_) => ReviewProvider()), // Provider de Reseñas
+        ChangeNotifierProvider(
+          create: (_) => ReviewProvider(),
+        ), // Provider de Reseñas
+        ChangeNotifierProvider(
+          create: (_) => ProductProvider(),
+        ), // Provider de Productos
       ],
       child: const MyApp(),
     ),
@@ -84,9 +89,9 @@ class MyApp extends StatelessWidget {
           builder: (context, child) {
             final scale = settings.largeFont ? 1.18 : 1.0;
             return MediaQuery(
-              data: MediaQuery.of(context).copyWith(
-                textScaler: TextScaler.linear(scale),
-              ),
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: TextScaler.linear(scale)),
               child: child!,
             );
           },
@@ -139,10 +144,7 @@ class _MainScreenState extends State<MainScreen> {
         }
 
         return Scaffold(
-          body: IndexedStack(
-            index: _selectedIndex,
-            children: pages,
-          ),
+          body: IndexedStack(index: _selectedIndex, children: pages),
           bottomNavigationBar: isCliente
               ? _buildClienteBottomBar()
               : _buildEmprendedorBottomBar(),
@@ -174,7 +176,11 @@ class _MainScreenState extends State<MainScreen> {
           topRight: Radius.circular(30),
         ),
         boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -5)),
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: Offset(0, -5),
+          ),
         ],
       ),
       child: Row(
@@ -192,7 +198,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget _buildClienteNavItem({required IconData icon, required int index}) {
     final bool isSelected = _selectedIndex == index;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return GestureDetector(
       onTap: () => setState(() => _selectedIndex = index),
       child: Container(
@@ -200,8 +206,8 @@ class _MainScreenState extends State<MainScreen> {
         child: Icon(
           icon,
           size: 30,
-          color: isSelected 
-              ? const Color(0xFF83002A) 
+          color: isSelected
+              ? const Color(0xFF83002A)
               : (isDark ? Colors.white70 : Colors.grey),
         ),
       ),
@@ -211,8 +217,8 @@ class _MainScreenState extends State<MainScreen> {
   // ================== BARRA EMPRENDEDOR ==================
   Widget _buildEmprendedorBottomBar() {
     const Color activeColor = Color(0xFF83002A);
-    final Color inactiveColor = Theme.of(context).brightness == Brightness.dark 
-        ? Colors.white70 
+    final Color inactiveColor = Theme.of(context).brightness == Brightness.dark
+        ? Colors.white70
         : Colors.grey;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -225,7 +231,11 @@ class _MainScreenState extends State<MainScreen> {
           topRight: Radius.circular(30),
         ),
         boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -5)),
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: Offset(0, -5),
+          ),
         ],
       ),
       child: Stack(
@@ -356,7 +366,8 @@ class UserIconPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = color  // ← Usa el color recibido
+      ..color =
+          color // ← Usa el color recibido
       ..style = PaintingStyle.fill;
 
     const double svgWidth = 181;
@@ -397,7 +408,8 @@ class UserIconPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant UserIconPainter oldDelegate) => oldDelegate.color != color;
+  bool shouldRepaint(covariant UserIconPainter oldDelegate) =>
+      oldDelegate.color != color;
 }
 
 class EditNoteIconPainter extends CustomPainter {
@@ -408,7 +420,8 @@ class EditNoteIconPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = color  // ← Ahora SÍ usa el color que le pasas
+      ..color =
+          color // ← Ahora SÍ usa el color que le pasas
       ..style = PaintingStyle.fill;
 
     const double svgWidth = 204;
@@ -491,5 +504,6 @@ class EditNoteIconPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant EditNoteIconPainter oldDelegate) => oldDelegate.color != color;
+  bool shouldRepaint(covariant EditNoteIconPainter oldDelegate) =>
+      oldDelegate.color != color;
 }
