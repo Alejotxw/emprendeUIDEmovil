@@ -8,7 +8,6 @@ import 'providers/cart_provider.dart';
 import 'providers/user_role_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/ratings_provider.dart';
-import 'providers/chat_provider.dart';
 import 'providers/user_profile_provider.dart';
 import 'providers/order_provider.dart';
 import 'providers/notification_provider.dart';
@@ -26,7 +25,6 @@ import 'screens/client_taek/cart_screen.dart';
 
 // Pantalla de perfil unificada y Chat
 import 'screens/profile_screen.dart';
-import 'screens/chat_screen.dart'; // Agregado
 import 'screens/login_screen.dart';
 import 'screens/admin_screen.dart';
 
@@ -43,7 +41,6 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => UserRoleProvider()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
         ChangeNotifierProvider(create: (_) => RatingsProvider()),
-        ChangeNotifierProvider(create: (_) => ChatProvider()),
         ChangeNotifierProvider(create: (_) => UserProfileProvider()),
         ChangeNotifierProvider(create: (_) => OrderProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
@@ -145,18 +142,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
           bottomNavigationBar: isCliente
               ? _buildClienteBottomBar()
-              : _buildEmprendedorBottomBar(),
-          floatingActionButton: FloatingActionButton(
-            heroTag: 'chat_fab',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ChatScreen()),
-              );
-            },
-            backgroundColor: const Color.fromARGB(255, 127, 0, 2),
-            child: const Icon(Icons.support_agent, color: Colors.white),
-          ),
+              : _buildEmprendedorBottomBar()
         );
       },
     );

@@ -9,6 +9,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import '../../providers/notification_provider.dart'; 
 import '../../providers/event_provider.dart';
 import 'dart:io';
+import '../../widgets/botpress_chatbot.dart'; // Ajusta la ruta según tu carpeta
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -290,30 +291,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   IconButton(
                                     icon: const Icon(Icons.notifications, color: Colors.white),
                                     onPressed: () => _showNotificationsDialog(context, notiProvider),
-                                  ),
-                                  if (notiProvider.notifications.isNotEmpty)
-                                    Positioned(
-                                      right: 8,
-                                      top: 8,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(2),
-                                        decoration: BoxDecoration(
-                                          color: Colors.orange, // Color llamativo para el contador
-                                          borderRadius: BorderRadius.circular(10),
-                                        ),
-                                        constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                                        child: Text(
-                                          '${notiProvider.notifications.length}',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                    ),
-                                ],
+                                  ),                                    
+                                ]
                               );
                             },
                           ),
@@ -588,6 +567,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
             ],
+          ),
+          floatingActionButton: FloatingActionButton(
+            backgroundColor: const Color(0xFFC8102E), // Rojo institucional
+            child: const Icon(Icons.support_agent, color: Colors.white, size: 30),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const BotpressChatbot()),
+              );
+            },
           ),
         );
       },

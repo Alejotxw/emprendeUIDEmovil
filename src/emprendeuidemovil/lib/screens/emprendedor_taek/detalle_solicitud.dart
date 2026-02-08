@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:provider/provider.dart';
 import '../../providers/order_provider.dart';
-import '../chat_screen.dart';
 
 class DetalleSolicitudScreen extends StatefulWidget {
   final String title;
@@ -414,27 +413,6 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
             // Botón de Chat con Cliente
             SizedBox(
               width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () {
-                   Navigator.push(
-                    context, 
-                    MaterialPageRoute(
-                      builder: (_) => ChatScreen(
-                        chatId: widget._chatId, 
-                        title: 'Chat con Cliente',
-                      ),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.chat, size: 18),
-                label: const Text('Chat con Cliente'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF83002A),
-                  side: const BorderSide(color: Color(0xFF83002A)),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
-              ),
             ),
             const SizedBox(height: 30),
 

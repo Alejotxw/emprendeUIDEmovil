@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import '../../providers/order_provider.dart';
 import '../../models/order_model.dart';
 import '../../models/cart_item.dart';
-import '../chat_screen.dart';
 import '../../providers/review_provider.dart';
 
 class OrdersScreen extends StatelessWidget {
@@ -139,29 +138,7 @@ class OrdersScreen extends StatelessWidget {
               width: double.infinity,
               child: Row(
                 children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                         Navigator.push(
-                          context, // Valid context here as we are in _buildOrderCard called from build
-                          MaterialPageRoute(
-                            builder: (_) => ChatScreen(
-                              chatId: 'order-${order.id}', 
-                              title: 'Chat Pedido ${order.id}',
-                            ),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.chat, size: 18),
-                      label: const Text('Chat', style: TextStyle(fontSize: 12)),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFFC8102E),
-                        side: const BorderSide(color: Color(0xFFC8102E)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8), // Compact
-                      ),
-                    ),
-                  ),
+
 
                   // Si el pedido fue aceptado (por el emprendedor), mostramos botón de confirnar entrega
                   if (order.status == 'Aceptado' || order.status == 'En Camino') ...[
