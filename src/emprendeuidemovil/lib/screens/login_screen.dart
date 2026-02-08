@@ -1,10 +1,134 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
-
 import '../providers/user_role_provider.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  // Estado: true = Login, false = Registro
+  bool _isLogin = true;
+  bool _isLoading = false;
+
+  // Controladores
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController(); // Solo registro
+  final TextEditingController _phoneController = TextEditingController(); // Solo registro
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<void> _submit() async {
+    setState(() => _isLoading = true);
+
+    try {
+      if (_isLogin) {
+        // --- LOGIN ---
+        UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
+
+        // Verificar rol en Firestore
+        DocumentSnapshot doc = await _firestore.collection('users').doc(userCredential.user!.uid).get();
+        
+        if (mounted) {
+          final roleProvider = Provider.of<UserRoleProvider>(context, listen: false);
+          String role = 'cliente'; // Default
+          
+          if (doc.exists && doc.data() != null) {
+            final data = doc.data() as Map<String, dynamic>;
+            role = data['rol'] ?? 'cliente';
+          }
+
+          if (role == 'admin' || role == 'emprendedor') {
+            roleProvider.setRole(UserRole.emprendedor);
+            Navigator.pushReplacementNamed(context, '/admin');
+          } else {
+            roleProvider.setRole(UserRole.cliente);
+            Navigator.pushReplacementNamed(context, '/main');
+          }
+        }
+
+      } else {
+        // --- REGISTRO ---
+        final email = _emailController.text.trim();
+        final password = _passwordController.text.trim();
+        final name = _nameController.text.trim();
+        final phone = _phoneController.text.trim();
+
+        // 1. Validaciones básicas
+        if (!email.endsWith('@uide.edu.ec')) {
+          throw FirebaseAuthException(
+              code: 'invalid-email-domain', 
+              message: 'Debes usar un correo institucional (@uide.edu.ec)');
+        }
+        if (name.isEmpty || phone.isEmpty) {
+          throw FirebaseAuthException(
+              code: 'missing-fields', 
+              message: 'Nombre y Teléfono son obligatorios');
+        }
+
+        // 2. Crear usuario Auth
+        UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+
+        // Determinar rol: Si el correo empieza con 'admin', asignamos rol 'admin'
+        // Esto permite crear el usuario Admin que pide el cliente.
+        String role = email.toLowerCase().startsWith('admin') ? 'admin' : 'cliente';
+
+        // 3. Guardar datos en Firestore
+        await _firestore.collection('users').doc(userCredential.user!.uid).set({
+          'nombre': name,
+          'phone': phone,
+          'email': email,
+          'rol': role, 
+          'createdAt': FieldValue.serverTimestamp(),
+          'imagePath': '', // Inicialmente vacía
+        });
+
+        // 4. Navegar según Rol
+        if (mounted) {
+           final roleProvider = Provider.of<UserRoleProvider>(context, listen: false);
+           if (role == 'admin') {
+             roleProvider.setRole(UserRole.emprendedor);
+             Navigator.pushReplacementNamed(context, '/admin');
+           } else {
+             roleProvider.setRole(UserRole.cliente);
+             Navigator.pushReplacementNamed(context, '/main');
+           }
+        }
+      }
+    } on FirebaseAuthException catch (e) {
+      String message = e.message ?? 'Ocurrió un error';
+      if (e.code == 'invalid-email-domain') message = 'Usa tu correo @uide.edu.ec';
+      if (e.code == 'weak-password') message = 'La contraseña es muy débil';
+      if (e.code == 'email-already-in-use') message = 'Este correo ya está registrado';
+      if (e.code == 'user-not-found') message = 'Usuario no encontrado';
+      if (e.code == 'wrong-password') message = 'Contraseña incorrecta';
+      if (e.code == 'network-request-failed') message = 'Sin conexión a internet. Verifica tu Wi-Fi o datos.';
+
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.red),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +141,9 @@ class LoginScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 40),
-              const Text(
-                'Iniciar Sesión',
-                style: TextStyle(
+              Text(
+                _isLogin ? 'Iniciar Sesión' : 'Registro',
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -27,116 +151,81 @@ class LoginScreen extends StatelessWidget {
               ),
               const SizedBox(height: 40),
 
-              // Campo de correo
-              TextField(
-                keyboardType: TextInputType.emailAddress,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.email, color: Colors.white),
-                  hintText: 'Correo',
-                  hintStyle: const TextStyle(color: Colors.white70),
-                  filled: true,
-                  fillColor: Colors.white.withOpacity(0.1),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
+              // Campos exclusivos de Registro
+              if (!_isLogin) ...[
+                _buildTextField(_nameController, Icons.person, 'Nombre Completo'),
+                const SizedBox(height: 20),
+                _buildTextField(_phoneController, Icons.phone, 'Teléfono'),
+                const SizedBox(height: 20),
+              ],
 
+              // Campos comunes
+              _buildTextField(_emailController, Icons.email, 'Correo Institucional'),
               const SizedBox(height: 20),
-
-              // Campo de contraseña
-              TextField(
-                obscureText: true,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.lock, color: Colors.white),
-                  hintText: 'Contraseña',
-                  hintStyle: const TextStyle(color: Colors.white70),
-                  filled: true,
-                  fillColor: Colors.white.withOpacity(0.1),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
+              _buildTextField(_passwordController, Icons.lock, 'Contraseña', isPassword: true),
 
               const SizedBox(height: 30),
 
-              // Botón iniciar sesión
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFdaa520),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              // Botón Principal (Ingresar / Registrarse)
+              if (_isLoading)
+                const CircularProgressIndicator(color: Colors.white)
+              else
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFdaa520),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                  ),
-                  onPressed: () {
-                    Navigator.pushReplacementNamed(context, '/main');
-                  },
-                  child: const Text(
-                    'Ingresar',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                    onPressed: _submit,
+                    child: Text(
+                      _isLogin ? 'Ingresar' : 'Registrarme',
+                      style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
+
+              const SizedBox(height: 20),
+
+              // Botón Toggle (Cambiar modo)
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _isLogin = !_isLogin;
+                  });
+                },
+                child: Text(
+                  _isLogin ? '¿No tienes cuenta? Registrate' : '¿Ya tienes cuenta? Ingresa',
+                  style: const TextStyle(color: Colors.white, fontSize: 16, decoration: TextDecoration.underline),
+                ),
               ),
 
-              const SizedBox(height: 40),
-
-              // --- SECCIÓN DE BOTONES DEMO ---
-              const Text(
-                'Modo Demo',
-                style: TextStyle(color: Colors.white70, fontSize: 14),
-              ),
-              const SizedBox(height: 15),
-              Row(
-                children: [
-                  // Botón Demo Cliente
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        Provider.of<UserRoleProvider>(context, listen: false).setRole(UserRole.cliente);
-                        Navigator.pushReplacementNamed(context, '/main');
-                      },
-                      icon: const Icon(Icons.person, color: Colors.white),
-                      label: const Text('Cliente', style: TextStyle(color: Colors.white)),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.white54),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 15),
-                  // Botón Demo Admin
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        Provider.of<UserRoleProvider>(context, listen: false).setRole(UserRole.emprendedor);
-                        Navigator.pushReplacementNamed(context, '/admin');
-                      },
-                      icon: const Icon(Icons.admin_panel_settings, color: Colors.white),
-                      label: const Text('Admin', style: TextStyle(color: Colors.white)),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.white54),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
               const SizedBox(height: 40),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, IconData icon, String hint, {bool isPassword = false}) {
+    return TextField(
+      controller: controller,
+      obscureText: isPassword,
+      keyboardType: (!isPassword && hint.contains('Correo')) ? TextInputType.emailAddress : TextInputType.text,
+      style: const TextStyle(color: Colors.black), // Texto visible sobre fondo blanco
+      decoration: InputDecoration(
+        prefixIcon: Icon(icon, color: const Color(0xFF90063a)), // Icono rojo institucional
+        hintText: hint,
+        hintStyle: const TextStyle(color: Colors.grey), // Hint gris
+        filled: true,
+        fillColor: Colors.white, // Fondo BLANCO
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(vertical: 16),
       ),
     );
   }

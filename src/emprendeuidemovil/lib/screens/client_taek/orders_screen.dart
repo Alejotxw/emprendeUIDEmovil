@@ -7,8 +7,21 @@ import '../../models/cart_item.dart';
 import '../chat_screen.dart';
 import '../../providers/review_provider.dart';
 
-class OrdersScreen extends StatelessWidget {
+class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
+
+  @override
+  State<OrdersScreen> createState() => _OrdersScreenState();
+}
+
+class _OrdersScreenState extends State<OrdersScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<OrderProvider>(context, listen: false).fetchOrders('client');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +45,7 @@ class OrdersScreen extends StatelessWidget {
             ),
     );
   }
+
 
   Widget _buildStatusBadge(OrderModel order) {
     return Container(

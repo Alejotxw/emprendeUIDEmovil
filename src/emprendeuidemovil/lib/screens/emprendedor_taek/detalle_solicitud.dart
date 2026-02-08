@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../providers/order_provider.dart';
 import '../chat_screen.dart';
 
@@ -203,44 +204,137 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
               isCustomIcon: false,
             ),
 
-            if (widget.paymentMethod == 'transferencia' && widget.transferReceiptPath != null) ...[
-              const SizedBox(height: 20),
-              Text(
-                'Comprobante de Pago',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
-                ),
+            if (widget.paymentMethod == 'transferencia') ...[
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Comprobante de Pago',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
+                    ),
+                  ),
+                  if (widget.transferReceiptPath != null && widget.transferReceiptPath!.startsWith('http'))
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        final url = Uri.parse(widget.transferReceiptPath!);
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(url, mode: LaunchMode.externalApplication);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('No se pudo abrir el enlace del comprobante')),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF83002A),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      icon: const Icon(Icons.download, size: 18),
+                      label: const Text('Descargar', style: TextStyle(fontSize: 12)),
+                    ),
+                ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
               GestureDetector(
                 onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (_) => Dialog(
-                      child: InteractiveViewer(
-                        child: Image.file(
-                          File(widget.transferReceiptPath!),
+                  if (widget.transferReceiptPath != null && widget.transferReceiptPath!.isNotEmpty) {
+                    showDialog(
+                      context: context,
+                      builder: (_) => Dialog(
+                        backgroundColor: Colors.transparent,
+                        insetPadding: const EdgeInsets.all(10),
+                        child: Stack(
+                          children: [
+                            Positioned.fill(
+                              child: InteractiveViewer(
+                                minScale: 0.5,
+                                maxScale: 4.0,
+                                child: widget.transferReceiptPath!.startsWith('http')
+                                    ? Image.network(
+                                        widget.transferReceiptPath!,
+                                        loadingBuilder: (context, child, loadingProgress) {
+                                          if (loadingProgress == null) return child;
+                                          return const Center(child: CircularProgressIndicator());
+                                        },
+                                      )
+                                    : Image.file(File(widget.transferReceiptPath!)),
+                              ),
+                            ),
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: IconButton(
+                                icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                                onPressed: () => Navigator.pop(context),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  );
+                    );
+                  }
                 },
                 child: Container(
-                  height: 200,
+                  height: 250,
                   width: double.infinity,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
-                    color: Colors.grey[200],
-                    image: DecorationImage(
-                      image: FileImage(File(widget.transferReceiptPath!)),
-                      fit: BoxFit.cover,
-                    ),
+                    color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.grey[100],
+                    border: Border.all(color: Colors.grey.withOpacity(0.3)),
                   ),
+                  clipBehavior: Clip.antiAlias,
+                  child: (widget.transferReceiptPath != null && widget.transferReceiptPath!.isNotEmpty)
+                      ? Hero(
+                          tag: 'receipt-image',
+                          child: widget.transferReceiptPath!.startsWith('http')
+                              ? Image.network(
+                                  widget.transferReceiptPath!,
+                                  fit: BoxFit.contain,
+                                  loadingBuilder: (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return const Center(child: CircularProgressIndicator());
+                                  },
+                                  errorBuilder: (context, error, stackTrace) => Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      Icon(Icons.broken_image, size: 50, color: Colors.grey),
+                                      SizedBox(height: 8),
+                                      Text('Error al cargar la imagen', style: TextStyle(color: Colors.grey)),
+                                    ],
+                                  ),
+                                )
+                              : Image.file(
+                                  File(widget.transferReceiptPath!),
+                                  fit: BoxFit.contain,
+                                )
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.image_not_supported_outlined, size: 50, color: Colors.grey),
+                            SizedBox(height: 8),
+                            Text("El cliente no ha subido un comprobante aún.", style: TextStyle(color: Colors.grey)),
+                          ],
+                        ),
                 ),
               ),
+              if (widget.transferReceiptPath != null && widget.transferReceiptPath!.isNotEmpty)
+                const Padding(
+                  padding: EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    "Toca la imagen para ampliar",
+                    style: TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
             ],
+
 
             const SizedBox(height: 24),
             Text(

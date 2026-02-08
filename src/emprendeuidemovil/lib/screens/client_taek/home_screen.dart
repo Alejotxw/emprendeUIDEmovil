@@ -9,6 +9,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import '../../providers/notification_provider.dart'; 
 import '../../providers/event_provider.dart';
 import 'dart:io';
+import '../../providers/user_profile_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -273,13 +274,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Hola, Alejandro',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
+                          Consumer<UserProfileProvider>(
+                            builder: (context, userProfile, child) {
+                              return Text(
+                                'Hola, ${userProfile.name}',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              );
+                            },
                           ),
                           // --- INICIO DE NOTIFICACIONES ---
                           Consumer<NotificationProvider>(

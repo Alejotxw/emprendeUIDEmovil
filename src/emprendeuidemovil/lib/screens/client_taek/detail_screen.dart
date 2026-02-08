@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/service_model.dart';
 import '../../providers/cart_provider.dart';
-// 1. Asegúrate de que la ruta sea correcta según tu proyecto
+import '../../providers/review_provider.dart'; // Import provider de reseñas
 import '../../screens/perfilpublico.dart'; 
+import 'package:intl/intl.dart';
 import 'dart:io';
 
 class DetailScreen extends StatefulWidget {
@@ -41,9 +42,12 @@ class _DetailScreenState extends State<DetailScreen> {
             ),
             title: Row(
               children: [
-                const Icon(Icons.star, color: Colors.amber, size: 20),
-                const SizedBox(width: 4),
-                Text('${widget.service.rating}'),
+                if (widget.service.reviewCount > 0) ...[
+                   const Icon(Icons.star, color: Colors.amber, size: 20),
+                   const SizedBox(width: 4),
+                   Text('${widget.service.rating}'),
+                ] else 
+                   const Text('Nuevo', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               ],
             ),
             backgroundColor: const Color(0xFFC8102E),
@@ -89,10 +93,8 @@ class _DetailScreenState extends State<DetailScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Por Kevin Giraldo',
-                            style: TextStyle(fontSize: 16, color: Colors.grey),
-                          ),
+                          const SizedBox.shrink(), // Placeholder for layout balance if needed, or remove completely. 
+                          // Text removed as per request.
                           OutlinedButton.icon(
                             onPressed: () {
                               // Navegación al perfil público
@@ -130,7 +132,7 @@ class _DetailScreenState extends State<DetailScreen> {
                       ),
                       const SizedBox(height: 16),
                       _buildInfoCard('Horario', 'Lun-Vie 10:00-16:00'),
-                      _buildInfoCard('Ubicación', widget.service.location),
+                      _buildInfoCard('Ubicación', widget.service.location == 'Sede Loja Universidad Internacional del Ecuador' ? 'Loja Ecuador (Campus UIDE)' : widget.service.location),
                       const SizedBox(height: 24),
                       // --- SECCIÓN DE SERVICIOS ---
                       if (widget.service.services.isNotEmpty) ...[
@@ -153,6 +155,10 @@ class _DetailScreenState extends State<DetailScreen> {
                         ...widget.service.products.asMap().entries.map((entry) => _buildProductItem(entry.value, entry.key + 1)).toList(),
                         const SizedBox(height: 24),
                       ],
+
+                      // --- SECCIÓN DE RESEÑAS ---
+                      _buildReviewsSection(),
+                      const SizedBox(height: 24),
 
                       if (widget.service.services.isEmpty && widget.service.products.isEmpty)
                         const Padding(
@@ -303,7 +309,28 @@ class _DetailScreenState extends State<DetailScreen> {
               ],
             ),
             Text(item.description, style: const TextStyle(fontSize: 14, color: Colors.grey)),
-            Text('\$${item.price.toStringAsFixed(2)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFC8102E))),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('\$${item.price.toStringAsFixed(2)}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFC8102E))),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: item.stock > 0 ? Colors.green[50] : Colors.red[50],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: item.stock > 0 ? Colors.green : Colors.red),
+                  ),
+                  child: Text(
+                    'Stock: ${item.stock}',
+                    style: TextStyle(
+                      fontSize: 12, 
+                      fontWeight: FontWeight.bold,
+                      color: item.stock > 0 ? Colors.green[800] : Colors.red[800]
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -344,7 +371,7 @@ class _DetailScreenState extends State<DetailScreen> {
   DecorationImage? _getImageProvider(String imageUrl) {
     if (imageUrl.isEmpty || imageUrl.contains('placeholder')) {
       return const DecorationImage(
-        image: AssetImage('assets/food_placeholder.png'),
+        image: AssetImage('assets/LOGO.png'),
         fit: BoxFit.cover,
       );
     }
@@ -366,9 +393,109 @@ class _DetailScreenState extends State<DetailScreen> {
       );
     }
     
-    return DecorationImage(
-        image: AssetImage(imageUrl),
+    // Fallback if asset or invalid
+    if (imageUrl.startsWith('assets/')) {
+        return DecorationImage(
+            image: AssetImage(imageUrl),
+            fit: BoxFit.cover,
+        );
+    }
+    
+    // Final fallback
+    return const DecorationImage(
+        image: AssetImage('assets/LOGO.png'), // Ensure you have a fallback asset
         fit: BoxFit.cover,
+    );
+  }
+
+  Widget _buildReviewsSection() {
+    return Consumer<ReviewProvider>(
+      builder: (context, reviewProvider, child) {
+        // Filter reviews for this service (Mock logic: Assuming serviceName is unique enough for now, or match ID if available)
+        final reviews = reviewProvider.reviews.where((r) => r.serviceName == widget.service.name || r.serviceName == widget.service.id).toList();
+
+        if (reviews.isEmpty) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+               Text(
+                'Reseñas',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFC8102E)),
+              ),
+              SizedBox(height: 8),
+              Text("Aún no hay reseñas para este emprendimiento."),
+            ],
+          );
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+             const Text(
+              'Reseñas',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFC8102E)),
+            ),
+            const SizedBox(height: 16),
+            ...reviews.map((r) => _buildReviewItem(r)).toList(),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildReviewItem(ReviewModel review) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[800] : Colors.grey[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+               Text(review.userName, style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black)),
+               Row(
+                 children: List.generate(5, (index) => Icon(
+                   index < review.rating ? Icons.star : Icons.star_border,
+                   color: Colors.amber,
+                   size: 16,
+                 )),
+               )
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(review.comment, style: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.black87)),
+          const SizedBox(height: 4),
+          Text(
+            DateFormat('dd/MM/yyyy').format(review.date),
+            style: const TextStyle(fontSize: 12, color: Colors.grey),
+          ),
+          if (review.response != null) ...[
+             const SizedBox(height: 8),
+             Container(
+               padding: const EdgeInsets.all(8),
+               decoration: BoxDecoration(
+                 color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[700] : Colors.white,
+                 borderRadius: BorderRadius.circular(8),
+                 border: Border.all(color: Colors.orange.withOpacity(0.5)),
+               ),
+               child: Column(
+                 crossAxisAlignment: CrossAxisAlignment.start,
+                 children: [
+                   const Text("Respuesta del Emprendedor:", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.orange)),
+                   const SizedBox(height: 2),
+                   Text(review.response!, style: const TextStyle(fontSize: 13)),
+                 ],
+               ),
+             )
+          ]
+        ],
+      ),
     );
   }
 }

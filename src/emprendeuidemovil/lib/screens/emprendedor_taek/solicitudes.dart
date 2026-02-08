@@ -14,70 +14,42 @@ class SolicitudesScreen extends StatefulWidget {
 }
 
 class _SolicitudesScreenState extends State<SolicitudesScreen> {
-  final List<Map<String, dynamic>> _solicitudesEstaticas = [];
+  @override
+  void initState() {
+    super.initState();
+    // Fetch orders for the entrepreneur (where they are the seller)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<OrderProvider>(context, listen: false).fetchOrders('entrepreneur');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Escuchamos ambos Providers
-    final cartProvider = Provider.of<CartProvider>(context);
+    // Only listen to OrderProvider
     final orderProvider = Provider.of<OrderProvider>(context);
 
-    // Combinamos: Estáticos + Servicios del Carrito + Pedidos (Productos) ya pagados
-    final List<Map<String, dynamic>> listaCombinada = [
-      ..._solicitudesEstaticas,
-      
-      // 1. SERVICIOS QUE ESTÁN EN EL CARRITO (Esperando aprobación)
-      ...cartProvider.servicios.map((item) => {
-            'cartItemRef': item,
-            'tag': 'Servicio',
-            'title': item.displayName,
-            'description': item.comment ?? 'Sin descripción',
-            'price': item.price.toStringAsFixed(2),
-            'status': _traducirEstado(item.status),
-            'statusColor': _obtenerColorEstado(item.status),
-            'requesterName': 'Cliente',
-            'items': [{'name': item.displayName, 'detail': item.service.name, 'price': item.price.toString()}],
-            'paymentMethod': 'Pendiente',
-            'isFromProvider': true,
-            'deliveryTime': 'Por definir', 
-            'isProduct': false,
-          }),
-
-      // 2. PRODUCTOS QUE ESTÁN EN EL CARRITO (Si el flujo lo requiere)
-      ...cartProvider.productos.map((item) => {
-            'cartItemRef': item,
-            'tag': 'Producto',
-            'title': item.displayName,
-            'description': 'Pedido de producto',
-            'price': item.price.toStringAsFixed(2),
-            'status': _traducirEstado(item.status),
-            'statusColor': _obtenerColorEstado(item.status),
-            'requesterName': 'Cliente',
-            'items': [{'name': item.displayName, 'detail': 'Cantidad: ${item.quantity}', 'price': item.price.toString()}],
-            'paymentMethod': 'Pendiente',
-            'isFromProvider': true,
-            'deliveryTime': 'Inmediata', 
-            'isProduct': true,
-          }),
-
-      // 2. PRODUCTOS/PEDIDOS YA PAGADOS (Aparecen aquí para el emprendedor)
-      ...orderProvider.orders.map((order) => {
-            'title': 'Pedido: ${order.id}',
-            'orderId': order.id,
-            'tag': 'Producto',
-            'description': order.items.map((i) => i.displayName).join(', '),
-            'price': order.total.toStringAsFixed(2),
-            'status': 'Pagado',
-            'statusColor': Colors.blue,
-            'requesterName': 'Cliente (Pago Realizado)',
-            'items': order.items.map((i) => {'name': i.displayName, 'detail': 'Pagado', 'price': i.service.price.toString()}).toList(),
-            'paymentMethod': order.paymentMethod,
-            'transferReceiptPath': order.transferReceiptPath,
-            'deliveryTime': 'Inmediata', // O la lógica de tiempo que prefieras
-            'isOrder': true,
-            'isProduct': true,
-          }),
-    ];
+    // List of Orders where I am the seller
+    final List<Map<String, dynamic>> listaCombinada = orderProvider.orders.map((order) {
+            return {
+              'title': 'Pedido: ${order.id}',
+              'orderId': order.id,
+              'tag': order.items.any((i) => i.isActualProduct) ? 'Producto' : 'Servicio',
+              'description': order.items.map((i) => i.displayName).join(', '),
+              'price': order.total.toStringAsFixed(2),
+              'status': order.status,
+              'statusColor': order.statusColor,
+              'requesterName': 'Cliente', // In future, fetch client name via clientId
+              'items': order.items.map((i) => {'name': i.displayName, 'detail': '${i.type} x${i.quantity}', 'price': i.price.toString()}).toList(),
+              'paymentMethod': order.paymentMethod,
+              'transferReceiptPath': order.transferReceiptPath,
+              // Logic for delivery time or date
+              'deliveryTime': order.deliveryDate != null 
+                  ? "${order.deliveryDate!.day}/${order.deliveryDate!.month} ${order.deliveryDate!.hour}:${order.deliveryDate!.minute}" 
+                  : 'Pendiente',
+              'isOrder': true,
+              'isProduct': order.items.any((i) => i.isActualProduct),
+            };
+          }).toList();
 
     return Scaffold(
       backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF121212) : Colors.white,
@@ -223,27 +195,7 @@ class _SolicitudesScreenState extends State<SolicitudesScreen> {
          } else if (result == 'Rechazado') {
            orderProvider.updateOrderStatus(solicitud['orderId'], 'Rechazado', Colors.red);
          }
-      } else if (solicitud['isFromProvider'] == true) {
-        // ACTUALIZACIÓN DE ESTADO PARA SERVICIOS (Usando CartProvider)
-        final CartItem item = solicitud['cartItemRef'];
-        if (result == 'Aceptado') {
-          cartProvider.updateStatus(item.service, CartStatus.accepted);
-        } else if (result == 'Rechazado') {
-          cartProvider.updateStatus(item.service, CartStatus.rejected);
-        }
-      }
     }
   }
-
-  String _traducirEstado(CartStatus status) {
-    if (status == CartStatus.accepted) return 'Aceptado';
-    if (status == CartStatus.rejected) return 'Rechazado';
-    return 'Pendiente';
-  }
-
-  Color _obtenerColorEstado(CartStatus status) {
-    if (status == CartStatus.accepted) return const Color(0xFF4CAF50);
-    if (status == CartStatus.rejected) return Colors.red;
-    return const Color(0xFFFFA600);
-  }
+}
 }

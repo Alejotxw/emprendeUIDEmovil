@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ReviewModel {
   final String id;
@@ -22,8 +23,19 @@ class ReviewModel {
 
 class ReviewProvider with ChangeNotifier {
   final List<ReviewModel> _reviews = [];
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  ReviewProvider() {
+    _auth.authStateChanges().listen((user) {
+      if (user == null) {
+        _reviews.clear();
+        notifyListeners();
+      }
+    });
+  }
 
   List<ReviewModel> get reviews => List.unmodifiable(_reviews);
+
 
   void addReview(String serviceName, String userName, String comment, int rating) {
     _reviews.insert(

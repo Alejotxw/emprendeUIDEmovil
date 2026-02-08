@@ -22,21 +22,24 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
       'category': service.category,
       'imagePath': service.imageUrl,
       'location': service.location,
-      'isDraft': false, // ServiceModel doesn't have isDraft yet
+      'isDraft': false, 
       'services': [
         ...service.services.map((s) => {
           'name': s.name,
           'description': s.description,
           'price': s.price.toString(),
+          'stock': s.stock.toString(),
           'type': 'service',
         }),
         ...service.products.map((p) => {
           'name': p.name,
           'description': p.description,
           'price': p.price.toString(),
+          'stock': p.stock.toString(),
           'type': 'product',
         }),
       ],
+      'transferData': service.transferData?.toMap(),
     };
   }
 
@@ -49,7 +52,6 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
       backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF121212) : Colors.white,
       body: Column(
         children: [
-          // Top Bar
           Container(
             padding: const EdgeInsets.only(top: 50, bottom: 20, left: 24, right: 24),
             decoration: const BoxDecoration(
@@ -84,16 +86,17 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
                          final servicesList = (data['services'] as List).where((s) => s['type'] == 'service').map<ServiceItem>((s) => ServiceItem(
                            name: s['name'],
                            price: double.tryParse(s['price']) ?? 0.0,
-                           description: s['description']
+                           description: s['description'],
+                           stock: int.tryParse(s['stock'] ?? '0') ?? 0,
                          )).toList();
 
                          final productsList = (data['services'] as List).where((s) => s['type'] == 'product').map<ProductItem>((s) => ProductItem(
                            name: s['name'],
                            price: double.tryParse(s['price']) ?? 0.0,
-                           description: s['description']
+                           description: s['description'],
+                           stock: int.tryParse(s['stock'] ?? '0') ?? 0,
                          )).toList();
 
-                         // Calculate a base price (minimum or average)
                          double basePrice = 0.0;
                          if (servicesList.isNotEmpty || productsList.isNotEmpty) {
                            final allPrices = [
@@ -103,6 +106,7 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
                            basePrice = allPrices.reduce((a, b) => a < b ? a : b);
                          }
 
+                         final currentUser = Provider.of<ServiceProvider>(context, listen: false).auth.currentUser;
                          final newService = ServiceModel(
                            id: DateTime.now().millisecondsSinceEpoch.toString(),
                            name: data['title'],
@@ -114,9 +118,12 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
                            imageUrl: data['imagePath'] ?? '',
                            location: data['location'] ?? 'Sede Loja Universidad Internacional del Ecuador',
                            isMine: true,
+                           ownerId: currentUser?.uid ?? '',
                            services: servicesList,
                            products: productsList,
+                           transferData: data['transferData'] != null ? TransferData.fromMap(data['transferData']) : null,
                          );
+
 
                          serviceProvider.addService(newService);
                       }
@@ -142,7 +149,6 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
             ),
           ),
 
-          // List of Emprendimientos
           Expanded(
             child: myEmprendimientos.isEmpty 
               ? Center(
@@ -181,13 +187,15 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
                                     final servicesList = (data['services'] as List).where((s) => s['type'] == 'service').map<ServiceItem>((s) => ServiceItem(
                                       name: s['name'],
                                       price: double.tryParse(s['price']) ?? 0.0,
-                                      description: s['description']
+                                      description: s['description'],
+                                      stock: int.tryParse(s['stock'] ?? '0') ?? 0,
                                     )).toList();
 
                                     final productsList = (data['services'] as List).where((s) => s['type'] == 'product').map<ProductItem>((s) => ProductItem(
                                       name: s['name'],
                                       price: double.tryParse(s['price']) ?? 0.0,
-                                      description: s['description']
+                                      description: s['description'],
+                                      stock: int.tryParse(s['stock'] ?? '0') ?? 0,
                                     )).toList();
 
                                     double basePrice = 0.0;
@@ -208,6 +216,7 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
                                       location: data['location'] ?? service.location,
                                       services: servicesList,
                                       products: productsList,
+                                      transferData: data['transferData'] != null ? TransferData.fromMap(data['transferData']) : service.transferData,
                                     );
                                     serviceProvider.updateService(updatedService);
                                  } else if (result['action'] == 'delete') {
@@ -253,9 +262,11 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
             decoration: BoxDecoration(
               color: const Color(0xFF83002A), // Placeholder color
               borderRadius: BorderRadius.circular(16),
-              image: imagePath != null
+              image: (imagePath != null && imagePath.isNotEmpty)
                   ? DecorationImage(
-                      image: FileImage(File(imagePath)),
+                      image: imagePath.startsWith('http')
+                          ? NetworkImage(imagePath) as ImageProvider
+                          : FileImage(File(imagePath)),
                       fit: BoxFit.cover,
                     )
                   : null,

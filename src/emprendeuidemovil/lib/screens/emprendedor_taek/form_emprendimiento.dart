@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class FormEmprendimientoScreen extends StatefulWidget {
   final Map<String, dynamic>? entrepreneurship;
@@ -22,6 +23,13 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
   final TextEditingController _servicePriceController = TextEditingController();
   final TextEditingController _serviceStockController = TextEditingController();
 
+  // Bank Data Controllers
+  final TextEditingController _bankNameController = TextEditingController();
+  final TextEditingController _accountNumberController = TextEditingController();
+  final TextEditingController _holderNameController = TextEditingController();
+  final TextEditingController _cedulaController = TextEditingController();
+  String _accountType = 'Ahorros'; // 'Ahorros' | 'Corriente'
+
   // State
   String _selectedCategory = 'Comida';
   List<Map<String, String>> _services = [];
@@ -35,14 +43,23 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
   TimeOfDay _openTime = const TimeOfDay(hour: 9, minute: 0);
   TimeOfDay _closeTime = const TimeOfDay(hour: 18, minute: 0);
 
+  bool _isUploading = false;
+  String? _imageUrl;
+
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.entrepreneurship?['title'] ?? '');
     _descriptionController = TextEditingController(text: widget.entrepreneurship?['subtitle'] ?? '');
     _selectedCategory = widget.entrepreneurship?['category'] ?? 'Comida';
-    if (widget.entrepreneurship?['imagePath'] != null) {
-      _selectedImage = File(widget.entrepreneurship!['imagePath']);
+    
+    final initialPath = widget.entrepreneurship?['imagePath'];
+    if (initialPath != null && initialPath.isNotEmpty) {
+      if (initialPath.startsWith('http')) {
+        _imageUrl = initialPath;
+      } else {
+        _selectedImage = File(initialPath);
+      }
     }
     
     if (widget.entrepreneurship != null && widget.entrepreneurship!['services'] != null) {
@@ -51,7 +68,17 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
          return Map<String, String>.from(item);
        }));
     } else {
-      _services = [];
+       _services = [];
+    }
+
+    // Initialize Bank Data
+    if (widget.entrepreneurship != null && widget.entrepreneurship!['transferData'] != null) {
+      final transfer = widget.entrepreneurship!['transferData'];
+      _bankNameController.text = transfer['bankName'] ?? '';
+      _accountNumberController.text = transfer['accountNumber'] ?? '';
+      _holderNameController.text = transfer['holderName'] ?? '';
+      _cedulaController.text = transfer['cedula'] ?? '';
+      _accountType = transfer['accountType'] ?? 'Ahorros';
     }
   }
 
@@ -83,15 +110,76 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
     }
   }
 
-  void _saveAndExit({bool isDraft = false}) {
+  Future<void> _saveAndExit({bool isDraft = false}) async {
+    if (_isUploading) return;
+
+    setState(() {
+      _isUploading = true;
+    });
+
+    String? finalImagePath = _imageUrl;
+
+    try {
+      if (_selectedImage != null) {
+         // Using traditional bucket name for better reliability
+         final bucketName = "emprende-uide-movil.appspot.com";
+         print("Subiendo imagen de emprendimiento a: $bucketName");
+         final storage = FirebaseStorage.instanceFor(bucket: bucketName);
+         final fileName = 'entrepreneurship_${DateTime.now().millisecondsSinceEpoch}.jpg';
+         final ref = storage.ref().child('entrepreneurship_images').child(fileName);
+         
+         print("Intentando subir imagen a ref: ${ref.fullPath}");
+         
+         final metadata = SettableMetadata(
+           contentType: 'image/jpeg',
+         );
+
+         UploadTask uploadTask = ref.putFile(_selectedImage!, metadata);
+         
+         // Monitor progress
+         uploadTask.snapshotEvents.listen((event) {
+           double progress = 100 * (event.bytesTransferred / event.totalBytes);
+           print("Progreso subida: ${progress.toStringAsFixed(2)}%");
+         });
+
+         TaskSnapshot snapshot = await uploadTask;
+         finalImagePath = await snapshot.ref.getDownloadURL();
+         print("Imagen subida con éxito: $finalImagePath");
+      }
+    } catch (e) {
+      print("Error detallado subiendo imagen: $e");
+      // If we are editing and upload fails, we keep the old URL if it exists
+      if (_imageUrl != null && _imageUrl!.startsWith('http')) {
+        finalImagePath = _imageUrl;
+      }
+      
+      if (mounted) {
+        String errorMsg = e.toString();
+        if (errorMsg.contains('object-not-found')) {
+          errorMsg = "Referencia de almacenamiento no encontrada. Verifica la configuración de Firebase Storage.";
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $errorMsg. Se guardará usando la ruta anterior o sin imagen.')),
+        );
+      }
+    }
+
+
     final data = {
       'title': _nameController.text.isNotEmpty ? _nameController.text : 'Borrador',
       'subtitle': _descriptionController.text,
       'category': _selectedCategory,
       'services': _services,
-      'location': 'Sede Loja Universidad Internacional del Ecuador',
+      'location': 'Loja Ecuador (Campus UIDE)',
       'isDraft': isDraft,
-      'imagePath': _selectedImage?.path,
+      'imagePath': finalImagePath,
+      'transferData': {
+        'bankName': _bankNameController.text,
+        'accountNumber': _accountNumberController.text,
+        'accountType': _accountType,
+        'holderName': _holderNameController.text,
+        'cedula': _cedulaController.text,
+      },
     };
 
     if (!isDraft && _nameController.text.isEmpty) {
@@ -115,7 +203,9 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
       },
       child: Scaffold(
       backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF121212) : Colors.white,
-      body: Column(
+      body: _isUploading 
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFF83002A)))
+          : Column(
         children: [
           _buildTopBar(context),
           Expanded(
@@ -148,9 +238,14 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                                  image: FileImage(_selectedImage!),
                                  fit: BoxFit.cover,
                                )
-                             : null,
+                             : (_imageUrl != null 
+                                 ? DecorationImage(
+                                     image: NetworkImage(_imageUrl!),
+                                     fit: BoxFit.cover,
+                                   )
+                                 : null),
                        ),
-                       child: _selectedImage == null
+                       child: (_selectedImage == null && _imageUrl == null)
                            ? Column(
                                mainAxisAlignment: MainAxisAlignment.center,
                                children: [
@@ -275,7 +370,7 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                          const SizedBox(width: 12),
                          Expanded(
                            child: Text(
-                             "Sede Loja Universidad Internacional del Ecuador",
+                             "Loja Ecuador (Campus UIDE)",
                              style: TextStyle(
                                  fontSize: 14,
                                  fontWeight: FontWeight.bold,
@@ -322,6 +417,16 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
 
                    // Add New Service Form
                    _buildAddServiceForm(),
+
+                   const SizedBox(height: 30),
+                   const Divider(),
+                   const SizedBox(height: 10),
+                   const Text(
+                     "Datos Bancarios para Transferencias",
+                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF83002A)),
+                   ),
+                   const SizedBox(height: 16),
+                   _buildBankForm(),
 
                    const SizedBox(height: 40),
 
@@ -801,5 +906,57 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
         _selectedImage = File(image.path);
       });
     }
+  }
+
+  Widget _buildBankForm() {
+    return Column(
+      children: [
+        _buildTextField(_bankNameController, 'Nombre del Banco', Icons.account_balance),
+        const SizedBox(height: 12),
+        _buildTextField(_accountNumberController, 'Número de Cuenta', Icons.numbers, keyboardType: TextInputType.number),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: RadioListTile<String>(
+                title: const Text('Ahorros'),
+                value: 'Ahorros',
+                groupValue: _accountType,
+                onChanged: (val) => setState(() => _accountType = val!),
+                activeColor: const Color(0xFF83002A),
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+            Expanded(
+              child: RadioListTile<String>(
+                title: const Text('Corriente'),
+                value: 'Corriente',
+                groupValue: _accountType,
+                onChanged: (val) => setState(() => _accountType = val!),
+                activeColor: const Color(0xFF83002A),
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+          ],
+        ),
+        _buildTextField(_holderNameController, 'Nombre del Titular', Icons.person),
+        const SizedBox(height: 12),
+        _buildTextField(_cedulaController, 'Cédula / RUC', Icons.badge),
+      ],
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label, IconData icon, {TextInputType? keyboardType}) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: const Color(0xFF83002A)),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        filled: true,
+        fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.grey[100],
+      ),
+    );
   }
 }

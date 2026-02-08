@@ -1,0 +1,178 @@
+﻿> Task :gradle:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :gradle:compileKotlin UP-TO-DATE
+> Task :gradle:compileJava NO-SOURCE
+> Task :gradle:compileGroovy NO-SOURCE
+> Task :gradle:pluginDescriptors UP-TO-DATE
+> Task :gradle:processResources UP-TO-DATE
+> Task :gradle:classes UP-TO-DATE
+> Task :gradle:jar UP-TO-DATE
+
+> Task :app:signingReport
+Variant: debug
+Config: debug
+Store: C:\Users\LENOVO LEGION\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 99:52:80:75:33:D3:11:D0:F4:D5:46:05:95:99:95:8C
+SHA1: 70:C4:13:1E:BA:93:5F:41:6C:72:82:5F:72:D2:90:14:40:BB:A2:38
+SHA-256: C0:45:45:57:C2:72:19:58:B6:38:90:92:E9:C9:D1:36:B6:83:D1:EE:4A:30:A9:78:64:E9:F8:01:81:09:C7:21
+Valid until: mi├⌐rcoles, 3 de noviembre de 2055
+----------
+Variant: release
+Config: debug
+Store: C:\Users\LENOVO LEGION\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 99:52:80:75:33:D3:11:D0:F4:D5:46:05:95:99:95:8C
+SHA1: 70:C4:13:1E:BA:93:5F:41:6C:72:82:5F:72:D2:90:14:40:BB:A2:38
+SHA-256: C0:45:45:57:C2:72:19:58:B6:38:90:92:E9:C9:D1:36:B6:83:D1:EE:4A:30:A9:78:64:E9:F8:01:81:09:C7:21
+Valid until: mi├⌐rcoles, 3 de noviembre de 2055
+----------
+Variant: profile
+Config: debug
+Store: C:\Users\LENOVO LEGION\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 99:52:80:75:33:D3:11:D0:F4:D5:46:05:95:99:95:8C
+SHA1: 70:C4:13:1E:BA:93:5F:41:6C:72:82:5F:72:D2:90:14:40:BB:A2:38
+SHA-256: C0:45:45:57:C2:72:19:58:B6:38:90:92:E9:C9:D1:36:B6:83:D1:EE:4A:30:A9:78:64:E9:F8:01:81:09:C7:21
+Valid until: mi├⌐rcoles, 3 de noviembre de 2055
+----------
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\LENOVO LEGION\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 99:52:80:75:33:D3:11:D0:F4:D5:46:05:95:99:95:8C
+SHA1: 70:C4:13:1E:BA:93:5F:41:6C:72:82:5F:72:D2:90:14:40:BB:A2:38
+SHA-256: C0:45:45:57:C2:72:19:58:B6:38:90:92:E9:C9:D1:36:B6:83:D1:EE:4A:30:A9:78:64:E9:F8:01:81:09:C7:21
+Valid until: mi├⌐rcoles, 3 de noviembre de 2055
+----------
+
+> Task :cloud_firestore:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\LENOVO LEGION\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 99:52:80:75:33:D3:11:D0:F4:D5:46:05:95:99:95:8C
+SHA1: 70:C4:13:1E:BA:93:5F:41:6C:72:82:5F:72:D2:90:14:40:BB:A2:38
+SHA-256: C0:45:45:57:C2:72:19:58:B6:38:90:92:E9:C9:D1:36:B6:83:D1:EE:4A:30:A9:78:64:E9:F8:01:81:09:C7:21
+Valid until: mi├⌐rcoles, 3 de noviembre de 2055
+----------
+
+> Task :firebase_auth:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\LENOVO LEGION\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 99:52:80:75:33:D3:11:D0:F4:D5:46:05:95:99:95:8C
+SHA1: 70:C4:13:1E:BA:93:5F:41:6C:72:82:5F:72:D2:90:14:40:BB:A2:38
+SHA-256: C0:45:45:57:C2:72:19:58:B6:38:90:92:E9:C9:D1:36:B6:83:D1:EE:4A:30:A9:78:64:E9:F8:01:81:09:C7:21
+Valid until: mi├⌐rcoles, 3 de noviembre de 2055
+----------
+
+> Task :firebase_core:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\LENOVO LEGION\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 99:52:80:75:33:D3:11:D0:F4:D5:46:05:95:99:95:8C
+SHA1: 70:C4:13:1E:BA:93:5F:41:6C:72:82:5F:72:D2:90:14:40:BB:A2:38
+SHA-256: C0:45:45:57:C2:72:19:58:B6:38:90:92:E9:C9:D1:36:B6:83:D1:EE:4A:30:A9:78:64:E9:F8:01:81:09:C7:21
+Valid until: mi├⌐rcoles, 3 de noviembre de 2055
+----------
+
+> Task :firebase_messaging:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\LENOVO LEGION\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 99:52:80:75:33:D3:11:D0:F4:D5:46:05:95:99:95:8C
+SHA1: 70:C4:13:1E:BA:93:5F:41:6C:72:82:5F:72:D2:90:14:40:BB:A2:38
+SHA-256: C0:45:45:57:C2:72:19:58:B6:38:90:92:E9:C9:D1:36:B6:83:D1:EE:4A:30:A9:78:64:E9:F8:01:81:09:C7:21
+Valid until: mi├⌐rcoles, 3 de noviembre de 2055
+----------
+
+> Task :firebase_storage:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\LENOVO LEGION\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 99:52:80:75:33:D3:11:D0:F4:D5:46:05:95:99:95:8C
+SHA1: 70:C4:13:1E:BA:93:5F:41:6C:72:82:5F:72:D2:90:14:40:BB:A2:38
+SHA-256: C0:45:45:57:C2:72:19:58:B6:38:90:92:E9:C9:D1:36:B6:83:D1:EE:4A:30:A9:78:64:E9:F8:01:81:09:C7:21
+Valid until: mi├⌐rcoles, 3 de noviembre de 2055
+----------
+
+> Task :flutter_plugin_android_lifecycle:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\LENOVO LEGION\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 99:52:80:75:33:D3:11:D0:F4:D5:46:05:95:99:95:8C
+SHA1: 70:C4:13:1E:BA:93:5F:41:6C:72:82:5F:72:D2:90:14:40:BB:A2:38
+SHA-256: C0:45:45:57:C2:72:19:58:B6:38:90:92:E9:C9:D1:36:B6:83:D1:EE:4A:30:A9:78:64:E9:F8:01:81:09:C7:21
+Valid until: mi├⌐rcoles, 3 de noviembre de 2055
+----------
+
+> Task :google_maps_flutter_android:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\LENOVO LEGION\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 99:52:80:75:33:D3:11:D0:F4:D5:46:05:95:99:95:8C
+SHA1: 70:C4:13:1E:BA:93:5F:41:6C:72:82:5F:72:D2:90:14:40:BB:A2:38
+SHA-256: C0:45:45:57:C2:72:19:58:B6:38:90:92:E9:C9:D1:36:B6:83:D1:EE:4A:30:A9:78:64:E9:F8:01:81:09:C7:21
+Valid until: mi├⌐rcoles, 3 de noviembre de 2055
+----------
+
+> Task :image_picker_android:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\LENOVO LEGION\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 99:52:80:75:33:D3:11:D0:F4:D5:46:05:95:99:95:8C
+SHA1: 70:C4:13:1E:BA:93:5F:41:6C:72:82:5F:72:D2:90:14:40:BB:A2:38
+SHA-256: C0:45:45:57:C2:72:19:58:B6:38:90:92:E9:C9:D1:36:B6:83:D1:EE:4A:30:A9:78:64:E9:F8:01:81:09:C7:21
+Valid until: mi├⌐rcoles, 3 de noviembre de 2055
+----------
+
+> Task :shared_preferences_android:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\LENOVO LEGION\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 99:52:80:75:33:D3:11:D0:F4:D5:46:05:95:99:95:8C
+SHA1: 70:C4:13:1E:BA:93:5F:41:6C:72:82:5F:72:D2:90:14:40:BB:A2:38
+SHA-256: C0:45:45:57:C2:72:19:58:B6:38:90:92:E9:C9:D1:36:B6:83:D1:EE:4A:30:A9:78:64:E9:F8:01:81:09:C7:21
+Valid until: mi├⌐rcoles, 3 de noviembre de 2055
+----------
+
+> Task :sqflite_android:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\LENOVO LEGION\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 99:52:80:75:33:D3:11:D0:F4:D5:46:05:95:99:95:8C
+SHA1: 70:C4:13:1E:BA:93:5F:41:6C:72:82:5F:72:D2:90:14:40:BB:A2:38
+SHA-256: C0:45:45:57:C2:72:19:58:B6:38:90:92:E9:C9:D1:36:B6:83:D1:EE:4A:30:A9:78:64:E9:F8:01:81:09:C7:21
+Valid until: mi├⌐rcoles, 3 de noviembre de 2055
+----------
+
+> Task :url_launcher_android:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\LENOVO LEGION\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 99:52:80:75:33:D3:11:D0:F4:D5:46:05:95:99:95:8C
+SHA1: 70:C4:13:1E:BA:93:5F:41:6C:72:82:5F:72:D2:90:14:40:BB:A2:38
+SHA-256: C0:45:45:57:C2:72:19:58:B6:38:90:92:E9:C9:D1:36:B6:83:D1:EE:4A:30:A9:78:64:E9:F8:01:81:09:C7:21
+Valid until: mi├⌐rcoles, 3 de noviembre de 2055
+----------
+
+[Incubating] Problems report is available at: file:///C:/Users/LENOVO%20LEGION/Documents/UIDE-Universidad/QUINTO-ciclo/PROGRAMACION%20MOVIL/PROYECTO%20GRUPAL/emprendeUIDEmovil/src/emprendeuidemovil/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.12/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 2s
+16 actionable tasks: 12 executed, 4 up-to-date

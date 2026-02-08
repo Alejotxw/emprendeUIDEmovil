@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "967525747730",
-    "project_id": "emprende-uidemovil",
-    "storage_bucket": "emprende-uidemovil.firebasestorage.app"
+    "project_number": "19618524136",
+    "project_id": "emprende-uide-movil",
+    "storage_bucket": "emprende-uide-movil.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:967525747730:android:1f69401c46a53b24801ccb",
+        "mobilesdk_app_id": "1:19618524136:android:8a8931ae02397d307e925d",
         "android_client_info": {
           "package_name": "com.example.emprendeuidemovil"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCQ-pbsTojokdq_6CfWbVTB3aZS_yfozRw"
+          "current_key": "AIzaSyAZ1SjicFFDXqbdH_Yas1uIEhZmLErd6pY"
         }
       ],
       "services": {

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:provider/provider.dart';
 import '../models/service_model.dart';
-import '../providers/user_profile_provider.dart';
+import '../providers/review_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class PerfilPublicoScreen extends StatelessWidget {
   final ServiceModel service;
@@ -18,100 +20,120 @@ class PerfilPublicoScreen extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildHeader(context),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSectionTitle('Sobre el Emprendimiento'),
-                  _buildInfoCard(
-                    context,
-                    icon: Icons.description,
-                    title: 'Descripción',
-                    content: service.subtitle,
+      body: FutureBuilder<DocumentSnapshot?>(
+        future: service.ownerId.isEmpty 
+            ? Future.value(null) 
+            : FirebaseFirestore.instance.collection('users').doc(service.ownerId).get(),
+        builder: (context, snapshot) {
+          String entrepreneurName = 'Emprendedor UIDE';
+          String entrepreneurPhone = 'No disponible';
+          
+          if (snapshot.hasData && snapshot.data != null && snapshot.data!.exists) {
+
+            final data = snapshot.data!.data() as Map<String, dynamic>;
+            entrepreneurName = data['nombre'] ?? data['name'] ?? entrepreneurName;
+            entrepreneurPhone = data['phone'] ?? entrepreneurPhone;
+          }
+
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                _buildHeader(context, entrepreneurName),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSectionTitle('Sobre el Emprendimiento'),
+                      _buildInfoCard(
+                        context,
+                        icon: Icons.description,
+                        title: 'Descripción',
+                        content: service.subtitle,
+                      ),
+                      _buildInfoCard(
+                        context,
+                        icon: Icons.category,
+                        title: 'Categoría',
+                        content: service.category,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildSectionTitle('Detalles de Contacto'),
+                      _buildInfoCard(
+                        context,
+                        icon: Icons.location_on,
+                        title: 'Ubicación Física',
+                        content: 'Loja Ecuador (Campus UIDE)',
+                      ),
+                      _buildInfoCard(
+                        context,
+                        icon: Icons.phone,
+                        title: 'Teléfono',
+                        content: entrepreneurPhone,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildSectionTitle('Reseñas'),
+                      _buildReviewsSection(),
+                      const SizedBox(height: 24),
+                      _buildSocialMediaButtons(),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  _buildSectionTitle('Detalles de Contacto'),
-                  _buildInfoCard(
-                    context,
-                    icon: Icons.category,
-                    title: 'Categoría',
-                    content: service.category,
-                  ),
-                  _buildInfoCard(
-                    context,
-                    icon: Icons.location_on,
-                    title: 'Ubicación Física',
-                    content: 'Quito, Ecuador (Campus UIDE)',
-                  ),
-                  const SizedBox(height: 16),
-                  _buildSectionTitle('Estadísticas'),
-                  _buildRatingSection(),
-                  const SizedBox(height: 24),
-                  _buildSocialMediaButtons(),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
+
   // Encabezado con foto y nombre
-  Widget _buildHeader(BuildContext context) {
-    return Consumer<UserProfileProvider>(
-      builder: (context, userProfile, child) {
-        return Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 30),
-          decoration: const BoxDecoration(
-            color: Color(0xFFC8102E),
-            borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
+  Widget _buildHeader(BuildContext context, String entrepreneurName) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 30),
+      decoration: const BoxDecoration(
+        color: Color(0xFFC8102E),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
+      ),
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 50,
+            backgroundColor: Colors.white,
+            child: CircleAvatar(
+              radius: 46,
+              backgroundColor: const Color(0xFF83002A),
+              backgroundImage: _getImage(service.imageUrl),
+              child: service.imageUrl.isEmpty
+                  ? const Icon(Icons.store, color: Colors.white, size: 40)
+                  : null,
+            ),
           ),
-          child: Column(
-            children: [
-              CircleAvatar(
-                radius: 50,
-                backgroundColor: Colors.white,
-                child: CircleAvatar(
-                  radius: 46,
-                  backgroundColor: const Color(0xFF83002A),
-                  backgroundImage: userProfile.imagePath != null
-                      ? FileImage(File(userProfile.imagePath!))
-                      : null,
-                  child: userProfile.imagePath == null
-                      ? const Icon(Icons.person, color: Colors.white, size: 40)
-                      : null,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                service.name,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              Text(
-                userProfile.name.isNotEmpty ? userProfile.name : 'Emprendedor UIDE',
-                style: const TextStyle(color: Colors.white70, fontSize: 14),
-              ),
-            ],
+          const SizedBox(height: 12),
+          Text(
+            service.name,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
-        );
-      },
+          const SizedBox(height: 4),
+          Text(
+            entrepreneurName,
+            style: const TextStyle(color: Colors.white70, fontSize: 14),
+          ),
+        ],
+      ),
     );
   }
 
+
   ImageProvider _getImage(String imageUrl) {
     if (imageUrl.isEmpty || imageUrl.contains('placeholder')) {
-      return const AssetImage('assets/food_placeholder.png');
+      return const AssetImage('assets/LOGO.png');
     }
     
     // Check if it is a file path
@@ -125,7 +147,11 @@ class PerfilPublicoScreen extends StatelessWidget {
       return NetworkImage(imageUrl);
     }
     
-    return AssetImage(imageUrl);
+     if (imageUrl.startsWith('assets/')) {
+        return AssetImage(imageUrl);
+    }
+    
+    return const AssetImage('assets/food_placeholder.png');
   }
 
   // Títulos de sección
@@ -168,39 +194,71 @@ class PerfilPublicoScreen extends StatelessWidget {
     );
   }
 
-  // Sección de Rating
-  Widget _buildRatingSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.orange.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange.withOpacity(0.3)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.star, color: Colors.orange, size: 30),
-          const SizedBox(width: 10),
-          Text(
-            '${service.rating}',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(width: 10),
-          const Text('Calificación promedio del servicio'),
-        ],
-      ),
+  // Sección de Reseñas
+  Widget _buildReviewsSection() {
+    return Consumer<ReviewProvider>(
+      builder: (context, reviewProvider, child) {
+         final reviews = reviewProvider.reviews.where((r) => r.serviceName == service.name || r.serviceName == service.id).toList();
+
+         if (reviews.isEmpty) {
+           return Container(
+             width: double.infinity,
+             padding: const EdgeInsets.all(16),
+             decoration: BoxDecoration(
+               color: Colors.orange.withOpacity(0.1),
+               borderRadius: BorderRadius.circular(12),
+               border: Border.all(color: Colors.orange.withOpacity(0.3)),
+             ),
+             child: const Center(
+               child: Text(
+                 'Aún no hay reseñas',
+                 style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic, color: Colors.orange),
+               ),
+             ),
+           );
+         }
+
+         return Column(
+           children: reviews.map((r) => Container(
+             margin: const EdgeInsets.only(bottom: 12),
+             padding: const EdgeInsets.all(12),
+             decoration: BoxDecoration(
+               color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[800] : Colors.grey[50],
+               borderRadius: BorderRadius.circular(8),
+               border: Border.all(color: Colors.grey.withOpacity(0.3)),
+             ),
+             child: Column(
+               crossAxisAlignment: CrossAxisAlignment.start,
+               children: [
+                 Row(
+                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                   children: [
+                     Text(r.userName, style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black)),
+                     Row(
+                       children: List.generate(5, (index) => Icon(
+                         index < r.rating ? Icons.star : Icons.star_border,
+                         color: Colors.amber,
+                         size: 16,
+                       )),
+                     )
+                   ],
+                 ),
+                 const SizedBox(height: 4),
+                 Text(r.comment, style: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.black87)),
+               ],
+             ),
+           )).toList(),
+         );
+      },
     );
   }
 
   // Botones de Redes Sociales
   Widget _buildSocialMediaButtons() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _socialIcon(Icons.phone, Colors.green),
-        _socialIcon(Icons.camera_alt, Colors.purple), // Instagram
-        _socialIcon(Icons.language, Colors.blue), // Web/Facebook
       ],
     );
   }

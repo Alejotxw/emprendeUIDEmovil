@@ -16,6 +16,7 @@ import '../screens/settings_screen.dart';
 import 'package:emprendeuidemovil/providers/user_role_provider.dart';
 import 'package:emprendeuidemovil/providers/user_profile_provider.dart';
 import 'dart:io'; // Para FileImage
+import 'package:firebase_auth/firebase_auth.dart'; // Added for signOut
 import 'login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -104,14 +105,7 @@ class ProfileScreen extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               clipBehavior: Clip.antiAlias,
-              child: userProfile.imagePath != null
-                  ? Image.file(
-                      File(userProfile.imagePath!),
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const Icon(Icons.person, size: 60, color: Colors.white),
-                    )
-                  : const Icon(Icons.person, size: 60, color: Colors.white),
+              child: _buildProfileImage(userProfile.imagePath),
             ),
             const SizedBox(height: 16),
             Text(
@@ -121,9 +115,9 @@ class ProfileScreen extends StatelessWidget {
                   fontSize: 20,
                   fontWeight: FontWeight.bold),
             ),
-            const Text(
-              'sechochosi@uide.edu.ec',
-              style: TextStyle(
+            Text(
+              FirebaseAuth.instance.currentUser?.email ?? 'No email',
+              style: const TextStyle(
                   color: Colors.grey,
                   fontSize: 14,
                   decoration: TextDecoration.underline),
@@ -260,12 +254,14 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildLogoutButton(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        // Tu lógica de logout: navegar al LoginScreen
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-        );
+      onTap: () async {
+        await FirebaseAuth.instance.signOut();
+        if (context.mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+          );
+        }
       },
       child: Container(
         width: 250,
@@ -281,6 +277,26 @@ class ProfileScreen extends StatelessWidget {
           style: TextStyle(color: Color.fromARGB(255, 255, 33, 33), fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
+    );
+  }
+
+  Widget _buildProfileImage(String? imagePath) {
+    if (imagePath == null || imagePath.isEmpty) {
+      return const Icon(Icons.person, size: 60, color: Colors.white);
+    }
+    if (imagePath.startsWith('http')) {
+      return Image.network(
+        imagePath,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) =>
+            const Icon(Icons.person, size: 60, color: Colors.white),
+      );
+    }
+    return Image.file(
+      File(imagePath),
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) =>
+          const Icon(Icons.person, size: 60, color: Colors.white),
     );
   }
 }

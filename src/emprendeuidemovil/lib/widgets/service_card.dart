@@ -43,7 +43,8 @@ class ServiceCard extends StatelessWidget {
             final file = File(imageUrl);
             if (file.existsSync()) return FileImage(file);
             if (imageUrl.startsWith('http')) return NetworkImage(imageUrl);
-            return AssetImage(imageUrl);
+            if (imageUrl.startsWith('assets/')) return AssetImage(imageUrl);
+            return null; // Fallback to icon if path is invalid/not found
         }
 
         final imageProvider = getImageProvider(service.imageUrl);

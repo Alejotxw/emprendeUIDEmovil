@@ -1,12 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/service_model.dart';
 import '../models/cart_item.dart';
 
 class CartProvider extends ChangeNotifier {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final Map<String, List<CartItem>> _cart = {
     'servicios': <CartItem>[], 
     'productos': <CartItem>[]
   };
+
+  CartProvider() {
+    _auth.authStateChanges().listen((user) {
+      if (user == null) {
+        _cart['servicios'] = <CartItem>[];
+        _cart['productos'] = <CartItem>[];
+        notifyListeners();
+      }
+    });
+  }
+
 
 Map<String, List<CartItem>> get cart => _cart;
   List<CartItem> get servicios => _cart['servicios'] ?? <CartItem>[];

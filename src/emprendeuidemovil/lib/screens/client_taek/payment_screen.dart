@@ -4,6 +4,7 @@ import '../../providers/cart_provider.dart';
 import '../../providers/order_provider.dart';
 import '../../models/cart_item.dart'; 
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 
 class PaymentScreen extends StatefulWidget {
@@ -18,6 +19,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   String _selectedPaymentMethod = '';  // '' = ninguno, 'fisico' o 'transferencia'
   File? _transferImage;
   final ImagePicker _picker = ImagePicker();
+  bool _isUploading = false;
 
   Future<void> _pickImage() async {
     final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
@@ -28,6 +30,52 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
   }
 
+  Future<String?> _uploadReceipt(File image) async {
+    try {
+      setState(() => _isUploading = true);
+      
+      // Try with the traditional .appspot.com bucket which is often more reliable
+      // than the newer .firebasestorage.app domain in some SDK versions.
+      final bucketName = "emprende-uide-movil.appspot.com";
+      print("Intentando subir a bucket: $bucketName");
+      
+      final storage = FirebaseStorage.instanceFor(bucket: bucketName);
+      final fileName = 'receipt_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final ref = storage.ref().child('transfer_receipts').child(fileName);
+
+      print("Intentando subir comprobante a ref: ${ref.fullPath}");
+      
+      final metadata = SettableMetadata(
+        contentType: 'image/jpeg',
+      );
+
+      UploadTask uploadTask = ref.putFile(image, metadata);
+      
+      // Monitor progress
+      uploadTask.snapshotEvents.listen((event) {
+        double progress = 100 * (event.bytesTransferred / event.totalBytes);
+        print("Progreso subida comprobante: ${progress.toStringAsFixed(2)}%");
+      });
+
+      TaskSnapshot snapshot = await uploadTask;
+      final String downloadUrl = await snapshot.ref.getDownloadURL();
+      print("Comprobante subido con éxito: $downloadUrl");
+      return downloadUrl;
+    } catch (e) {
+      print("Error detallado subiendo comprobante: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al subir el comprobante: $e'), backgroundColor: Colors.red),
+        );
+      }
+      return null;
+    } finally {
+      if (mounted) setState(() => _isUploading = false);
+    }
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Consumer<CartProvider>(
@@ -37,7 +85,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ? cartProvider.totalServicesPrice 
             : cartProvider.totalProductsPrice;
         
-        final double total = subtotal;  // Mock sin impuestos
+        final double total = subtotal;
+
+        // Get transfer data from the first item
+        final transferData = widget.isServicePayment
+            ? (cartProvider.servicios.isNotEmpty ? cartProvider.servicios.first.service.transferData : null)
+            : (cartProvider.productos.isNotEmpty ? cartProvider.productos.first.service.transferData : null);
 
         return Scaffold(
           appBar: AppBar(
@@ -141,18 +194,22 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             border: Border.all(color: Colors.grey),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Banco: Banco Nacional', style: TextStyle(fontWeight: FontWeight.bold)),
-                              SizedBox(height: 4),
-                              Text('Cuenta: 1234-5678-9012'),
-                              SizedBox(height: 4),
-                              Text('C.I. Titular: 1234567890'),
-                              SizedBox(height: 4),
-                              Text('Referencia: Compra en EmprendeUI'),
-                            ],
-                          ),
+                          child: transferData != null
+                              ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Banco: ${transferData.bankName}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                    const SizedBox(height: 4),
+                                    Text('Cuenta: ${transferData.accountNumber}'),
+                                    const SizedBox(height: 4),
+                                    Text('Tipo: ${transferData.accountType}'),
+                                    const SizedBox(height: 4),
+                                    Text('Titular: ${transferData.holderName}'),
+                                    const SizedBox(height: 4),
+                                    Text('C.I./RUC: ${transferData.cedula}'),
+                                  ],
+                                )
+                              : const Text('Datos de transferencia no disponibles para este emprendimiento.'),
                         ),
                         const SizedBox(height: 20),
                         const Text(
@@ -213,62 +270,90 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _selectedPaymentMethod.isNotEmpty ? Colors.orange : Colors.grey,
+                      backgroundColor: (_selectedPaymentMethod.isNotEmpty && !_isUploading) ? Colors.orange : Colors.grey,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
-                    onPressed: _selectedPaymentMethod.isNotEmpty
+                    onPressed: (_selectedPaymentMethod.isNotEmpty && !_isUploading)
                         ? () async {
                             final orderProvider = Provider.of<OrderProvider>(context, listen: false);
                             final cartProvider = Provider.of<CartProvider>(context, listen: false);
 
                             // Determinamos qué ítems se están pagando
-                            // NOTA: Usamos widget.isServicePayment para ser consistentes con lo que mostramos en UI
                             final List<CartItem> itemsAPagar = widget.isServicePayment 
                                 ? List.from(cartProvider.servicios) 
                                 : List.from(cartProvider.productos);
 
-                            // Validación extra para transferencia
-                            if (_selectedPaymentMethod == 'transferencia' && _transferImage == null) {
+                            if (itemsAPagar.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                                content: Text('Por favor sube el comprobante de transferencia'),
+                                content: Text('No hay items para pagar'),
                                 backgroundColor: Colors.red,
                               ));
                               return;
                             }
 
-                            // Guardamos el pedido (esto alimentará la pantalla de pedidos)
-                            orderProvider.addOrder(
-                              itemsAPagar,
-                              total, // Usamos el total calculado correctamente
-                              _selectedPaymentMethod,
-                              transferReceiptPath: _transferImage?.path,
-                            );
-
-                            // Notificación de éxito
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                              content: Text('¡Pago completado! Enviando solicitud...'),
-                              backgroundColor: Colors.green,
-                              duration: Duration(seconds: 2),
-                            ));
-
-                            // Limpiar solo la sección pagada
-                            if (widget.isServicePayment) {
-                              cartProvider.clearServices(); 
-                            } else {
-                              cartProvider.clearProducts();
+                            // Validación extra para transferencia
+                            if (_selectedPaymentMethod == 'transferencia') {
+                              if (_transferImage == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                  content: Text('Por favor sube el comprobante de transferencia'),
+                                  backgroundColor: Colors.red,
+                                ));
+                                return;
+                              }
                             }
 
-                            await Future.delayed(const Duration(seconds: 2));
-                            if (mounted) Navigator.of(context).popUntil((route) => route.isFirst);
+                            String? receiptUrl;
+                            if (_selectedPaymentMethod == 'transferencia' && _transferImage != null) {
+                               receiptUrl = await _uploadReceipt(_transferImage!);
+                               if (receiptUrl == null) {
+                                  // El error ya se muestra en _uploadReceipt
+                                  return;
+                               }
+                            }
+
+                            // Guardamos el pedido
+                            try {
+                              await orderProvider.addOrder(
+                                itemsAPagar,
+                                total, 
+                                _selectedPaymentMethod,
+                                transferReceiptPath: receiptUrl,
+                              );
+
+                              // Notificación de éxito
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                content: Text('¡Pago completado con éxito!'),
+                                backgroundColor: Colors.green,
+                                duration: Duration(seconds: 2),
+                              ));
+
+                              // Limpiar solo la sección pagada
+                              if (widget.isServicePayment) {
+                                cartProvider.clearServices(); 
+                              } else {
+                                cartProvider.clearProducts();
+                              }
+
+                              await Future.delayed(const Duration(seconds: 2));
+                              if (mounted) Navigator.of(context).popUntil((route) => route.isFirst);
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text('Error al procesar el pedido: $e'),
+                                backgroundColor: Colors.red,
+                              ));
+                            }
                           }
                         : null,
-                    child: Text(
-                      _selectedPaymentMethod == 'fisico' ? 'Notificar' : 'Pagar',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
+                    child: _isUploading 
+                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      : Text(
+                          _selectedPaymentMethod == 'fisico' ? 'Notificar' : 'Pagar',
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
                   ),
+
                 ),
               ],
             ),
