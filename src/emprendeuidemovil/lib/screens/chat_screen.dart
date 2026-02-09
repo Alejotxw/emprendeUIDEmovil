@@ -7,9 +7,15 @@ import '../models/chat_message.dart';
 class ChatScreen extends StatelessWidget {
   final String chatId;
   final String title;
+  final bool isEntrepreneurView;
   
   // Default to 'default' chat ID and 'Asistente Virtual' title if not provided
-  const ChatScreen({super.key, this.chatId = 'default', this.title = 'Asistente Virtual'});
+  const ChatScreen({
+    super.key, 
+    this.chatId = 'default', 
+    this.title = 'Asistente Virtual',
+    this.isEntrepreneurView = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +36,11 @@ class ChatScreen extends StatelessWidget {
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final message = messages[index];
-                    return _MessageBubble(message: message);
+                    return _MessageBubble(
+                      message: message, 
+                      isEntrepreneurView: isEntrepreneurView,
+                      isAI: chatId == 'default',
+                    );
                   },
                 );
               },
@@ -44,7 +54,11 @@ class ChatScreen extends StatelessWidget {
                 style: TextStyle(fontStyle: FontStyle.italic, color: Color.fromARGB(255, 81, 81, 81)),
               ),
             ),
-          _MessageInput(chatId: chatId, isAI: chatId == 'default'),
+          _MessageInput(
+            chatId: chatId, 
+            isAI: chatId == 'default',
+            isEntrepreneurView: isEntrepreneurView,
+          ),
         ],
       ),
     );
@@ -53,33 +67,127 @@ class ChatScreen extends StatelessWidget {
 
 class _MessageBubble extends StatelessWidget {
   final ChatMessage message;
+  final bool isEntrepreneurView;
+  final bool isAI;
 
-  const _MessageBubble({required this.message});
+  const _MessageBubble({
+    super.key,
+    required this.message, 
+    required this.isEntrepreneurView,
+    this.isAI = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final isUser = message.isUser;
-    return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4.0),
-        padding: const EdgeInsets.all(12.0),
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
-        decoration: BoxDecoration(
-          color: isUser ? const Color.fromARGB(255, 116, 0, 33) : Colors.grey[200],
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(12),
-            topRight: const Radius.circular(12),
-            bottomLeft: isUser ? const Radius.circular(12) : Radius.zero,
-            bottomRight: isUser ? Radius.zero : const Radius.circular(12),
+    // Current User Role based on the View
+    final String myRole = isEntrepreneurView ? 'entrepreneur' : 'client';
+    
+    // Check if I sent the message
+    // "IsUser" logic is now: Does the message sender role match my current role?
+    // OR if it's the legacy isUser flag (for AI chat mostly).
+    // For P2P, we trust senderRole.
+    
+    final bool isMe = isAI ? message.isUser : (message.senderRole == myRole);
+    
+    // Determine visuals based on role
+    late final String label;
+    late final IconData icon;
+    late final Color bubbleColor;
+    
+    if (isAI) {
+      if (isMe) {
+        label = "Tú";
+        icon = Icons.person;
+        bubbleColor = const Color(0xFF424242); 
+      } else {
+        label = "Asistente Virtual";
+        icon = Icons.smart_toy;
+        bubbleColor = const Color.fromARGB(255, 152, 2, 7);
+      }
+    } else {
+      // P2P Chat Logic based simply on Sender Role
+      if (message.senderRole == 'entrepreneur') {
+        label = isMe ? "Tú (Emprendedor)" : "Emprendedor";
+        icon = Icons.store;
+        bubbleColor = const Color(0xFF83002A); // Emprendedor Red
+      } else {
+        label = isMe ? "Tú (Cliente)" : "Cliente";
+        icon = Icons.person;
+        bubbleColor = const Color(0xFF455A64); // Blue Grey for Client
+      }
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          // Label above bubble
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
-        ),
-        child: Text(
-          message.text,
-          style: TextStyle(
-            color: isUser ? Colors.white : Colors.black87,
+          const SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end, // Align avatar at bottom
+            children: [
+              if (!isMe) ...[
+                CircleAvatar(
+                  backgroundColor: bubbleColor.withOpacity(0.1),
+                  radius: 18,
+                  child: Icon(icon, color: bubbleColor, size: 20),
+                ),
+                const SizedBox(width: 8),
+              ],
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.all(12.0),
+                  decoration: BoxDecoration(
+                    color: bubbleColor,
+                    borderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(16),
+                      topRight: const Radius.circular(16),
+                      // "Tail" effect
+                      bottomLeft: isMe ? const Radius.circular(16) : Radius.zero,
+                      bottomRight: isMe ? Radius.zero : const Radius.circular(16),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 2,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    message.text,
+                    style: const TextStyle(
+                      color: Colors.white, 
+                      fontSize: 15,
+                      height: 1.3,
+                    ),
+                  ),
+                ),
+              ),
+              if (isMe) ...[
+                const SizedBox(width: 8),
+                CircleAvatar(
+                  backgroundColor: bubbleColor.withOpacity(0.1),
+                  radius: 18,
+                  child: Icon(icon, color: bubbleColor, size: 20),
+                ),
+              ],
+            ],
           ),
-        ),
+        ],
       ),
     );
   }
@@ -88,8 +196,13 @@ class _MessageBubble extends StatelessWidget {
 class _MessageInput extends StatefulWidget {
   final String chatId;
   final bool isAI;
+  final bool isEntrepreneurView;
   
-  const _MessageInput({required this.chatId, required this.isAI});
+  const _MessageInput({
+    required this.chatId, 
+    required this.isAI,
+    this.isEntrepreneurView = false,
+  });
 
   @override
   State<_MessageInput> createState() => _MessageInputState();
@@ -101,12 +214,18 @@ class _MessageInputState extends State<_MessageInput> {
   void _sendMessage() {
     if (_controller.text.trim().isEmpty) return;
     
+    // Determine sender role
+    final String role = widget.isAI 
+        ? 'client' // Default for AI chat
+        : (widget.isEntrepreneurView ? 'entrepreneur' : 'client');
+
     // Check if we are handling the default AI chat or a specific chat
     context.read<ChatProvider>().sendMessageToChat(
       widget.chatId, 
       _controller.text, 
       isUser: true, // Always user sending from UI
-      isAI: widget.isAI
+      isAI: widget.isAI,
+      senderRole: role,
     );
     _controller.clear();
   }

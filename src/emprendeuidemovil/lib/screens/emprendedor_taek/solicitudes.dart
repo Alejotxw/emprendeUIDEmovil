@@ -31,7 +31,7 @@ class _SolicitudesScreenState extends State<SolicitudesScreen> {
     // List of Orders where I am the seller
     final List<Map<String, dynamic>> listaCombinada = orderProvider.orders.map((order) {
             return {
-              'title': 'Pedido: ${order.id}',
+              'title': order.items.any((i) => i.isActualProduct) ? 'Producto de Cliente' : 'Servicio de Cliente',
               'orderId': order.id,
               'tag': order.items.any((i) => i.isActualProduct) ? 'Producto' : 'Servicio',
               'description': order.items.map((i) => i.displayName).join(', '),
@@ -179,6 +179,7 @@ class _SolicitudesScreenState extends State<SolicitudesScreen> {
           description: solicitud['description'],
           isProduct: solicitud['isProduct'] ?? false,
           transferReceiptPath: solicitud['transferReceiptPath'],
+          orderId: solicitud['orderId'],
         ),
       ),
     );

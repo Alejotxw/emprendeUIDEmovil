@@ -24,11 +24,11 @@ class ChatProvider with ChangeNotifier {
 
   // Original sendMessage for AI chat (default)
   Future<void> sendMessage(String text) async {
-    await sendMessageToChat('default', text, isUser: true, isAI: true);
+    await sendMessageToChat('default', text, isUser: true, isAI: true, senderRole: 'client');
   }
 
   // Generic sendMessage for any chat
-  Future<void> sendMessageToChat(String chatId, String text, {required bool isUser, bool isAI = false}) async {
+  Future<void> sendMessageToChat(String chatId, String text, {required bool isUser, bool isAI = false, required String senderRole}) async {
     if (text.trim().isEmpty) return;
 
     if (!_chats.containsKey(chatId)) {
@@ -39,6 +39,7 @@ class ChatProvider with ChangeNotifier {
     _chats[chatId]!.add(ChatMessage(
       text: text,
       isUser: isUser,
+      senderRole: senderRole,
       timestamp: DateTime.now(),
     ));
     
@@ -52,12 +53,14 @@ class ChatProvider with ChangeNotifier {
         _chats[chatId]!.add(ChatMessage(
           text: responseText,
           isUser: false,
+          senderRole: 'ai',
           timestamp: DateTime.now(),
         ));
       } catch (e) {
         _chats[chatId]!.add(ChatMessage(
           text: "Lo siento, tuve un problema al conectar. Inténtalo de nuevo.",
           isUser: false,
+          senderRole: 'ai',
           timestamp: DateTime.now(),
         ));
       } finally {
@@ -71,7 +74,7 @@ class ChatProvider with ChangeNotifier {
       // Simular respuesta del emprendedor/cliente si es necesario para demo
       // if (isUser) {
       //   Future.delayed(Duration(seconds: 1), () {
-      //      _chats[chatId]!.add(ChatMessage(text: "Respuesta automática", isUser: !isUser, timestamp: DateTime.now()));
+      //      _chats[chatId]!.add(ChatMessage(text: "Respuesta automática", isUser: !isUser, senderRole: senderRole == 'client' ? 'entrepreneur' : 'client', timestamp: DateTime.now()));
       //      notifyListeners();
       //   });
       // }

@@ -13,8 +13,8 @@ class DetalleSolicitudScreen extends StatefulWidget {
   final String paymentMethod; // 'fisico' or 'transferencia'
   final String description;
   final String? transferReceiptPath;
-
-   final bool isProduct;
+  final bool isProduct;
+  final String? orderId;
  
    const DetalleSolicitudScreen({
      super.key,
@@ -26,19 +26,18 @@ class DetalleSolicitudScreen extends StatefulWidget {
      this.description = '',
      this.isProduct = false,
      this.transferReceiptPath,
+     this.orderId,
    });
 
   // Helper to generate a consistent chat ID. 
-  // Ideally, 'title' would be the order ID (e.g., 'Pedido: ORD-2024-101'). 
-  // If not, we fallback to title, which might collide if titles aren't unique.
-  // We assume 'title' for orders is "Pedido: ID".
   String get _chatId {
+      if (orderId != null && orderId!.isNotEmpty) {
+        return 'order-$orderId';
+      }
       if (title.startsWith("Pedido: ")) {
-          // Extract ID part: "Pedido: ORD-..." -> "order-ORD-..."
-          // The title is "Pedido: ${order.id}"
           return 'order-${title.replaceAll("Pedido: ", "")}';
       }
-      return 'service-${title.hashCode}'; // Fallback for pure services not yet orders?
+      return 'service-${title.hashCode}'; 
   }
 
   @override
@@ -516,6 +515,7 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
                       builder: (_) => ChatScreen(
                         chatId: widget._chatId, 
                         title: 'Chat con Cliente',
+                        isEntrepreneurView: true,
                       ),
                     ),
                   );
@@ -551,8 +551,12 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
                         );
                       }
                       
-                      if (widget.title.startsWith("Pedido: ")) {
-                        String orderId = widget.title.replaceAll("Pedido: ", "");
+                      String orderId = widget.orderId ?? '';
+                      if (orderId.isEmpty && widget.title.startsWith("Pedido: ")) {
+                        orderId = widget.title.replaceAll("Pedido: ", "");
+                      }
+
+                      if (orderId.isNotEmpty) {
                         try {
                           Provider.of<OrderProvider>(context, listen: false)
                               .updateOrderDeliveryDate(orderId, fullDate);
@@ -632,21 +636,20 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
                              // O mejor, necesitaremos pasar el orderId a este screen.
                              // Por ahora usemos la lógica de extracción del título que ya tenemos en _chatId pero para el ID puro
                             
-                             String orderId = '';
-                             if (widget.title.startsWith("Pedido: ")) {
+                             // Extraer ID de la orden
+                             String orderId = widget.orderId ?? '';
+                             if (orderId.isEmpty && widget.title.startsWith("Pedido: ")) {
                                 orderId = widget.title.replaceAll("Pedido: ", "");
-                                
+                             }
+                             
+                             if (orderId.isNotEmpty) {
                                 // Actualizar en Provider
-                                // Necesitamos acceso al OrderProvider aquí. 
-                                // Ojo: Este screen puede ser usado para servicios que no son Orders.
-                                // Verificamos si es Product/Order antes de intentar actualizar.
                                 if (widget.isProduct) {
                                    try {
-                                     // Importante: asegúrate de importar Provider al inicio del archivo si no está
                                       Provider.of<OrderProvider>(context, listen: false)
                                         .updateOrderDeliveryDate(orderId, fullDate);
                                    } catch (e) {
-                                     print("Error updating delivery date: $e");
+                                     debugPrint("Error updating delivery date: $e");
                                    }
                                 }
                              }
