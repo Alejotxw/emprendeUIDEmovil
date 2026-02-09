@@ -6,6 +6,7 @@ import '../models/user_model.dart';
 import '../providers/ratings_provider.dart';
 import '../widgets/contact_methods.dart';
 import 'emprendedor_profile_screen.dart';
+import '../../providers/review_provider.dart';
 
 class EmprendimientoProfileScreen extends StatefulWidget {
   final Map<String, dynamic> emprendimiento;
@@ -18,10 +19,12 @@ class EmprendimientoProfileScreen extends StatefulWidget {
   });
 
   @override
-  State<EmprendimientoProfileScreen> createState() => _EmprendimientoProfileScreenState();
+  State<EmprendimientoProfileScreen> createState() =>
+      _EmprendimientoProfileScreenState();
 }
 
-class _EmprendimientoProfileScreenState extends State<EmprendimientoProfileScreen> {
+class _EmprendimientoProfileScreenState
+    extends State<EmprendimientoProfileScreen> {
   List<ContactMethodModel> _contactMethods = [];
   Map<String, dynamic>? _ratingStats;
   bool _isLoadingStats = true;
@@ -35,7 +38,8 @@ class _EmprendimientoProfileScreenState extends State<EmprendimientoProfileScree
 
   void _loadContactMethods() {
     // Convertir los métodos de contacto del emprendimiento a objetos ContactMethodModel
-    final contactData = widget.emprendimiento['contactMethods'] as List<dynamic>? ?? [];
+    final contactData =
+        widget.emprendimiento['contactMethods'] as List<dynamic>? ?? [];
 
     setState(() {
       _contactMethods = contactData.map((contact) {
@@ -59,7 +63,10 @@ class _EmprendimientoProfileScreenState extends State<EmprendimientoProfileScree
   }
 
   Future<void> _loadRatingStats() async {
-    final ratingsProvider = Provider.of<RatingsProvider>(context, listen: false);
+    final ratingsProvider = Provider.of<RatingsProvider>(
+      context,
+      listen: false,
+    );
     final stats = await ratingsProvider.getRatingStats(widget.emprendedor.id);
     if (mounted) {
       setState(() {
@@ -161,11 +168,7 @@ class _EmprendimientoProfileScreenState extends State<EmprendimientoProfileScree
               color: Colors.grey[300],
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
-              Icons.business,
-              size: 40,
-              color: Colors.grey,
-            ),
+            child: const Icon(Icons.business, size: 40, color: Colors.grey),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -182,7 +185,10 @@ class _EmprendimientoProfileScreenState extends State<EmprendimientoProfileScree
                 ),
                 const SizedBox(height: 4),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFA600).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
@@ -238,9 +244,18 @@ class _EmprendimientoProfileScreenState extends State<EmprendimientoProfileScree
             ),
           ),
           const SizedBox(height: 16),
-          _buildDetailRow('Categoría', widget.emprendimiento['category'] ?? 'No especificada'),
-          _buildDetailRow('Estado', widget.emprendimiento['status'] ?? 'Activo'),
-          _buildDetailRow('Fecha de creación', _formatDate(widget.emprendimiento['createdAt'])),
+          _buildDetailRow(
+            'Categoría',
+            widget.emprendimiento['category'] ?? 'No especificada',
+          ),
+          _buildDetailRow(
+            'Estado',
+            widget.emprendimiento['status'] ?? 'Activo',
+          ),
+          _buildDetailRow(
+            'Fecha de creación',
+            _formatDate(widget.emprendimiento['createdAt']),
+          ),
         ],
       ),
     );
@@ -277,10 +292,7 @@ class _EmprendimientoProfileScreenState extends State<EmprendimientoProfileScree
           if (services.isEmpty)
             const Text(
               'No hay servicios registrados',
-              style: TextStyle(
-                color: Colors.grey,
-                fontStyle: FontStyle.italic,
-              ),
+              style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
             )
           else
             ...services.map((service) => _buildServiceItem(service)),
@@ -315,10 +327,7 @@ class _EmprendimientoProfileScreenState extends State<EmprendimientoProfileScree
                 const SizedBox(height: 4),
                 Text(
                   serviceMap['description'] ?? 'Sin descripción',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -337,7 +346,8 @@ class _EmprendimientoProfileScreenState extends State<EmprendimientoProfileScree
   }
 
   Widget _buildScheduleSection() {
-    final schedule = widget.emprendimiento['schedule'] as Map<String, dynamic>? ?? {};
+    final schedule =
+        widget.emprendimiento['schedule'] as Map<String, dynamic>? ?? {};
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -450,11 +460,7 @@ class _EmprendimientoProfileScreenState extends State<EmprendimientoProfileScree
                   color: Colors.grey[300],
                   borderRadius: BorderRadius.circular(25),
                 ),
-                child: const Icon(
-                  Icons.person,
-                  size: 25,
-                  color: Colors.grey,
-                ),
+                child: const Icon(Icons.person, size: 25, color: Colors.grey),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -471,10 +477,7 @@ class _EmprendimientoProfileScreenState extends State<EmprendimientoProfileScree
                     ),
                     Text(
                       widget.emprendedor.email,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -485,7 +488,9 @@ class _EmprendimientoProfileScreenState extends State<EmprendimientoProfileScree
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => EmprendedorProfileScreen(emprendedor: widget.emprendedor),
+                      builder: (context) => EmprendedorProfileScreen(
+                        emprendedor: widget.emprendedor,
+                      ),
                     ),
                   );
                 },
@@ -560,10 +565,7 @@ class _EmprendimientoProfileScreenState extends State<EmprendimientoProfileScree
               const SizedBox(width: 8),
               Text(
                 '($total reseñas)',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
             ],
           ),
@@ -592,10 +594,7 @@ class _EmprendimientoProfileScreenState extends State<EmprendimientoProfileScree
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black,
-              ),
+              style: const TextStyle(fontSize: 14, color: Colors.black),
             ),
           ),
         ],

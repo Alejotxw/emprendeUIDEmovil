@@ -9,7 +9,6 @@ POST   /reviews
 GET    /reviews/service/:serviceId
 GET    /reviews/user/:userId
 GET    /reviews/owner/:ownerId
-GET    /reviews/average/:serviceId
 */
 
 class ReviewModel {
@@ -38,7 +37,6 @@ class ReviewModel {
 
     final createdAt = json['createdAt'];
 
-    // Firestore Timestamp o string
     if (createdAt is String) {
       parsedDate = DateTime.tryParse(createdAt) ?? DateTime.now();
     } else if (createdAt is Map && createdAt['_seconds'] != null) {
@@ -50,7 +48,7 @@ class ReviewModel {
     }
 
     return ReviewModel(
-      id: json['id'],
+      id: json['id'] ?? '',
       serviceId: json['serviceId'],
       ownerId: json['ownerId'],
       userId: json['userId'],
@@ -67,12 +65,35 @@ class ReviewProvider with ChangeNotifier {
 
   List<ReviewModel> _reviews = [];
 
-  double _average = 0;
-  int _total = 0;
-
   List<ReviewModel> get reviews => _reviews;
-  double get average => _average;
-  int get total => _total;
+
+  // -----------------------
+  // Total local
+  // -----------------------
+  int get total => _reviews.length;
+
+  // -----------------------
+  // Promedio local
+  // -----------------------
+  double get average {
+    if (_reviews.isEmpty) return 0.0;
+
+    double sum = 0;
+    for (final r in _reviews) {
+      sum += r.rating;
+    }
+
+    return sum / _reviews.length;
+  }
+
+  // =================================================
+  // ESTE MÉTODO ES EL QUE TE FALTABA
+  // para que no falle detail_screen
+  // =================================================
+  Future<void> fetchAverage(String serviceId) async {
+    // simplemente recargamos la lista
+    await fetchReviewsByService(serviceId);
+  }
 
   // ===============================
   // GET /reviews/service/:serviceId
@@ -138,28 +159,6 @@ class ReviewProvider with ChangeNotifier {
   }
 
   // ===============================
-  // GET /reviews/average/:serviceId
-  // ===============================
-  Future<void> fetchAverage(String serviceId) async {
-    try {
-      final url = Uri.parse("$_baseUrl/reviews/average/$serviceId");
-
-      final response = await http.get(url);
-
-      if (response.statusCode != 200) return;
-
-      final data = json.decode(response.body);
-
-      _average = (data['average'] as num).toDouble();
-      _total = data['total'];
-
-      notifyListeners();
-    } catch (e) {
-      debugPrint("fetchAverage error: $e");
-    }
-  }
-
-  // ===============================
   // POST /reviews
   // ===============================
   Future<bool> addReview({
@@ -191,9 +190,8 @@ class ReviewProvider with ChangeNotifier {
         return false;
       }
 
-      // ✅ refrescar datos después de crear
+      // recargar lista
       await fetchReviewsByService(serviceId);
-      await fetchAverage(serviceId);
 
       return true;
     } catch (e) {
@@ -202,14 +200,11 @@ class ReviewProvider with ChangeNotifier {
     }
   }
 
-  // =================================================
-  // Helpers
-  // =================================================
-
+  // -----------------------
+  // Limpiar
+  // -----------------------
   void clear() {
     _reviews = [];
-    _average = 0;
-    _total = 0;
     notifyListeners();
   }
 }

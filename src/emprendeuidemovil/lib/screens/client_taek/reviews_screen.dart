@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../providers/review_provider.dart';
 import '../../providers/service_provider.dart';
@@ -12,20 +13,28 @@ class ReviewsScreen extends StatefulWidget {
 }
 
 class _ReviewsScreenState extends State<ReviewsScreen> {
-  // ⚠️ por ahora fijo, luego lo sacas de tu auth
-  final String userId = "TEMP_USER_ID";
+  String? _userId;
 
   @override
   void initState() {
     super.initState();
 
+    final user = FirebaseAuth.instance.currentUser;
+    _userId = user?.uid;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      Provider.of<ReviewProvider>(
-        context,
-        listen: false,
-      ).fetchReviewsByUser(userId);
+
+      if (_userId != null) {
+        context.read<ReviewProvider>().fetchReviewsByUser(_userId!);
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    Provider.of<ReviewProvider>(context, listen: false).clear();
+    super.dispose();
   }
 
   @override
@@ -38,10 +47,14 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
       ),
       body: Consumer<ReviewProvider>(
         builder: (context, reviewProvider, child) {
+          if (_userId == null) {
+            return const Center(child: Text('Usuario no autenticado'));
+          }
+
           final reviews = reviewProvider.reviews;
 
           if (reviews.isEmpty) {
-            return const Center(child: Text("No has realizado reseñas aún."));
+            return const Center(child: Text('No has realizado reseñas aún.'));
           }
 
           return ListView.builder(
@@ -50,10 +63,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
             itemBuilder: (context, index) {
               final review = reviews[index];
 
-              final servicesProvider = Provider.of<ServiceProvider>(
-                context,
-                listen: false,
-              );
+              final servicesProvider = context.read<ServiceProvider>();
 
               final service = servicesProvider.allServices
                   .where((s) => s.id == review.serviceId)
@@ -61,7 +71,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
 
               final serviceName = service.isNotEmpty
                   ? service.first.name
-                  : review.serviceId;
+                  : "Servicio eliminado";
 
               return Card(
                 elevation: 4,
@@ -74,18 +84,16 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // ---- ID del emprendimiento (por ahora)
                       Text(
-                        "Emprendimiento: $serviceName",
+                        serviceName,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                          fontSize: 15,
                         ),
                       ),
 
                       const SizedBox(height: 8),
 
-                      // ---- estrellas
                       Row(
                         children: List.generate(5, (starIndex) {
                           return Icon(
@@ -93,13 +101,13 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
                                 ? Icons.star
                                 : Icons.star_border,
                             color: Colors.amber,
+                            size: 20,
                           );
                         }),
                       ),
 
                       const SizedBox(height: 8),
 
-                      // ---- comentario
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(12),
@@ -131,7 +139,6 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
 
                       const SizedBox(height: 8),
 
-                      // ---- fecha
                       Text(
                         "Fecha: ${review.date.toLocal().toString().substring(0, 16)}",
                         style: TextStyle(

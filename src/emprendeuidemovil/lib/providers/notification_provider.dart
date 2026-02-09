@@ -1,35 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/notification_provider.dart';
 
-// 1. La clase del modelo DEBE existir
-class NotificationModel {
-  final String title;
-  final String message;
-  final DateTime timestamp;
+class NotificationsScreen extends StatelessWidget {
+  const NotificationsScreen({super.key});
 
-  NotificationModel({
-    required this.title, 
-    required this.message, 
-    required this.timestamp
-  });
-}
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Notificaciones'),
+        backgroundColor: const Color(0xFFC8102E),
+        foregroundColor: Colors.white,
+      ),
+      body: Consumer<NotificationProvider>(
+        builder: (_, provider, __) {
+          if (provider.notifications.isEmpty) {
+            return const Center(child: Text('No tienes notificaciones'));
+          }
 
-class NotificationProvider extends ChangeNotifier {
-  // MUY IMPORTANTE: Asegúrate de que diga <NotificationModel> y no <String> o nada
-  final List<NotificationModel> _notifications = [];
+          return ListView.builder(
+            itemCount: provider.notifications.length,
+            itemBuilder: (_, i) {
+              final n = provider.notifications[i];
 
-  List<NotificationModel> get notifications => _notifications;
-
-  void addNotification(String title, String message) {
-    _notifications.insert(0, NotificationModel(
-      title: title,
-      message: message,
-      timestamp: DateTime.now(),
-    ));
-    notifyListeners();
-  }
-
-  void clearNotifications() {
-    _notifications.clear();
-    notifyListeners();
+              return ListTile(
+                leading: const Icon(Icons.notifications),
+                title: Text(n.title),
+                subtitle: Text(n.message),
+                trailing: Text(
+                  '${n.timestamp.hour.toString().padLeft(2, '0')}:${n.timestamp.minute.toString().padLeft(2, '0')}',
+                  style: const TextStyle(fontSize: 12),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
   }
 }

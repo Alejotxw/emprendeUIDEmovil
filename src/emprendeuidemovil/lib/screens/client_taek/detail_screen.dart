@@ -4,6 +4,7 @@ import '../../models/service_model.dart';
 import '../../providers/cart_provider.dart';
 import '../../screens/perfilpublico.dart';
 import '../../providers/review_provider.dart';
+import 'ratings_screen.dart';
 
 import 'dart:io';
 
@@ -29,10 +30,12 @@ class _DetailScreenState extends State<DetailScreen> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<ReviewProvider>(
+      final reviewProvider = Provider.of<ReviewProvider>(
         context,
         listen: false,
-      ).fetchAverage(widget.service.id);
+      );
+
+      reviewProvider.fetchReviewsByService(widget.service.id);
     });
   }
 
@@ -175,6 +178,35 @@ class _DetailScreenState extends State<DetailScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
+                      const SizedBox(height: 12),
+
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          icon: const Icon(Icons.star),
+                          label: const Text('Calificar este servicio'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFFC8102E),
+                            side: const BorderSide(color: Color(0xFFC8102E)),
+                          ),
+                          onPressed: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    RatingsScreen(service: widget.service),
+                              ),
+                            );
+
+                            // 🔴 cuando regresa del rating → recargar
+                            if (result == true && mounted) {
+                              context
+                                  .read<ReviewProvider>()
+                                  .fetchReviewsByService(widget.service.id);
+                            }
+                          },
+                        ),
+                      ),
 
                       const Text(
                         'Información',

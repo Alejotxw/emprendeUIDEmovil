@@ -13,7 +13,9 @@ class RatingsProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  // Cargar calificaciones de un emprendedor
+  // -----------------------------
+  // Cargar calificaciones
+  // -----------------------------
   Future<void> loadRatings(String emprendedorId) async {
     _isLoading = true;
     _error = null;
@@ -30,27 +32,48 @@ class RatingsProvider with ChangeNotifier {
     }
   }
 
-  // Obtener promedio de calificaciones
-  Future<double> getAverageRating(String emprendedorId) async {
-    return await _ratingsService.getAverageRating(emprendedorId);
-  }
+  // -----------------------------
+  // Total de calificaciones
+  // -----------------------------
+  int get totalRatings => _ratings.length;
 
-  // Obtener estadísticas de calificaciones
-  Future<Map<String, dynamic>> getRatingStats(String emprendedorId) async {
-    return await _ratingsService.getRatingStats(emprendedorId);
-  }
+  // -----------------------------
+  // Promedio calculado LOCALMENTE
+  // -----------------------------
+  double get averageRating {
+    if (_ratings.isEmpty) return 0.0;
 
-  // Agregar nueva calificación
-  Future<bool> addRating(RatingModel rating) async {
-    final success = await _ratingsService.addRating(rating);
-    if (success) {
-      // Recargar las calificaciones después de agregar una nueva
-      await loadRatings(rating.emprendedorId);
+    double total = 0;
+
+    for (final r in _ratings) {
+      total += r.rating;
     }
-    return success;
+
+    return total / _ratings.length;
   }
 
+  // -----------------------------
+  // Agregar calificación
+  // -----------------------------
+  Future<bool> addRating(RatingModel rating) async {
+    try {
+      final success = await _ratingsService.addRating(rating);
+
+      if (success) {
+        await loadRatings(rating.emprendedorId);
+      }
+
+      return success;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // -----------------------------
   // Limpiar estado
+  // -----------------------------
   void clearState() {
     _ratings = [];
     _error = null;
