@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
+import 'dart:convert';
 import 'package:provider/provider.dart';
 import '../models/service_model.dart';
 import '../providers/review_provider.dart';
@@ -27,18 +28,25 @@ class PerfilPublicoScreen extends StatelessWidget {
         builder: (context, snapshot) {
           String entrepreneurName = 'Emprendedor UIDE';
           String entrepreneurPhone = 'No disponible';
+          String entrepreneurEmail = 'No disponible';
+          String? entrepreneurImagePath;
+          bool showEmail = true;
+          bool showPhone = true;
           
           if (snapshot.hasData && snapshot.data != null && snapshot.data!.exists) {
-
             final data = snapshot.data!.data() as Map<String, dynamic>;
             entrepreneurName = data['nombre'] ?? data['name'] ?? entrepreneurName;
             entrepreneurPhone = data['phone'] ?? entrepreneurPhone;
+            entrepreneurEmail = data['email'] ?? entrepreneurEmail;
+            entrepreneurImagePath = data['imagePath'];
+            showEmail = data['showEmail'] ?? true;
+            showPhone = data['showPhone'] ?? true;
           }
 
           return SingleChildScrollView(
             child: Column(
               children: [
-                _buildHeader(context, entrepreneurName),
+                _buildHeader(context, entrepreneurName, entrepreneurImagePath),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -65,6 +73,20 @@ class PerfilPublicoScreen extends StatelessWidget {
                         title: 'Ubicación Física',
                         content: 'Loja Ecuador (Campus UIDE)',
                       ),
+                      if (showPhone && entrepreneurPhone != 'No disponible')
+                        _buildInfoCard(
+                          context,
+                          icon: Icons.phone,
+                          title: 'Teléfono',
+                          content: entrepreneurPhone,
+                        ),
+                      if (showEmail && entrepreneurEmail != 'No disponible')
+                        _buildInfoCard(
+                          context,
+                          icon: Icons.email,
+                          title: 'Correo Electrónico',
+                          content: entrepreneurEmail,
+                        ),
                       const SizedBox(height: 16),
                       _buildSectionTitle('Reseñas'),
                       _buildReviewsSection(),
@@ -81,7 +103,7 @@ class PerfilPublicoScreen extends StatelessWidget {
 
 
   // Encabezado con foto y nombre
-  Widget _buildHeader(BuildContext context, String entrepreneurName) {
+  Widget _buildHeader(BuildContext context, String entrepreneurName, String? entrepreneurImagePath) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 30),
@@ -97,9 +119,9 @@ class PerfilPublicoScreen extends StatelessWidget {
             child: CircleAvatar(
               radius: 46,
               backgroundColor: const Color(0xFF83002A),
-              backgroundImage: _getImage(service.imageUrl),
-              child: service.imageUrl.isEmpty
-                  ? const Icon(Icons.store, color: Colors.white, size: 40)
+              backgroundImage: _getImage(entrepreneurImagePath ?? service.imageUrl),
+              child: (entrepreneurImagePath == null && service.imageUrl.isEmpty)
+                  ? const Icon(Icons.person, color: Colors.white, size: 40)
                   : null,
             ),
           ),
@@ -126,6 +148,16 @@ class PerfilPublicoScreen extends StatelessWidget {
   ImageProvider _getImage(String imageUrl) {
     if (imageUrl.isEmpty || imageUrl.contains('placeholder')) {
       return const AssetImage('assets/LOGO.png');
+    }
+
+    if (imageUrl.startsWith('data:image')) {
+      try {
+        final base64String = imageUrl.split(',').last;
+        return MemoryImage(base64Decode(base64String));
+      } catch (e) {
+        print("Error decoding base64 image: $e");
+        return const AssetImage('assets/LOGO.png');
+      }
     }
     
     // Check if it is a file path

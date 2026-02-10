@@ -1,10 +1,10 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:emprendeuidemovil/providers/settings_provider.dart';
 import 'package:emprendeuidemovil/providers/user_profile_provider.dart'; // Added
 import 'package:emprendeuidemovil/screens/emprendedor_taek/edit_perfil_emprendedor.dart';
-import 'package:emprendeuidemovil/screens/emprendedor_taek/privacidad_seguridad.dart';
 import 'package:emprendeuidemovil/screens/emprendedor_taek/privacidad_seguridad.dart';
 
 class ConfiguracionEmprendedorScreen extends StatefulWidget {
@@ -145,8 +145,7 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
                             builder: (context) => EditPerfilEmprendedorScreen(
                               currentName: userProfile.name,
                               currentPhone: userProfile.phone,
-                              // We can pass image too if needed, but the edit screen should probably just pick a new one or show current.
-                              // Let's pass the path for consistency if we update the EditScreen to use Provider too or use initial values.
+                              currentImagePath: userProfile.imagePath,
                             ),
                           ),
                         );
@@ -177,7 +176,7 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
                       color: const Color(0xFF83002A),
                       image: userProfile.imagePath != null
                           ? DecorationImage(
-                              image: FileImage(File(userProfile.imagePath!)),
+                              image: _getProfileImage(userProfile.imagePath!),
                               fit: BoxFit.cover,
                             )
                           : null,
@@ -471,5 +470,19 @@ class _ConfiguracionEmprendedorScreenState extends State<ConfiguracionEmprendedo
         ],
       ),
     );
+  }
+  ImageProvider _getProfileImage(String imagePath) {
+    if (imagePath.startsWith('data:image')) {
+      final base64String = imagePath.split(',').last;
+      return MemoryImage(base64Decode(base64String));
+    }
+    if (imagePath.startsWith('http')) {
+      return NetworkImage(imagePath);
+    }
+    final file = File(imagePath);
+    if (file.existsSync()) {
+      return FileImage(file);
+    }
+    return const AssetImage('assets/LOGO.png');
   }
 }

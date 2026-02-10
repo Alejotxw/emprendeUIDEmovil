@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:emprendeuidemovil/providers/user_profile_provider.dart';
 
 class PrivacidadSeguridadScreen extends StatefulWidget {
   const PrivacidadSeguridadScreen({super.key});
@@ -8,11 +10,10 @@ class PrivacidadSeguridadScreen extends StatefulWidget {
 }
 
 class _PrivacidadSeguridadScreenState extends State<PrivacidadSeguridadScreen> {
-  bool _showEmail = true;
-  bool _showPhone = true;
-
   @override
   Widget build(BuildContext context) {
+    final profileProvider = context.watch<UserProfileProvider>();
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
@@ -28,7 +29,7 @@ class _PrivacidadSeguridadScreenState extends State<PrivacidadSeguridadScreen> {
                    const SizedBox(height: 24),
 
                    // 2. Privacidad de perfil
-                   _buildProfilePrivacyCard(),
+                   _buildProfilePrivacyCard(profileProvider),
                    const SizedBox(height: 40),
 
                    // 3. Footer Text
@@ -162,7 +163,7 @@ class _PrivacidadSeguridadScreenState extends State<PrivacidadSeguridadScreen> {
     );
   }
 
-  Widget _buildProfilePrivacyCard() {
+  Widget _buildProfilePrivacyCard(UserProfileProvider provider) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -197,13 +198,11 @@ class _PrivacidadSeguridadScreenState extends State<PrivacidadSeguridadScreen> {
                 ),
               ),
               Switch(
-                value: _showEmail,
+                value: provider.showEmail,
                 activeColor: Colors.white,
                 activeTrackColor: const Color(0xFF83002A),
                 onChanged: (val) {
-                  setState(() {
-                    _showEmail = val;
-                  });
+                  provider.updateProfile(showEmail: val);
                 },
               )
             ],
@@ -224,13 +223,11 @@ class _PrivacidadSeguridadScreenState extends State<PrivacidadSeguridadScreen> {
                 ),
               ),
               Switch(
-                value: _showPhone,
+                value: provider.showPhone,
                 activeColor: Colors.white,
                 activeTrackColor: const Color(0xFF83002A),
                 onChanged: (val) {
-                  setState(() {
-                    _showPhone = val;
-                  });
+                  provider.updateProfile(showPhone: val);
                 },
               )
             ],
