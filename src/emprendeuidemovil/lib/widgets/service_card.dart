@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
@@ -38,13 +39,22 @@ class ServiceCard extends StatelessWidget {
         }
         
         ImageProvider? getImageProvider(String imageUrl) {
-            // Logic to determine image provider
             if (imageUrl.isEmpty || imageUrl.contains('placeholder')) return null;
+            
+            // Base64
+            if (imageUrl.length > 200 && !imageUrl.startsWith('http')) {
+               try {
+                 return MemoryImage(base64Decode(imageUrl));
+               } catch (e) {
+                 // ignore
+               }
+            }
+
             final file = File(imageUrl);
             if (file.existsSync()) return FileImage(file);
             if (imageUrl.startsWith('http')) return NetworkImage(imageUrl);
             if (imageUrl.startsWith('assets/')) return AssetImage(imageUrl);
-            return null; // Fallback to icon if path is invalid/not found
+            return null;
         }
 
         final imageProvider = getImageProvider(service.imageUrl);

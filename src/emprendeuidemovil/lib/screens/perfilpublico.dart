@@ -65,17 +65,9 @@ class PerfilPublicoScreen extends StatelessWidget {
                         title: 'Ubicación Física',
                         content: 'Loja Ecuador (Campus UIDE)',
                       ),
-                      _buildInfoCard(
-                        context,
-                        icon: Icons.phone,
-                        title: 'Teléfono',
-                        content: entrepreneurPhone,
-                      ),
                       const SizedBox(height: 16),
                       _buildSectionTitle('Reseñas'),
                       _buildReviewsSection(),
-                      const SizedBox(height: 24),
-                      _buildSocialMediaButtons(),
                     ],
                   ),
                 ),
@@ -195,10 +187,14 @@ class PerfilPublicoScreen extends StatelessWidget {
   }
 
   // Sección de Reseñas
-  Widget _buildReviewsSection() {
+   Widget _buildReviewsSection() {
     return Consumer<ReviewProvider>(
       builder: (context, reviewProvider, child) {
-         final reviews = reviewProvider.reviews.where((r) => r.serviceName == service.name || r.serviceName == service.id).toList();
+         final reviews = reviewProvider.reviews.where((r) {
+             return r.serviceId == service.id || 
+                    r.serviceName == service.name || 
+                    r.serviceName == service.id;
+         }).toList();
 
          if (reviews.isEmpty) {
            return Container(
@@ -250,29 +246,6 @@ class PerfilPublicoScreen extends StatelessWidget {
            )).toList(),
          );
       },
-    );
-  }
-
-  // Botones de Redes Sociales
-  Widget _buildSocialMediaButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _socialIcon(Icons.phone, Colors.green),
-      ],
-    );
-  }
-
-  Widget _socialIcon(IconData icon, Color color) {
-    return CircleAvatar(
-      backgroundColor: color.withOpacity(0.1),
-      radius: 25,
-      child: IconButton(
-        icon: Icon(icon, color: color),
-        onPressed: () {
-          // Aquí podrías usar url_launcher en el futuro
-        },
-      ),
     );
   }
 }

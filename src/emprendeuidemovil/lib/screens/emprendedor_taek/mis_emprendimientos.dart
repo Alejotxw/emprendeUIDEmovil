@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:emprendeuidemovil/screens/emprendedor_taek/form_emprendimiento.dart';
 import '../../providers/service_provider.dart';
+import '../../providers/order_provider.dart';
 import '../../models/service_model.dart';
 
 class MisEmprendimientosScreen extends StatefulWidget {
@@ -40,7 +42,34 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
         }),
       ],
       'transferData': service.transferData?.toMap(),
+      'scheduleDays': service.scheduleDays,
+      'openTime': service.openTime,
+      'closeTime': service.closeTime,
     };
+  }
+
+  ImageProvider? _getImageProvider(String? imagePath) {
+    if (imagePath == null || imagePath.isEmpty) return null;
+    
+    if (imagePath.startsWith('http')) {
+      return NetworkImage(imagePath);
+    }
+    
+    if (imagePath.length > 200) {
+      try {
+        return MemoryImage(base64Decode(imagePath));
+      } catch (e) {
+        debugPrint('Error decoding base64 image: $e');
+        return null;
+      }
+    }
+    
+    final file = File(imagePath);
+    if (file.existsSync()) {
+      return FileImage(file);
+    }
+    
+    return null;
   }
 
   @override
@@ -106,9 +135,18 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
                            basePrice = allPrices.reduce((a, b) => a < b ? a : b);
                          }
 
-                         final currentUser = Provider.of<ServiceProvider>(context, listen: false).auth.currentUser;
+                         final serviceProvider = Provider.of<ServiceProvider>(context, listen: false);
+                         final currentUser = serviceProvider.auth.currentUser;
+
+                         if (currentUser == null) {
+                           ScaffoldMessenger.of(context).showSnackBar(
+                             const SnackBar(content: Text('Error: No has iniciado sesión. Reinicia la aplicación.')),
+                           );
+                           return;
+                         }
+
                          final newService = ServiceModel(
-                           id: DateTime.now().millisecondsSinceEpoch.toString(),
+                           id: '', // Let Firestore generate the ID or ServiceProvider handle it
                            name: data['title'],
                            subtitle: data['subtitle'],
                            category: data['category'],
@@ -118,14 +156,23 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
                            imageUrl: data['imagePath'] ?? '',
                            location: data['location'] ?? 'Sede Loja Universidad Internacional del Ecuador',
                            isMine: true,
-                           ownerId: currentUser?.uid ?? '',
+                           ownerId: currentUser.uid,
                            services: servicesList,
                            products: productsList,
                            transferData: data['transferData'] != null ? TransferData.fromMap(data['transferData']) : null,
+                           scheduleDays: List<String>.from(data['scheduleDays'] ?? []),
+                           openTime: data['openTime'] ?? '09:00',
+                           closeTime: data['closeTime'] ?? '18:00',
                          );
 
 
-                         serviceProvider.addService(newService);
+                         await serviceProvider.addService(newService);
+                         
+                         if (context.mounted) {
+                           ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Emprendimiento creado exitosamente')),
+                           );
+                         }
                       }
                     }
                   },
@@ -217,11 +264,33 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
                                       services: servicesList,
                                       products: productsList,
                                       transferData: data['transferData'] != null ? TransferData.fromMap(data['transferData']) : service.transferData,
+                                      scheduleDays: List<String>.from(data['scheduleDays'] ?? []),
+                                      openTime: data['openTime'] ?? service.openTime,
+                                      closeTime: data['closeTime'] ?? service.closeTime,
                                     );
-                                    serviceProvider.updateService(updatedService);
-                                 } else if (result['action'] == 'delete') {
-                                    serviceProvider.deleteService(service.id);
-                                 }
+                                    
+                                    await serviceProvider.updateService(updatedService);
+                                    
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Emprendimiento actualizado exitosamente')),
+                                      );
+                                    }
+                                  } else if (result['action'] == 'delete') {
+                                    final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+                                    
+                                    // Delete the service
+                                    await serviceProvider.deleteService(service.id);
+                                    
+                                    // Also delete associated orders/requests
+                                    await orderProvider.deleteOrdersForService(service.id);
+                                    
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Emprendimiento y sus solicitudes eliminados')),
+                                      );
+                                    }
+                                  }
                               }
                           },
                         ),
@@ -246,6 +315,8 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
     String? imagePath,
     required VoidCallback onPressed,
   }) {
+    final imageProvider = _getImageProvider(imagePath);
+
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
@@ -262,11 +333,9 @@ class _MisEmprendimientosScreenState extends State<MisEmprendimientosScreen> {
             decoration: BoxDecoration(
               color: const Color(0xFF83002A), // Placeholder color
               borderRadius: BorderRadius.circular(16),
-              image: (imagePath != null && imagePath.isNotEmpty)
+              image: imageProvider != null
                   ? DecorationImage(
-                      image: imagePath.startsWith('http')
-                          ? NetworkImage(imagePath) as ImageProvider
-                          : FileImage(File(imagePath)),
+                      image: imageProvider,
                       fit: BoxFit.cover,
                     )
                   : null,

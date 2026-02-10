@@ -6,6 +6,7 @@ import '../../models/cart_item.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
+import 'dart:convert'; // Importar dart:convert para base64
 
 class PaymentScreen extends StatefulWidget {
   final bool isServicePayment;
@@ -30,42 +31,21 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
   }
 
-  Future<String?> _uploadReceipt(File image) async {
+  Future<String?> _convertReceiptToBase64(File image) async {
     try {
       setState(() => _isUploading = true);
       
-      // Try with the traditional .appspot.com bucket which is often more reliable
-      // than the newer .firebasestorage.app domain in some SDK versions.
-      final bucketName = "emprende-uide-movil.appspot.com";
-      print("Intentando subir a bucket: $bucketName");
+      final bytes = await image.readAsBytes();
+      String base64Image = base64Encode(bytes);
       
-      final storage = FirebaseStorage.instanceFor(bucket: bucketName);
-      final fileName = 'receipt_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final ref = storage.ref().child('transfer_receipts').child(fileName);
+      // Retornar en formato data URI para facilitar detección en otros lados
+      return 'data:image/jpeg;base64,$base64Image';
 
-      print("Intentando subir comprobante a ref: ${ref.fullPath}");
-      
-      final metadata = SettableMetadata(
-        contentType: 'image/jpeg',
-      );
-
-      UploadTask uploadTask = ref.putFile(image, metadata);
-      
-      // Monitor progress
-      uploadTask.snapshotEvents.listen((event) {
-        double progress = 100 * (event.bytesTransferred / event.totalBytes);
-        print("Progreso subida comprobante: ${progress.toStringAsFixed(2)}%");
-      });
-
-      TaskSnapshot snapshot = await uploadTask;
-      final String downloadUrl = await snapshot.ref.getDownloadURL();
-      print("Comprobante subido con éxito: $downloadUrl");
-      return downloadUrl;
     } catch (e) {
-      print("Error detallado subiendo comprobante: $e");
+      print("Error convirtiendo comprobante a base64: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al subir el comprobante: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Error al procesar el comprobante: $e'), backgroundColor: Colors.red),
         );
       }
       return null;
@@ -306,9 +286,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
                             String? receiptUrl;
                             if (_selectedPaymentMethod == 'transferencia' && _transferImage != null) {
-                               receiptUrl = await _uploadReceipt(_transferImage!);
+                               // Usamos Base64 en lugar de subir a Storage
+                               receiptUrl = await _convertReceiptToBase64(_transferImage!);
                                if (receiptUrl == null) {
-                                  // El error ya se muestra en _uploadReceipt
+                                  // El error ya se muestra en _convertReceiptToBase64
                                   return;
                                }
                             }

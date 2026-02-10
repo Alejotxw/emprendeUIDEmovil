@@ -14,6 +14,9 @@ class ServiceModel {
   final bool isMine; // Indicates if this service belongs to the current user
   final String ownerId;
   final TransferData? transferData;
+  final List<String> scheduleDays;
+  final String openTime;
+  final String closeTime;
 
   const ServiceModel({
     required this.id,
@@ -31,6 +34,9 @@ class ServiceModel {
     this.isMine = false,
     this.ownerId = '',
     this.transferData,
+    this.scheduleDays = const ['Lun', 'Mar', 'Mie', 'Jue', 'Vie'],
+    this.openTime = '09:00',
+    this.closeTime = '18:00',
   });
 
   ServiceModel copyWith({
@@ -49,6 +55,9 @@ class ServiceModel {
     bool? isMine,
     String? ownerId,
     TransferData? transferData,
+    List<String>? scheduleDays,
+    String? openTime,
+    String? closeTime,
   }) {
     return ServiceModel(
       id: id ?? this.id,
@@ -66,6 +75,9 @@ class ServiceModel {
       isMine: isMine ?? this.isMine,
       ownerId: ownerId ?? this.ownerId,
       transferData: transferData ?? this.transferData,
+      scheduleDays: scheduleDays ?? this.scheduleDays,
+      openTime: openTime ?? this.openTime,
+      closeTime: closeTime ?? this.closeTime,
     );
   }
 
@@ -86,6 +98,9 @@ class ServiceModel {
       transferData: (map['transferData'] != null && map['transferData'] is Map<String, dynamic>) 
           ? TransferData.fromMap(map['transferData']) 
           : null,
+      scheduleDays: (map['scheduleDays'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? ['Lun', 'Mar', 'Mie', 'Jue', 'Vie'],
+      openTime: map['openTime'] ?? '09:00',
+      closeTime: map['closeTime'] ?? '18:00',
       products: (map['products'] as List<dynamic>?)
               ?.map((item) => ProductItem.fromMap(item))
               .toList() ??
@@ -111,6 +126,9 @@ class ServiceModel {
       'products': products.map((p) => p.toMap()).toList(),
       'services': services.map((s) => s.toMap()).toList(),
       'transferData': transferData?.toMap(),
+      'scheduleDays': scheduleDays,
+      'openTime': openTime,
+      'closeTime': closeTime,
     };
   }
 

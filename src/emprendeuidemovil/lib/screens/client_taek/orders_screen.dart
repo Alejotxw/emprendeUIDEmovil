@@ -279,22 +279,18 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 
   void _confirmarEntrega(BuildContext context, OrderModel order) {
-    // 1. Actualizar estado del pedido a 'Entregado'
-    Provider.of<OrderProvider>(context, listen: false).updateOrderStatus(
-      order.id, 
-      'Entregado', 
-      Colors.green
-    );
+    // 1. Eliminar el pedido de Firestore para que desaparezca de cliente y emprendedor
+    Provider.of<OrderProvider>(context, listen: false).deleteOrder(order.id);
 
     // 2. Mostrar diálogo de reseña
     // Usamos el nombre del emprendimiento del primer item si existe, o 'Emprendimiento' genérico
     final nombreEmprendimiento = order.items.isNotEmpty 
         ? order.items.first.service.name 
         : 'Emprendimiento';
-    _mostrarDialogoResena(context, nombreEmprendimiento);
+    _mostrarDialogoResena(context, nombreEmprendimiento, order);
   }
 
-  void _mostrarDialogoResena(BuildContext context, String nombreEmprendimiento) {
+  void _mostrarDialogoResena(BuildContext context, String nombreEmprendimiento, OrderModel order) {
     int rating = 5;
     final TextEditingController commentController = TextEditingController();
 
@@ -345,13 +341,22 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    // Guardar reseña en ReviewProvider
                     if (commentController.text.isNotEmpty) {
+                      // Obtener ID del servicio/emprendimiento y del dueño si esta disponible
+                      String serviceId = '';
+                      String ownerId = '';
+                      if (order.items.isNotEmpty) {
+                        serviceId = order.items.first.service.id;
+                        ownerId = order.items.first.service.ownerId;
+                      }
+
                       Provider.of<ReviewProvider>(context, listen: false).addReview(
                         nombreEmprendimiento,
-                        "Cliente", // Nombre del usuario actual (debería venir del UserProfileProvider)
+                        "Cliente",
                         commentController.text,
                         rating,
+                        serviceId: serviceId,
+                        ownerId: ownerId, 
                       );
                     }
                     

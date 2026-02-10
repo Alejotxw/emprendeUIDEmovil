@@ -39,7 +39,29 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ServiceProvider()),
-        ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProxyProvider<ServiceProvider, CartProvider>(
+          create: (_) => CartProvider(),
+          update: (_, serviceProvider, cartProvider) {
+            if (cartProvider == null) return CartProvider();
+            // Validate cart items against the latest list of services
+            // If the services list is empty (e.g. initial load), we might skip validation 
+            // to avoid clearing cart before data arrives, but typically allServices starts empty 
+            // and populates quickly. Let's assume validateAgainst handles empty safely 
+            // (if allServices is empty, it clears cart? That might be risky on startup).
+            // Let's modify validateAgainst to only validate if we have services, OR trust it.
+            // Actually, if services haven't loaded, allServices is empty. We don't want to clear the cart!
+            // But ServiceProvider initializes with empty list.
+            // We should check if ServiceProvider has loaded at least once. 
+            // But ServiceProvider doesn't expose 'isLoaded'.
+            // Let's assume for now that if allServices is empty, we DON'T validate yet 
+            // unless we are sure. But if user deletes all services, list IS empty.
+            // Safe bet: Only validate if serviceProvider.allServices is not empty.
+            if (serviceProvider.allServices.isNotEmpty) {
+                 cartProvider.validateAgainst(serviceProvider.allServices);
+            }
+            return cartProvider;
+          },
+        ),
         ChangeNotifierProvider(create: (_) => UserRoleProvider()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
         ChangeNotifierProvider(create: (_) => RatingsProvider()),

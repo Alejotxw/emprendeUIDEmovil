@@ -42,6 +42,7 @@ class ServiceProvider extends ChangeNotifier {
   void _processSnapshot(QuerySnapshot snapshot) {
     final currentUser = _auth.currentUser;
     final uid = currentUser?.uid ?? '';
+    print("ServiceProvider: Processing snapshot. Current User: $uid");
 
     _allServices = snapshot.docs.map((doc) {
       try {
@@ -53,6 +54,9 @@ class ServiceProvider extends ChangeNotifier {
         return null;
       }
     }).where((s) => s != null).cast<ServiceModel>().toList();
+
+    print("ServiceProvider: Loaded ${_allServices.length} services total.");
+    print("ServiceProvider: User has ${_allServices.where((s) => s.isMine).length} services.");
 
     // Recalcular favoritos basado en memoria local (o podrías guardarlo en Firebase)
     // Por ahora mantenemos la lógica de que si está en el set, es favorito UI

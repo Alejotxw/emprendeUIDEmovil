@@ -5,6 +5,7 @@ import '../../providers/cart_provider.dart';
 import '../../providers/review_provider.dart'; // Import provider de reseñas
 import '../../screens/perfilpublico.dart'; 
 import 'package:intl/intl.dart';
+import 'dart:convert';
 import 'dart:io';
 
 class DetailScreen extends StatefulWidget {
@@ -131,7 +132,7 @@ class _DetailScreenState extends State<DetailScreen> {
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFFC8102E)),
                       ),
                       const SizedBox(height: 16),
-                      _buildInfoCard('Horario', 'Lun-Vie 10:00-16:00'),
+                      _buildInfoCard('Horario', _formatSchedule(widget.service.scheduleDays, widget.service.openTime, widget.service.closeTime)),
                       _buildInfoCard('Ubicación', widget.service.location == 'Sede Loja Universidad Internacional del Ecuador' ? 'Loja Ecuador (Campus UIDE)' : widget.service.location),
                       const SizedBox(height: 24),
                       // --- SECCIÓN DE SERVICIOS ---
@@ -184,6 +185,39 @@ class _DetailScreenState extends State<DetailScreen> {
         );
       },
     );
+  }
+
+  String _formatSchedule(List<String> days, String open, String close) {
+    if (days.isEmpty) return "Consultar";
+
+    // Create a mutable copy to sort
+    final sortedDays = List<String>.from(days);
+    final standardDays = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
+    sortedDays.sort((a, b) => standardDays.indexOf(a).compareTo(standardDays.indexOf(b)));
+
+    String daysStr = sortedDays.join(", ");
+    
+    // Check for "Lun-Vie" range
+    // Check if sortedDays exactly matches the working week
+    if (sortedDays.length == 5 && 
+        sortedDays[0] == 'Lun' && sortedDays[4] == 'Vie' &&
+        sortedDays[1] == 'Mar' && sortedDays[2] == 'Mie' && sortedDays[3] == 'Jue') {
+      daysStr = "Lun-Vie";
+    }
+
+    // Check for "Lun-Dom" range
+    if (sortedDays.length == 7) daysStr = "Lun-Dom";
+
+    // Formatting times to remove seconds if present (HH:mm:ss -> HH:mm)
+    String formatTime(String t) {
+      final parts = t.split(':');
+      if (parts.length >= 2) {
+         return "${parts[0]}:${parts[1]}";
+      }
+      return t;
+    }
+
+    return "$daysStr ${formatTime(open)} - ${formatTime(close)}";
   }
 
   // Métodos auxiliares extraídos para limpieza visual
@@ -376,6 +410,18 @@ class _DetailScreenState extends State<DetailScreen> {
       );
     }
     
+    // Base64 check
+    if (imageUrl.length > 200 && !imageUrl.startsWith('http')) {
+      try {
+        return DecorationImage(
+          image: MemoryImage(base64Decode(imageUrl)),
+          fit: BoxFit.cover,
+        );
+      } catch (e) {
+        print("Error decoding image in DetailScreen: $e");
+      }
+    }
+
     // Check if it is a file path
     final file = File(imageUrl);
     if (file.existsSync()) {

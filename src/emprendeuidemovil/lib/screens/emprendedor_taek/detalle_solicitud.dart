@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:convert'; // Import needed for Base64 decoding
 import '../../providers/order_provider.dart';
 import '../chat_screen.dart';
 
@@ -254,15 +255,7 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
                               child: InteractiveViewer(
                                 minScale: 0.5,
                                 maxScale: 4.0,
-                                child: widget.transferReceiptPath!.startsWith('http')
-                                    ? Image.network(
-                                        widget.transferReceiptPath!,
-                                        loadingBuilder: (context, child, loadingProgress) {
-                                          if (loadingProgress == null) return child;
-                                          return const Center(child: CircularProgressIndicator());
-                                        },
-                                      )
-                                    : Image.file(File(widget.transferReceiptPath!)),
+                                child: _buildReceiptImage(widget.transferReceiptPath!),
                               ),
                             ),
                             Positioned(
@@ -291,27 +284,7 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
                   child: (widget.transferReceiptPath != null && widget.transferReceiptPath!.isNotEmpty)
                       ? Hero(
                           tag: 'receipt-image',
-                          child: widget.transferReceiptPath!.startsWith('http')
-                              ? Image.network(
-                                  widget.transferReceiptPath!,
-                                  fit: BoxFit.contain,
-                                  loadingBuilder: (context, child, loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    return const Center(child: CircularProgressIndicator());
-                                  },
-                                  errorBuilder: (context, error, stackTrace) => Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
-                                      Icon(Icons.broken_image, size: 50, color: Colors.grey),
-                                      SizedBox(height: 8),
-                                      Text('Error al cargar la imagen', style: TextStyle(color: Colors.grey)),
-                                    ],
-                                  ),
-                                )
-                              : Image.file(
-                                  File(widget.transferReceiptPath!),
-                                  fit: BoxFit.contain,
-                                )
+                          child: _buildReceiptImage(widget.transferReceiptPath!),
                         )
                       : Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -750,4 +723,38 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
   }
 
 
+  Widget _buildReceiptImage(String path) {
+    if (path.startsWith('http')) {
+      return Image.network(
+        path,
+        fit: BoxFit.contain,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return const Center(child: CircularProgressIndicator());
+        },
+        errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 50, color: Colors.grey),
+      );
+    } else if (path.startsWith('data:image')) {
+      // Base64 image
+      try {
+        final base64String = path.split(',').last;
+        return Image.memory(
+          base64Decode(base64String),
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 50, color: Colors.grey),
+        );
+      } catch (e) {
+         return const Icon(Icons.broken_image, size: 50, color: Colors.grey);
+      }
+    } else if (path.isNotEmpty) {
+      // Assuming local file
+      return Image.file(
+        File(path),
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 50, color: Colors.grey),
+      );
+    } else {
+        return const Icon(Icons.broken_image, size: 50, color: Colors.grey);
+    }
+  }
 }

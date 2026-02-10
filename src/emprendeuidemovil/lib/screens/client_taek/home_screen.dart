@@ -8,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import '../../providers/notification_provider.dart'; 
 import '../../providers/event_provider.dart';
+import 'dart:convert';
 import 'dart:io';
 import '../../providers/user_profile_provider.dart';
 
@@ -78,9 +79,25 @@ class _HomeScreenState extends State<HomeScreen> {
     return suggestions.isNotEmpty ? suggestions : ['No hay opciones exactas. Prueba con "${lowerQuery}" relacionado'];
   }
 
+  ImageProvider _getImageProvider(String path) {
+    if (path.isEmpty) return const AssetImage('assets/LOGO.png');
+    if (path.startsWith('http')) return NetworkImage(path);
+    if (path.length > 200) {
+      try {
+        return MemoryImage(base64Decode(path));
+      } catch (e) {
+        return const AssetImage('assets/LOGO.png');
+      }
+    }
+    final file = File(path);
+    if (file.existsSync()) return FileImage(file);
+    return const AssetImage('assets/LOGO.png');
+  }
+
   void _showEventDetails(Map<String, dynamic> event) {
     final start = DateTime.tryParse(event['startDateTime'] ?? '');
     final end = DateTime.tryParse(event['endDateTime'] ?? '');
+    final imageUrl = event['image']?.toString() ?? '';
 
     String formatDate(DateTime? dt) {
       if (dt == null) return '---';
@@ -133,7 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (event['image'] != null && event['image'].toString().isNotEmpty)
+                    if (imageUrl.isNotEmpty)
                       Container(
                         margin: const EdgeInsets.only(bottom: 20),
                         decoration: BoxDecoration(
@@ -142,21 +159,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(15),
-                          child: event['image'].toString().startsWith('http')
-                              ? Image.network(
-                                  event['image'], 
-                                  height: 180, 
-                                  width: double.infinity, 
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (c,o,s) => Container(height: 180, color: Colors.grey[200], child: const Center(child: Icon(Icons.broken_image, size: 40))),
-                                )
-                              : Image.file(
-                                  File(event['image']), 
-                                  height: 180, 
-                                  width: double.infinity, 
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (c,o,s) => Container(height: 180, color: Colors.grey[200], child: const Center(child: Icon(Icons.broken_image, size: 40))),
-                                ),
+                          child: Image(
+                              image: _getImageProvider(imageUrl),
+                              height: 180, 
+                              width: double.infinity, 
+                              fit: BoxFit.cover,
+                              errorBuilder: (c,o,s) => Container(height: 180, color: Colors.grey[200], child: const Center(child: Icon(Icons.broken_image, size: 40))),
+                          ),
                         ),
                       ),
                     
@@ -433,9 +442,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   color: Colors.grey[200], // Fondo mientras carga
                                   image: imageUrl.isNotEmpty
                                       ? DecorationImage(
-                                          image: imageUrl.startsWith('http')
-                                              ? NetworkImage(imageUrl)
-                                              : FileImage(File(imageUrl)) as ImageProvider,
+                                          image: _getImageProvider(imageUrl),
                                           fit: BoxFit.cover,
                                         )
                                       : null,

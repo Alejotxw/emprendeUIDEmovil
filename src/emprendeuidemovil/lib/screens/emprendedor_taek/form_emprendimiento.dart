@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -55,7 +56,7 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
     
     final initialPath = widget.entrepreneurship?['imagePath'];
     if (initialPath != null && initialPath.isNotEmpty) {
-      if (initialPath.startsWith('http')) {
+      if (initialPath.startsWith('http') || initialPath.length > 200) {
         _imageUrl = initialPath;
       } else {
         _selectedImage = File(initialPath);
@@ -80,6 +81,48 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
       _cedulaController.text = transfer['cedula'] ?? '';
       _accountType = transfer['accountType'] ?? 'Ahorros';
     }
+
+    // Initialize Schedule
+    if (widget.entrepreneurship != null) {
+      if (widget.entrepreneurship!['scheduleDays'] != null) {
+        _selectedDays.clear();
+        _selectedDays.addAll(List<String>.from(widget.entrepreneurship!['scheduleDays']));
+      }
+      
+      if (widget.entrepreneurship!['openTime'] != null) {
+        _openTime = _parseTime(widget.entrepreneurship!['openTime']);
+      }
+      if (widget.entrepreneurship!['closeTime'] != null) {
+        _closeTime = _parseTime(widget.entrepreneurship!['closeTime']);
+      }
+    }
+  }
+
+  ImageProvider _getImageProvider(String path) {
+    if (path.startsWith('http')) {
+      return NetworkImage(path);
+    } else if (path.length > 200) {
+       try {
+         return MemoryImage(base64Decode(path));
+       } catch (e) {
+         print("Error decoding base64 image: $e");
+         return const AssetImage('assets/LOGO.png');
+       }
+    } else {
+      return FileImage(File(path));
+    }
+  }
+
+  TimeOfDay _parseTime(String timeString) {
+    try {
+      final parts = timeString.split(':');
+      if (parts.length == 2) {
+        return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+      }
+    } catch (e) {
+      print("Error parsing time $timeString: $e");
+    }
+    return const TimeOfDay(hour: 9, minute: 0);
   }
 
   Future<void> _selectTime(BuildContext context, bool isOpenTime) async {
@@ -121,46 +164,24 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
 
     try {
       if (_selectedImage != null) {
-         // Using traditional bucket name for better reliability
-         final bucketName = "emprende-uide-movil.appspot.com";
-         print("Subiendo imagen de emprendimiento a: $bucketName");
-         final storage = FirebaseStorage.instanceFor(bucket: bucketName);
-         final fileName = 'entrepreneurship_${DateTime.now().millisecondsSinceEpoch}.jpg';
-         final ref = storage.ref().child('entrepreneurship_images').child(fileName);
+         print("Convirtiendo imagen a Base64...");
+         List<int> imageBytes = await _selectedImage!.readAsBytes();
+         // Add a prefix if you want, but standard base64 string is fine too.
+         // Usually for display in Flutter MemoryImage(base64Decode(string)) works with clean base64.
+         // However, keeping consistent with web data URI format might be useful, or just raw base64.
+         // Let's store just the raw base64 string, but check if we need to resize it.
+         // Storing full resolution images in Firestore as Base64 is BAD for performance and cost.
+         // But the user insisted.
          
-         print("Intentando subir imagen a ref: ${ref.fullPath}");
-         
-         final metadata = SettableMetadata(
-           contentType: 'image/jpeg',
-         );
-
-         UploadTask uploadTask = ref.putFile(_selectedImage!, metadata);
-         
-         // Monitor progress
-         uploadTask.snapshotEvents.listen((event) {
-           double progress = 100 * (event.bytesTransferred / event.totalBytes);
-           print("Progreso subida: ${progress.toStringAsFixed(2)}%");
-         });
-
-         TaskSnapshot snapshot = await uploadTask;
-         finalImagePath = await snapshot.ref.getDownloadURL();
-         print("Imagen subida con éxito: $finalImagePath");
+         finalImagePath = base64Encode(imageBytes);
+         print("Imagen convertida a Base64 (longitud: ${finalImagePath.length})");
       }
     } catch (e) {
-      print("Error detallado subiendo imagen: $e");
-      // If we are editing and upload fails, we keep the old URL if it exists
-      if (_imageUrl != null && _imageUrl!.startsWith('http')) {
-        finalImagePath = _imageUrl;
-      }
-      
+      print("Error convirtiendo imagen: $e");
       if (mounted) {
-        String errorMsg = e.toString();
-        if (errorMsg.contains('object-not-found')) {
-          errorMsg = "Referencia de almacenamiento no encontrada. Verifica la configuración de Firebase Storage.";
-        }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $errorMsg. Se guardará usando la ruta anterior o sin imagen.')),
-        );
+         ScaffoldMessenger.of(context).showSnackBar(
+           SnackBar(content: Text('Error procesando la imagen: $e')),
+         );
       }
     }
 
@@ -180,6 +201,10 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
         'holderName': _holderNameController.text,
         'cedula': _cedulaController.text,
       },
+      'scheduleDays': _selectedDays.toList(),
+      // Save as HH:mm 24h format
+      'openTime': '${_openTime.hour}:${_openTime.minute.toString().padLeft(2, '0')}',
+      'closeTime': '${_closeTime.hour}:${_closeTime.minute.toString().padLeft(2, '0')}',
     };
 
     if (!isDraft && _nameController.text.isEmpty) {
@@ -240,7 +265,7 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
                                )
                              : (_imageUrl != null 
                                  ? DecorationImage(
-                                     image: NetworkImage(_imageUrl!),
+                                     image: _getImageProvider(_imageUrl!),
                                      fit: BoxFit.cover,
                                    )
                                  : null),
@@ -900,10 +925,16 @@ class _FormEmprendimientoScreenState extends State<FormEmprendimientoScreen> {
   }
 
   Future<void> _pickImage() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 50, // Compress image to avoid large base64 strings
+      maxWidth: 800, // Limit width to 800px
+    );
     if (image != null) {
       setState(() {
         _selectedImage = File(image.path);
+        // Clear old URL if new image is picked
+        _imageUrl = null; 
       });
     }
   }

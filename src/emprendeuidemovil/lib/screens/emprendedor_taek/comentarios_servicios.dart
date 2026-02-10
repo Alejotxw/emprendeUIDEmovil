@@ -3,6 +3,7 @@ import 'package:emprendeuidemovil/screens/emprendedor_taek/formulario_comentario
 
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../providers/review_provider.dart';
 
 class ComentariosServiciosScreen extends StatelessWidget {
@@ -18,8 +19,11 @@ class ComentariosServiciosScreen extends StatelessWidget {
           Expanded(
             child: Consumer<ReviewProvider>(
               builder: (context, reviewProvider, child) {
-                final reviews = reviewProvider.reviews;
-                
+                final currentUser = FirebaseAuth.instance.currentUser;
+                final reviews = reviewProvider.reviews.where((r) => 
+                  r.ownerId == currentUser?.uid
+                ).toList();
+
                 if (reviews.isEmpty) {
                   return const Center(child: Text("No hay reseñas aún."));
                 }

@@ -150,4 +150,23 @@ void clearProducts() {
     return total;
   }
 
+  /// Valida los ítems del carrito contra la lista de servicios activos.
+  /// Si un servicio ha sido eliminado (no está en activeServices), 
+  /// se elimina del carrito.
+  void validateAgainst(List<ServiceModel> activeServices) {
+    final activeIds = activeServices.map((s) => s.id).toSet();
+    bool changed = false;
+
+    final initialCountServ = _cart['servicios']!.length;
+    _cart['servicios']!.removeWhere((item) => !activeIds.contains(item.service.id));
+    if (_cart['servicios']!.length != initialCountServ) changed = true;
+
+    final initialCountProd = _cart['productos']!.length;
+    _cart['productos']!.removeWhere((item) => !activeIds.contains(item.service.id));
+    if (_cart['productos']!.length != initialCountProd) changed = true;
+
+    if (changed) {
+      notifyListeners();
+    }
+  }
 }

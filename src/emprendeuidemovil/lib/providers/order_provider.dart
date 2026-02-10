@@ -40,8 +40,9 @@ class OrderProvider extends ChangeNotifier {
       query = query.where('sellerId', isEqualTo: userId);
     }
 
-    _ordersSubscription = query.snapshots().listen((snapshot) {
-      final list = snapshot.docs.map((doc) {
+    _ordersSubscription = query.snapshots().listen((snapshot) async {
+      // 1. Convert snapshot to List<OrderModel>
+      List<OrderModel> list = snapshot.docs.map((doc) {
         try {
           final data = doc.data() as Map<String, dynamic>;
           data['id'] = doc.id; 
@@ -52,7 +53,69 @@ class OrderProvider extends ChangeNotifier {
         }
       }).where((o) => o != null).cast<OrderModel>().toList();
 
-      // Sort client-side to avoid needing a composite index in Firestore
+      // 2. Identify unique Service IDs referenced in these orders
+      final Set<String> serviceIdsToCheck = {};
+      for (final order in list) {
+        for (final item in order.items) {
+          if (item.service.id.isNotEmpty) {
+             serviceIdsToCheck.add(item.service.id);
+          }
+        }
+      }
+
+      // 3. Verify existence of these services in Firestore
+      // Only proceed if there are services to check
+      if (serviceIdsToCheck.isNotEmpty) {
+        final existenceChecks = <String, bool>{};
+        
+        // Fetch service documents in parallel
+        await Future.wait(serviceIdsToCheck.map((sId) async {
+           try {
+             final doc = await _firestore.collection('emprendimientos').doc(sId).get();
+             existenceChecks[sId] = doc.exists;
+           } catch (e) {
+             print("Error checking service $sId existence: $e");
+             // If error (e.g. permission), assume exists to avoid accidental deletion? 
+             // Or assume fails? User wants deletion. Let's assume false if not found.
+             existenceChecks[sId] = false; 
+           }
+        }));
+
+        // 4. Filter out orders that reference non-existent services
+        final batch = _firestore.batch();
+        bool needsCommit = false;
+        final List<OrderModel> validOrders = [];
+
+        for (final order in list) {
+           bool shouldDelete = false;
+
+           for (final item in order.items) {
+             final sId = item.service.id;
+             // If service ID is tracked and it does NOT exist, mark order for deletion
+             if (sId.isNotEmpty && existenceChecks.containsKey(sId) && existenceChecks[sId] == false) {
+               shouldDelete = true;
+               break;
+             }
+           }
+
+           if (shouldDelete) {
+             batch.delete(_firestore.collection('orders').doc(order.id));
+             needsCommit = true;
+             print("Eliminando orden huérfana ${order.id} (servicio eliminado)");
+           } else {
+             validOrders.add(order);
+           }
+        }
+
+        // 5. Commit deletions if any
+        if (needsCommit) {
+           await batch.commit();
+           // Update the list to show only valid orders immediately
+           list = validOrders;
+        }
+      }
+      
+      // 6. Sort and Update State
       list.sort((a, b) => b.date.compareTo(a.date));
       _orders = list;
       
@@ -176,6 +239,59 @@ class OrderProvider extends ChangeNotifier {
       });
     } catch (e) {
        print("Error updating delivery date: $e");
+    }
+  }
+
+  Future<void> deleteOrder(String orderId) async {
+    try {
+      await _firestore.collection('orders').doc(orderId).delete();
+      // Also delete the associated chat to keep it clean
+      await _firestore.collection('chats').doc('order-$orderId').delete();
+      
+      // Notify listeners handled by stream
+    } catch (e) {
+      print("Error deleting order: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> deleteOrdersForService(String serviceId) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    try {
+      // Query all orders where the seller is the current user
+      final querySnapshot = await _firestore
+          .collection('orders')
+          .where('sellerId', isEqualTo: user.uid)
+          .get();
+
+      final batch = _firestore.batch();
+      bool hasDeletions = false;
+
+      for (var doc in querySnapshot.docs) {
+        final data = doc.data();
+        final items = (data['items'] as List<dynamic>?) ?? [];
+        
+        // Check if any item belongs to the deleted service
+        // We check the nested 'service' map for the 'id' field
+        bool hasService = items.any((item) {
+             final serviceMap = item['service'] as Map<String, dynamic>?;
+             return serviceMap != null && serviceMap['id'] == serviceId;
+        });
+
+        if (hasService) {
+           batch.delete(doc.reference);
+           hasDeletions = true;
+        }
+      }
+
+      if (hasDeletions) {
+        await batch.commit();
+        print("Eliminadas órdenes asociadas al servicio $serviceId");
+      }
+    } catch (e) {
+      print("Error deleting orders for service $serviceId: $e");
     }
   }
 }
