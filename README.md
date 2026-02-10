@@ -1,6 +1,14 @@
-# Emprende UIDE
-Es un Marketplace de servicios y emprendimientos estudiantiles desarrolada especialmente para la comunidad UIDE.
-EmprendeUIDE busca ser un Marketplace interno donde los estudiantes puedan ofrecer sus productos/servicios y otros estudiantes o docentes puedan contratarlos. Es un proyecto que conecta directamente con la generación de ingresos, espíritu emprendedor y uso real de la app después del curso.
+# Emprende UIDE - TAEK
+Muchos estudiantes ya tienen o quieren iniciar un emprendimiento: venden comida, ofrecen diseño gráfico, edición de video, reparación de PCs, clases particulares, fotografía, marketing digital, etc.
+
+Hoy suelen gestionar sus ventas solo con Instagram y WhatsApp, sin una plataforma centralizada dentro de la comunidad UIDE.
+
+EmprendeUIDE busca ser un marketplace interno donde los estudiantes puedan ofrecer sus productos/servicios y otros estudiantes o docentes puedan contratarlos. Es un proyecto que conecta directamente con la generación de ingresos, espíritu emprendedor y uso real de la app después del curso.
+
+### Análisis ODS: Detalle de la meta específica impactada.
+Los estudiantes emprendedores de la UIDE enfrentan una barrera de invisibilidad y falta de canales formales para comercializar sus productos y servicios, dependiendo de herramientas externas que fragmentan la comunicación y generan desconfianza. Esta carencia frena el cumplimiento del ODS 8 (*Trabajo decente y crecimiento económico*) al limitar la generación de ingresos propios y el espíritu empresarial joven. Asimismo, la ausencia de una plataforma centralizada evidencia una brecha en la infraestructura digital local (*ODS 9*), perdiendo la oportunidad de modernizar el intercambio comercial interno. Al no existir este ecosistema, se desaprovecha el potencial de fortalecer la educación de calidad (*ODS 4*), ya que los estudiantes no cuentan con un entorno real para aplicar sus habilidades profesionales y recibir la validación práctica que demanda el mercado actual.
+
+La necesidad concreta que resuelve este sistema es la eliminación de la asimetría de información y la falta de reputación digital que sufren los emprendedores universitarios, quienes actualmente operan en un mercado invisible e ineficiente dentro del campus. Críticamente, esto impide el cumplimiento del ODS 8 (*Trabajo Decente y Crecimiento Económico*), ya que los estudiantes no pueden alcanzar un nivel de ingresos digno ni autonomía financiera debido a la dependencia de algoritmos externos que invisibilizan sus microemprendimientos. Además, esta fragmentación evidencia una falla en la infraestructura interna (*ODS 9*), perpetuando un modelo comercial obsoleto que frena la innovación local. Finalmente, la falta de una plataforma de validación entre pares limita la educación de calidad (*ODS 4*), al no ofrecer un espacio real y seguro para la aplicación práctica de conocimientos comerciales y la mentoría basada en experiencias reales.
 
 ### Objetivo del Proyecto
 * Registrar y autenticar usuarios utilizando **Firebase**.
