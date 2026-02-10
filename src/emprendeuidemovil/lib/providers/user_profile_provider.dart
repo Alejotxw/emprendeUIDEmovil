@@ -20,50 +20,64 @@ class UserProfileProvider with ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  Stream<DocumentSnapshot>? _userStream;
+
   UserProfileProvider() {
     _auth.authStateChanges().listen((User? user) {
       if (user != null) {
-        _loadUserProfile();
+        _listenToProfileChanges(user.uid);
       } else {
-        // Clear profile if logout
-        _name = 'Usuario';
-        _phone = '';
-        _email = '';
-        _imagePath = null;
-        _showEmail = true;
-        _showPhone = true;
-        notifyListeners();
+        _resetProfile();
       }
     });
   }
 
-  Future<void> _loadUserProfile() async {
-    final user = _auth.currentUser;
-    if (user != null) {
-      try {
-        final doc = await _firestore.collection('users').doc(user.uid).get();
-        if (doc.exists) {
-          final data = doc.data()!;
-          _name = data['nombre'] ?? data['name'] ?? 'Usuario';
-          _phone = data['phone'] ?? '';
-          _email = data['email'] ?? user.email ?? '';
-          _imagePath = data['imagePath'];
-          _showEmail = data['showEmail'] ?? true;
-          _showPhone = data['showPhone'] ?? true;
+  void _listenToProfileChanges(String uid) {
+    _firestore.collection('users').doc(uid).snapshots().listen((doc) {
+      if (doc.exists) {
+        final data = doc.data()!;
+        _name = data['nombre'] ?? data['name'] ?? 'Usuario';
+        _phone = data['phone'] ?? '';
+        _email = data['email'] ?? _auth.currentUser?.email ?? '';
+        
+        // Logic for robust image loading
+        String? path = data['imagePath'];
+        String? b64 = data['imageBase64'];
+        
+        if (path != null && path.startsWith('http')) {
+           _imagePath = path;
+        } else if (b64 != null && b64.startsWith('data:image')) {
+           _imagePath = b64;
         } else {
-           _email = user.email ?? '';
+           _imagePath = path; // Fallback to local path if no cloud options
         }
+        
+        _showEmail = data['showEmail'] ?? true;
+        _showPhone = data['showPhone'] ?? true;
         notifyListeners();
-      } catch (e) {
-        print("Error cargando perfil: $e");
       }
-    }
+    }, onError: (e) {
+      print("Error escuchando cambios de perfil: $e");
+    });
   }
+
+  void _resetProfile() {
+    _name = 'Usuario';
+    _phone = '';
+    _email = '';
+    _imagePath = null;
+    _showEmail = true;
+    _showPhone = true;
+    notifyListeners();
+  }
+
+  // Se eliminó _loadUserProfile ya que ahora usamos el Stream listener
 
   Future<void> updateProfile({
     String? name, 
     String? phone, 
     String? imagePath,
+    String? imageBase64,
     bool? showEmail,
     bool? showPhone,
   }) async {
@@ -83,6 +97,7 @@ class UserProfileProvider with ChangeNotifier {
         if (name != null) data['nombre'] = name;
         if (phone != null) data['phone'] = phone;
         if (imagePath != null) data['imagePath'] = imagePath;
+        if (imageBase64 != null) data['imageBase64'] = imageBase64;
         if (showEmail != null) data['showEmail'] = showEmail;
         if (showPhone != null) data['showPhone'] = showPhone;
         

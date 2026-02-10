@@ -81,7 +81,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   ImageProvider _getImageProvider(String path) {
     if (path.isEmpty) return const AssetImage('assets/LOGO.png');
+    
+    // Handle prefixed Base64
+    if (path.startsWith('data:image')) {
+      try {
+        final b64 = path.split(',').last;
+        return MemoryImage(base64Decode(b64));
+      } catch (e) {
+        return const AssetImage('assets/LOGO.png');
+      }
+    }
+
     if (path.startsWith('http')) return NetworkImage(path);
+    
+    // Handle raw Base64 (legacy)
     if (path.length > 200) {
       try {
         return MemoryImage(base64Decode(path));
@@ -89,6 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
         return const AssetImage('assets/LOGO.png');
       }
     }
+
     final file = File(path);
     if (file.existsSync()) return FileImage(file);
     return const AssetImage('assets/LOGO.png');

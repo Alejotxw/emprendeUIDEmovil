@@ -38,7 +38,18 @@ class PerfilPublicoScreen extends StatelessWidget {
             entrepreneurName = data['nombre'] ?? data['name'] ?? entrepreneurName;
             entrepreneurPhone = data['phone'] ?? entrepreneurPhone;
             entrepreneurEmail = data['email'] ?? entrepreneurEmail;
-            entrepreneurImagePath = data['imagePath'];
+            
+            // Logic for robust image loading (URL > Base64 > Path)
+            String? path = data['imagePath'];
+            String? b64 = data['imageBase64'];
+            if (path != null && path.startsWith('http')) {
+              entrepreneurImagePath = path;
+            } else if (b64 != null && b64.startsWith('data:image')) {
+              entrepreneurImagePath = b64;
+            } else {
+              entrepreneurImagePath = path;
+            }
+
             showEmail = data['showEmail'] ?? true;
             showPhone = data['showPhone'] ?? true;
           }

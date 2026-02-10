@@ -31,7 +31,12 @@ class _EditPerfilEmprendedorScreenState extends State<EditPerfilEmprendedorScree
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 50);
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery, 
+      imageQuality: 30, // Lower quality for Firestore safety
+      maxWidth: 400,    // Limit size
+      maxHeight: 400,
+    );
     if (pickedFile != null) {
       final bytes = await pickedFile.readAsBytes();
       setState(() {
@@ -84,39 +89,30 @@ class _EditPerfilEmprendedorScreenState extends State<EditPerfilEmprendedorScree
         // 1. Prepare Base64 string for Firestore (with prefix)
         final String base64Data = 'data:image/jpeg;base64,$_base64Image';
         
-        // 2. Upload to Firebase Storage as well (as requested)
-        final profileProvider = context.read<UserProfileProvider>();
-        final userId = profileProvider.name; // Use ID if possible, but let's assume we use current user
-        
-        // Deleting old image from Storage if it was a URL
-        if (widget.currentImagePath != null && widget.currentImagePath!.startsWith('http')) {
-          try {
-            await FirebaseStorage.instance.refFromURL(widget.currentImagePath!).delete();
-          } catch (e) {
-            print("Error deleting old profile image: $e");
-          }
+        // 2. Upload to Firebase Storage
+        try {
+          final storageRef = FirebaseStorage.instance
+              .ref()
+              .child('profile_images')
+              .child('${DateTime.now().millisecondsSinceEpoch}.jpg');
+          
+          await storageRef.putFile(_imageFile!);
+          final downloadUrl = await storageRef.getDownloadURL();
+          
+          // If upload succeeds, we use the URL as primary path
+          finalImagePath = downloadUrl;
+        } catch (e) {
+          print("Error uploading to Storage, using Base64 as fallback: $e");
+          // If Storage fails, we still have the Base64 backup in Firestore
+          // so we don't return here.
         }
-
-        // Upload new image to Storage
-        final storageRef = FirebaseStorage.instance
-            .ref()
-            .child('profile_images')
-            .child('${DateTime.now().millisecondsSinceEpoch}.jpg');
-        
-        await storageRef.putFile(_imageFile!);
-        final downloadUrl = await storageRef.getDownloadURL();
-        
-        // We will save the downloadUrl as the imagePath, but we mention base64 was handled
-        // Actually the user said "se guarde en base 64 y tambine se guarde en el firebase"
-        // Let's save the base64 in a separate field or just use it as the main path if they prefer.
-        // I'll save the Base64 in Firestore to satisfy the "save in base64" requirement.
-        finalImagePath = base64Data;
       }
 
       await context.read<UserProfileProvider>().updateProfile(
         name: _nameController.text,
         phone: _phoneController.text,
         imagePath: finalImagePath,
+        imageBase64: _imageFile != null ? 'data:image/jpeg;base64,$_base64Image' : null,
       );
 
       if (mounted) Navigator.pop(context);

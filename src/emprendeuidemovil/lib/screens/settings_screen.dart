@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:convert';
 import '../providers/settings_provider.dart';
 import '../providers/user_profile_provider.dart'; // Agregado
 import 'dart:io'; // Agregado
@@ -51,10 +52,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             CircleAvatar(
                               radius: 30,
                               backgroundColor: const Color(0xFFC8102E),
-                              backgroundImage: userProfile.imagePath != null
-                                  ? FileImage(File(userProfile.imagePath!))
-                                  : null,
-                              child: userProfile.imagePath == null
+                              backgroundImage: _getProfileImage(userProfile.imagePath),
+                              child: (userProfile.imagePath == null || userProfile.imagePath!.isEmpty)
                                   ? const Icon(Icons.person, color: Colors.white)
                                   : null,
                             ),
@@ -242,5 +241,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
     );
+  }
+
+  ImageProvider? _getProfileImage(String? imagePath) {
+    if (imagePath == null || imagePath.isEmpty) return null;
+    
+    if (imagePath.startsWith('data:image')) {
+      try {
+        final b64 = imagePath.split(',').last;
+        return MemoryImage(base64Decode(b64));
+      } catch (e) {
+        return null;
+      }
+    }
+    
+    if (imagePath.startsWith('http')) {
+      return NetworkImage(imagePath);
+    }
+    
+    final file = File(imagePath);
+    if (file.existsSync()) {
+      return FileImage(file);
+    }
+    
+    return null;
   }
 }

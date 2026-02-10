@@ -16,6 +16,7 @@ import '../screens/settings_screen.dart';
 import 'package:emprendeuidemovil/providers/user_role_provider.dart';
 import 'package:emprendeuidemovil/providers/user_profile_provider.dart';
 import 'dart:io'; // Para FileImage
+import 'dart:convert'; // Para base64Decode
 import 'package:firebase_auth/firebase_auth.dart'; // Added for signOut
 import 'login_screen.dart';
 
@@ -284,6 +285,23 @@ class ProfileScreen extends StatelessWidget {
     if (imagePath == null || imagePath.isEmpty) {
       return const Icon(Icons.person, size: 60, color: Colors.white);
     }
+    
+    // 1. Handle Base64
+    if (imagePath.startsWith('data:image')) {
+      try {
+        final base64String = imagePath.split(',').last;
+        return Image.memory(
+          base64Decode(base64String),
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) =>
+              const Icon(Icons.person, size: 60, color: Colors.white),
+        );
+      } catch (e) {
+        return const Icon(Icons.person, size: 60, color: Colors.white);
+      }
+    }
+
+    // 2. Handle Network URL
     if (imagePath.startsWith('http')) {
       return Image.network(
         imagePath,
@@ -292,11 +310,19 @@ class ProfileScreen extends StatelessWidget {
             const Icon(Icons.person, size: 60, color: Colors.white),
       );
     }
-    return Image.file(
-      File(imagePath),
-      fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) =>
-          const Icon(Icons.person, size: 60, color: Colors.white),
-    );
+
+    // 3. Handle Local File (checking if it exists)
+    final file = File(imagePath);
+    if (file.existsSync()) {
+      return Image.file(
+        file,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) =>
+            const Icon(Icons.person, size: 60, color: Colors.white),
+      );
+    }
+
+    // Fallback if local file doesn't exist (e.g. from another device)
+    return const Icon(Icons.person, size: 60, color: Colors.white);
   }
 }

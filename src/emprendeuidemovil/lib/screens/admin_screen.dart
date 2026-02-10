@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
 
 import '../providers/service_provider.dart';
 import '../providers/user_role_provider.dart';
@@ -14,11 +16,12 @@ class AdminScreen extends StatefulWidget {
   State<AdminScreen> createState() => _AdminScreenState();
 }
 
-class _AdminScreenState extends State<AdminScreen> {
+class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
   final _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
   
-  // Variables para el formulario
+  // Variables para el formulario de eventos
   String _eventTitle = '';
   DateTime? _startDateTime;
   DateTime? _endDateTime;
@@ -26,7 +29,20 @@ class _AdminScreenState extends State<AdminScreen> {
   String _contactMethods = '';
   XFile? _pickedImage;
 
-  // FUNCIÓN PARA CREAR O EDITAR EVENTOS
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  // ... (Keep existing private helper methods like _showEventDialog, _buildInputLabel, etc.)
+
   void _showEventDialog({String? docId, Map<String, dynamic>? existingData}) {
     if (existingData != null) {
       _eventTitle = existingData['title'] ?? '';
@@ -126,7 +142,9 @@ class _AdminScreenState extends State<AdminScreen> {
                       onTap: () async {
                         final picked = await _picker.pickImage(
                           source: ImageSource.gallery,
-                          imageQuality: 50,
+                          imageQuality: 30,
+                          maxWidth: 800,
+                          maxHeight: 800,
                         );
                         if (picked != null) setStateDialog(() => _pickedImage = picked);
                       },
@@ -314,13 +332,11 @@ class _AdminScreenState extends State<AdminScreen> {
     return "${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
   }
 
-  // FUNCIÓN AUXILIAR PARA PROCESAR EL GUARDADO
   Future<void> _saveEvent(String? docId, Map<String, dynamic>? existingData, {required bool isDraft}) async {
     if (!_formKey.currentState!.validate()) return;
     
     _formKey.currentState!.save();
     
-    // 1. Mostrar un indicador de carga (Loading)
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -343,15 +359,14 @@ class _AdminScreenState extends State<AdminScreen> {
     );
 
     try {
-      // SIMULAMOS UNA ESPERA DE RED
-      await Future.delayed(const Duration(seconds: 1));
-
       String? finalImageUrl = existingData?['image'];
+      
       if (_pickedImage != null) {
-        finalImageUrl = _pickedImage!.path; 
+        // Convertir imagen a Base64 para que sea visible en todos los dispositivos
+        final bytes = await File(_pickedImage!.path).readAsBytes();
+        finalImageUrl = 'data:image/jpeg;base64,${base64Encode(bytes)}';
       }
 
-      // 3. Preparar el mapa de datos
       final eventData = {
         'title': _eventTitle,
         'startDateTime': _startDateTime?.toIso8601String(),
@@ -362,16 +377,14 @@ class _AdminScreenState extends State<AdminScreen> {
         'status': isDraft ? 'draft' : 'published',
       };
 
-      // 4. Guardar en LOCAL PROVIDER
       final eventProvider = Provider.of<EventProvider>(context, listen: false);
       
       if (docId == null) {
-        eventProvider.addEvent(eventData);
+        await eventProvider.addEvent(eventData);
       } else {
-        eventProvider.updateEvent(docId, eventData);
+        await eventProvider.updateEvent(docId, eventData);
       }
       
-      // 5. Cerrar diálogos y mostrar éxito
       if (mounted) {
         Navigator.pop(context); // Cierra el Loading
         Navigator.pop(context); // Cierra el Formulario
@@ -397,7 +410,6 @@ class _AdminScreenState extends State<AdminScreen> {
     }
   }
 
-  // FUNCIÓN PARA CONFIRMAR ELIMINACIÓN
   void _confirmDelete(BuildContext context, String docId) {
     showDialog(
       context: context,
@@ -411,12 +423,57 @@ class _AdminScreenState extends State<AdminScreen> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context); // Cerrar diálogo
-              Provider.of<EventProvider>(context, listen: false).deleteEvent(docId);
-              ScaffoldMessenger.of(context).showSnackBar(
-                 const SnackBar(content: Text('Evento eliminado correctamente'), backgroundColor: Colors.orange),
-              );
+              await Provider.of<EventProvider>(context, listen: false).deleteEvent(docId);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                   const SnackBar(content: Text('Evento eliminado correctamente'), backgroundColor: Colors.orange),
+                );
+              }
+            },
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // USUARIOS: LÓGICA DE ELIMINACIÓN
+  void _confirmDeleteUser(BuildContext context, String uid, String name) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Eliminar Usuario'),
+        content: Text('¿Seguro que deseas eliminar a $name? Se borrará su perfil de la base de datos.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            onPressed: () async {
+              Navigator.pop(context);
+              try {
+                // 1. Eliminar de Firestore
+                await FirebaseFirestore.instance.collection('users').doc(uid).delete();
+                
+                // Nota: No se puede eliminar de Auth directamente desde el cliente sin Admin SDK/Functions
+                // pero eliminamos su acceso a datos de perfil.
+
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Usuario $name eliminado de la base de datos'), backgroundColor: Colors.orange),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error al eliminar: $e'), backgroundColor: Colors.red),
+                  );
+                }
+              }
             },
             child: const Text('Eliminar'),
           ),
@@ -428,113 +485,180 @@ class _AdminScreenState extends State<AdminScreen> {
   @override
   Widget build(BuildContext context) {
     final serviceProvider = Provider.of<ServiceProvider>(context);
-    final eventProvider = Provider.of<EventProvider>(context); // Listen to events
+    final eventProvider = Provider.of<EventProvider>(context);
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Panel de Administración'),
-        backgroundColor: const Color(0xFFC8102E),
+        title: const Text('Panel Administrativo'),
+        backgroundColor: const Color(0xFF83002A),
         foregroundColor: Colors.white,
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: Colors.white,
+          tabs: const [
+            Tab(icon: Icon(Icons.event), text: 'Eventos'),
+            Tab(icon: Icon(Icons.people), text: 'Usuarios'),
+          ],
+        ),
         actions: [
-          TextButton.icon(
-            onPressed: () {
-              Provider.of<UserRoleProvider>(context, listen: false).setRole(UserRole.cliente);
-              Navigator.pushReplacementNamed(context, '/login');
-            },
-            icon: const Icon(Icons.logout, color: Colors.white),
-            label: const Text('Salir', style: TextStyle(color: Colors.white)),
+           IconButton(
+             icon: const Icon(Icons.logout),
+             onPressed: () {
+               Provider.of<UserRoleProvider>(context, listen: false).setRole(UserRole.cliente);
+               Navigator.pushReplacementNamed(context, '/login');
+             },
+           )
+        ],
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // PANEL DE EVENTOS
+          _buildEventsTab(serviceProvider, eventProvider),
+          
+          // PANEL DE USUARIOS
+          _buildUsersTab(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEventsTab(ServiceProvider serviceProvider, EventProvider eventProvider) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              _buildStatCard('Emprendimientos', '${serviceProvider.allServices.length}', Colors.blue),
+              const SizedBox(width: 12),
+              _buildStatCard('Eventos Activos', '${eventProvider.events.length}', Colors.orange),
+            ],
+          ),
+          const SizedBox(height: 25),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Gestión de Eventos', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              FloatingActionButton.extended(
+                onPressed: () => _showEventDialog(),
+                label: const Text('Nuevo'),
+                icon: const Icon(Icons.add),
+                backgroundColor: const Color(0xFFC8102E),
+              ),
+            ],
+          ),
+          const SizedBox(height: 15),
+          Expanded(
+            child: eventProvider.events.isEmpty
+                ? const Center(child: Text('No hay eventos creados.'))
+                : ListView.builder(
+                    itemCount: eventProvider.events.length,
+                    itemBuilder: (context, index) {
+                      final event = eventProvider.events[index];
+                      final data = {
+                        'title': event.title,
+                        'startDateTime': event.startDateTime.toIso8601String(),
+                        'endDateTime': event.endDateTime.toIso8601String(),
+                        'description': event.description,
+                        'contact': event.contact,
+                        'image': event.image,
+                        'status': event.status
+                      };
+
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                        child: ListTile(
+                          leading: event.image != null 
+                            ? (event.image!.startsWith('http') 
+                               ? Image.network(event.image!, width: 50, height: 50, fit: BoxFit.cover, errorBuilder: (c,o,s) => const Icon(Icons.error)) 
+                               : Image.file(File(event.image!), width: 50, height: 50, fit: BoxFit.cover, errorBuilder: (c,o,s) => const Icon(Icons.image)))
+                            : const Icon(Icons.image_not_supported),
+                          title: Text(event.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Text('Inicia: ${_formatDateTime(event.startDateTime)}', style: const TextStyle(fontSize: 12)),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit, color: Colors.blue),
+                                onPressed: () => _showEventDialog(docId: event.id, existingData: data),
+                              ),
+                               IconButton(
+                                 icon: const Icon(Icons.delete_outline, color: Colors.red),
+                                 onPressed: () => _confirmDelete(context, event.id),
+                               ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                _buildStatCard('Emprendimientos', '${serviceProvider.allServices.length}', Colors.blue),
-                const SizedBox(width: 12),
-                 _buildStatCard('Eventos Activos', '${eventProvider.events.length}', Colors.orange),
-              ],
-            ),
-            const SizedBox(height: 25),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Gestión de Eventos', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                FloatingActionButton.extended(
-                  onPressed: () => _showEventDialog(),
-                  label: const Text('Nuevo'),
-                  icon: const Icon(Icons.add),
-                  backgroundColor: const Color(0xFFC8102E),
-                ),
-              ],
-            ),
-            const SizedBox(height: 15),
-            Expanded(
-              child: eventProvider.events.isEmpty
-                  ? const Center(child: Text('No hay eventos creados.'))
-                  : ListView.builder(
-                      itemCount: eventProvider.events.length,
-                      itemBuilder: (context, index) {
-                        final event = eventProvider.events[index];
-                        final data = {
-                          'title': event.title,
-                          'startDateTime': event.startDateTime.toIso8601String(),
-                          'endDateTime': event.endDateTime.toIso8601String(),
-                          'description': event.description,
-                          'contact': event.contact,
-                          'image': event.image,
-                          'status': event.status
-                        };
-
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                          child: ListTile(
-                            leading: event.image != null 
-                              ? (event.image!.startsWith('http') 
-                                 ? Image.network(event.image!, width: 50, height: 50, fit: BoxFit.cover, errorBuilder: (c,o,s) => const Icon(Icons.error)) 
-                                 : Image.file(File(event.image!), width: 50, height: 50, fit: BoxFit.cover, errorBuilder: (c,o,s) => const Icon(Icons.image)))
-                              : const Icon(Icons.image_not_supported),
-                            title: Text(event.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Inicia: ${_formatDateTime(event.startDateTime)}', style: const TextStyle(fontSize: 12)),
-                                Text('Termina: ${_formatDateTime(event.endDateTime)}', style: const TextStyle(fontSize: 12)),
-                                if (event.status == 'draft')
-                                  Container(
-                                    padding: const EdgeInsets.all(4),
-                                    margin: const EdgeInsets.only(top: 4),
-                                    decoration: BoxDecoration(color: Colors.amber[100], borderRadius: BorderRadius.circular(5)),
-                                    child: const Text('BORRADOR', style: TextStyle(fontSize: 10, color: Colors.orange)),
-                                  ),
-                              ],
-                            ),
-                            isThreeLine: true,
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.edit, color: Colors.blue),
-                                  onPressed: () => _showEventDialog(docId: event.id, existingData: data),
-                                ),
-                                 IconButton(
-                                   icon: const Icon(Icons.delete_outline, color: Colors.red),
-                                   onPressed: () => _confirmDelete(context, event.id),
-                                 ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-            ),
-          ],
-        ),
-      ),
     );
+  }
+
+  Widget _buildUsersTab() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection('users').snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const Center(child: Text('No hay usuarios registrados.'));
+        }
+
+        final users = snapshot.data!.docs;
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: users.length,
+          itemBuilder: (context, index) {
+            final userDoc = users[index];
+            final data = userDoc.data() as Map<String, dynamic>;
+            final String name = data['nombre'] ?? data['name'] ?? 'Sin Nombre';
+            final String email = data['email'] ?? 'Sin Email';
+            final String rol = data['rol'] ?? 'cliente';
+            final String? imagePath = data['imagePath'];
+
+            return Card(
+              margin: const EdgeInsets.only(bottom: 10),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              child: ListTile(
+                leading: CircleAvatar(
+                   backgroundColor: const Color(0xFF83002A),
+                   backgroundImage: _getUserImage(imagePath),
+                   child: (imagePath == null || imagePath.isEmpty) ? const Icon(Icons.person, color: Colors.white) : null,
+                ),
+                title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text('$email\nRol: $rol', style: const TextStyle(fontSize: 12)),
+                isThreeLine: true,
+                trailing: (rol == 'admin') 
+                   ? const Tooltip(message: 'No se puede eliminar al admin', child: Icon(Icons.security, color: Colors.grey))
+                   : IconButton(
+                       icon: const Icon(Icons.delete_forever, color: Colors.red),
+                       onPressed: () => _confirmDeleteUser(context, userDoc.id, name),
+                     ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  ImageProvider? _getUserImage(String? path) {
+    if (path == null || path.isEmpty) return null;
+    if (path.startsWith('data:image')) {
+      final b64 = path.split(',').last;
+      return MemoryImage(base64Decode(b64));
+    }
+    if (path.startsWith('http')) return NetworkImage(path);
+    if (File(path).existsSync()) return FileImage(File(path));
+    return null;
   }
 
   Widget _buildStatCard(String title, String value, Color color) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EventModel {
   final String id;
@@ -20,47 +21,75 @@ class EventModel {
     this.image,
     required this.status,
   });
+
+  factory EventModel.fromMap(String id, Map<String, dynamic> map) {
+    return EventModel(
+      id: id,
+      title: map['title'] ?? '',
+      startDateTime: map['startDateTime'] != null 
+          ? DateTime.parse(map['startDateTime']) 
+          : DateTime.now(),
+      endDateTime: map['endDateTime'] != null 
+          ? DateTime.parse(map['endDateTime']) 
+          : DateTime.now(),
+      description: map['description'] ?? '',
+      contact: map['contact'] ?? '',
+      image: map['image'],
+      status: map['status'] ?? 'published',
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'title': title,
+      'startDateTime': startDateTime.toIso8601String(),
+      'endDateTime': endDateTime.toIso8601String(),
+      'description': description,
+      'contact': contact,
+      'image': image,
+      'status': status,
+    };
+  }
 }
 
 class EventProvider extends ChangeNotifier {
-  final List<EventModel> _events = [];
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  List<EventModel> _events = [];
 
   List<EventModel> get events => _events;
 
-  void addEvent(Map<String, dynamic> data) {
-    final newEvent = EventModel(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      title: data['title'],
-      startDateTime: DateTime.parse(data['startDateTime']),
-      endDateTime: DateTime.parse(data['endDateTime']),
-      description: data['description'],
-      contact: data['contact'],
-      image: data['image'],
-      status: data['status'],
-    );
-    _events.insert(0, newEvent);
-    notifyListeners();
+  EventProvider() {
+    _listenToEvents();
   }
 
-  void updateEvent(String id, Map<String, dynamic> data) {
-    final index = _events.indexWhere((e) => e.id == id);
-    if (index != -1) {
-      _events[index] = EventModel(
-        id: id,
-        title: data['title'],
-        startDateTime: DateTime.parse(data['startDateTime']),
-        endDateTime: DateTime.parse(data['endDateTime']),
-        description: data['description'],
-        contact: data['contact'],
-        image: data['image'],
-        status: data['status'],
-      );
+  void _listenToEvents() {
+    _firestore.collection('events').orderBy('startDateTime', descending: true).snapshots().listen((snapshot) {
+      _events = snapshot.docs.map((doc) => EventModel.fromMap(doc.id, doc.data())).toList();
       notifyListeners();
+    });
+  }
+
+  Future<void> addEvent(Map<String, dynamic> data) async {
+    try {
+      await _firestore.collection('events').add(data);
+    } catch (e) {
+      debugPrint("Error adding event: $e");
     }
   }
 
-  void deleteEvent(String id) {
-    _events.removeWhere((e) => e.id == id);
-    notifyListeners();
+  Future<void> updateEvent(String id, Map<String, dynamic> data) async {
+    try {
+      await _firestore.collection('events').doc(id).update(data);
+    } catch (e) {
+      debugPrint("Error updating event: $e");
+    }
+  }
+
+  Future<void> deleteEvent(String id) async {
+    try {
+      await _firestore.collection('events').doc(id).delete();
+    } catch (e) {
+      debugPrint("Error deleting event: $e");
+    }
   }
 }

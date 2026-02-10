@@ -48,9 +48,17 @@ class _LoginScreenState extends State<LoginScreen> {
             role = data['rol'] ?? 'cliente';
           }
 
-          if (role == 'admin' || role == 'emprendedor') {
-            roleProvider.setRole(UserRole.emprendedor);
+          // Force admin role if it's the official admin email
+          if (userCredential.user!.email == 'admin@uide.edu.ec') {
+            role = 'admin';
+          }
+
+          if (role == 'admin') {
+            roleProvider.setRole(UserRole.emprendedor); // The app uses emprendedor role enum for admin screens too
             Navigator.pushReplacementNamed(context, '/admin');
+          } else if (role == 'emprendedor') {
+            roleProvider.setRole(UserRole.emprendedor);
+            Navigator.pushReplacementNamed(context, '/main');
           } else {
             roleProvider.setRole(UserRole.cliente);
             Navigator.pushReplacementNamed(context, '/main');
@@ -70,6 +78,14 @@ class _LoginScreenState extends State<LoginScreen> {
               code: 'invalid-email-domain', 
               message: 'Debes usar un correo institucional (@uide.edu.ec)');
         }
+        
+        // Block unauthorized admin registrations
+        if (email.toLowerCase().startsWith('admin') && email.toLowerCase() != 'admin@uide.edu.ec') {
+          throw FirebaseAuthException(
+              code: 'reserved-email', 
+              message: 'Este correo está reservado.');
+        }
+
         if (name.isEmpty || phone.isEmpty) {
           throw FirebaseAuthException(
               code: 'missing-fields', 
@@ -82,9 +98,8 @@ class _LoginScreenState extends State<LoginScreen> {
           password: password,
         );
 
-        // Determinar rol: Si el correo empieza con 'admin', asignamos rol 'admin'
-        // Esto permite crear el usuario Admin que pide el cliente.
-        String role = email.toLowerCase().startsWith('admin') ? 'admin' : 'cliente';
+        // Determinar rol: SÓLO admin@uide.edu.ec puede ser admin
+        String role = (email.toLowerCase() == 'admin@uide.edu.ec') ? 'admin' : 'cliente';
 
         // 3. Guardar datos en Firestore
         await _firestore.collection('users').doc(userCredential.user!.uid).set({
@@ -93,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
           'email': email,
           'rol': role, 
           'createdAt': FieldValue.serverTimestamp(),
-          'imagePath': '', // Inicialmente vacía
+          'imagePath': '', 
         });
 
         // 4. Navegar según Rol
