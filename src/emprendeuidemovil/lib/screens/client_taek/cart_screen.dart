@@ -4,6 +4,7 @@ import '../../providers/cart_provider.dart';
 import '../../models/cart_item.dart';
 import '../../models/service_model.dart';
 import 'payment_screen.dart';
+import '../../providers/order_provider.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -29,29 +30,9 @@ class _CartScreenState extends State<CartScreen> {
         final bool hasRejected = isServiceTab && items.any((item) => item.status == CartStatus.rejected);
 
         // Configuración dinámica del botón según la pestaña
-        String buttonText;
-        bool canPay;
-        Color buttonColor;
-
-        if (isServiceTab) {
-          if (hasRejected) {
-            buttonText = 'Solicitud Rechazada';
-            canPay = false;
-            buttonColor = Colors.red;
-          } else if (hasPending) {
-            buttonText = 'Esperando Aceptación';
-            canPay = false;
-            buttonColor = Colors.grey;
-          } else {
-            buttonText = 'Pagar Servicio';
-            canPay = items.isNotEmpty;
-            buttonColor = Colors.orange;
-          }
-        } else {
-          buttonText = 'Comprar Productos';
-          canPay = items.isNotEmpty;
-          buttonColor = Colors.orange;
-        }
+        String buttonText = isServiceTab ? 'Pagar Servicio' : 'Comprar Productos';
+        bool canPay = items.isNotEmpty;
+        Color buttonColor = Colors.orange;
 
         return Scaffold(
           appBar: AppBar(

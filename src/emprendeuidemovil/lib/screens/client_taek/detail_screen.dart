@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/service_model.dart';
 import '../../providers/cart_provider.dart';
-import '../../providers/review_provider.dart'; // Import provider de reseñas
+import '../../providers/review_provider.dart';
+import '../../providers/order_provider.dart';
+import '../../models/cart_item.dart';
 import '../../screens/perfilpublico.dart'; 
 import 'package:intl/intl.dart';
 import 'dart:convert';
@@ -248,10 +250,24 @@ class _DetailScreenState extends State<DetailScreen> {
             ),
             onPressed: _isServiceValid ? () {
                final selectedItem = widget.service.services[_selectedServiceIndex];
-               cartProvider.addToCart(widget.service, serviceItem: selectedItem, comment: _commentController.text);
-               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Agregado al carrito')));
+               
+               // Volvemos a agregarlo al carrito local en lugar de enviarlo directo
+               cartProvider.addToCart(
+                 widget.service, 
+                 serviceItem: selectedItem, 
+                 comment: _commentController.text
+               );
+
+               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                 content: Text('Agregado al carrito de servicios'),
+                 backgroundColor: Colors.green,
+               ));
+               
                _commentController.clear();
-               setState(() { _selectedServiceIndex = -1; _isServiceValid = false; });
+               setState(() { 
+                 _selectedServiceIndex = -1; 
+                 _isServiceValid = false; 
+               });
             } : null,
             child: const Text('Solicitar'),
           ),
