@@ -10,6 +10,25 @@ Los estudiantes emprendedores de la UIDE enfrentan una barrera de invisibilidad 
 
 La necesidad concreta que resuelve este sistema es la eliminación de la asimetría de información y la falta de reputación digital que sufren los emprendedores universitarios, quienes actualmente operan en un mercado invisible e ineficiente dentro del campus. Críticamente, esto impide el cumplimiento del ODS 8 (*Trabajo Decente y Crecimiento Económico*), ya que los estudiantes no pueden alcanzar un nivel de ingresos digno ni autonomía financiera debido a la dependencia de algoritmos externos que invisibilizan sus microemprendimientos. Además, esta fragmentación evidencia una falla en la infraestructura interna (*ODS 9*), perpetuando un modelo comercial obsoleto que frena la innovación local. Finalmente, la falta de una plataforma de validación entre pares limita la educación de calidad (*ODS 4*), al no ofrecer un espacio real y seguro para la aplicación práctica de conocimientos comerciales y la mentoría basada en experiencias reales.
 
+### Diagrama de Flujo de Datos
+<img width="884" height="593" alt="image" src="https://github.com/user-attachments/assets/9b8f498d-645b-4f88-9bbd-df00844d6e16" />
+
+### Diagrama General del Sistema
+<img width="921" height="248" alt="image" src="https://github.com/user-attachments/assets/65b7646f-50ce-48e3-aa83-a2a44237d892" />
+
+### Patrón de Arquitectura
+<img width="775" height="427" alt="image" src="https://github.com/user-attachments/assets/825035f1-608d-44b3-a21c-d32a95bdd3cb" />
+
+### Diagrama de Componentes por Rol
+<img width="921" height="197" alt="image" src="https://github.com/user-attachments/assets/0c7e73c0-44e7-4b03-a920-0806a61760a6" />
+
+### Diagrama de Despliegue
+<img width="921" height="466" alt="image" src="https://github.com/user-attachments/assets/df7e58cb-e730-404d-88a5-6ee24e70845a" />
+
+### Arquitectura Proyecto
+<img width="742" height="738" alt="image" src="https://github.com/user-attachments/assets/ca2fad6e-5684-46db-9d82-000da24c2756" />
+
+
 ### Objetivo del Proyecto
 * Registrar y autenticar usuarios utilizando **Firebase**.
 * Permitir la publicación y administración de emprendimientos por parte de los estudiantes.
