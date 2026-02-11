@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert'; // Import needed for Base64 decoding
 import '../../providers/order_provider.dart';
+import '../../providers/notification_provider.dart';
 import '../chat_screen.dart';
 
 class DetalleSolicitudScreen extends StatefulWidget {
@@ -480,11 +481,21 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
             
             const SizedBox(height: 30),
 
-            // Botón de Chat con Cliente
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: () {
+                   // Enviar notificación al cliente de que el emprendedor está escribiendo
+                   try {
+                     final notiProvider = Provider.of<NotificationProvider>(context, listen: false);
+                     notiProvider.addNotification(
+                       "Chat Iniciado", 
+                       "El emprendedor de '${widget.title}' te ha contactado y está escribiendo..."
+                     );
+                   } catch (e) {
+                     debugPrint("Error al enviar notificación de chat: $e");
+                   }
+
                    Navigator.push(
                     context, 
                     MaterialPageRoute(

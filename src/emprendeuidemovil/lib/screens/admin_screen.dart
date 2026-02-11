@@ -32,7 +32,7 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -439,13 +439,74 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
     );
   }
 
-  // USUARIOS: LÓGICA DE ELIMINACIÓN
+  // LÓGICA DE ELIMINACIÓN EN CASCADA OPTIMIZADA
+  Future<void> _performEmprendimientoDeletion(String serviceId, {String? ownerId}) async {
+    final firestore = FirebaseFirestore.instance;
+    final batch = firestore.batch();
+
+    // 0. Si no tenemos ownerId, lo buscamos primero para optimizar la búsqueda de pedidos
+    String? effectiveOwnerId = ownerId;
+    if (effectiveOwnerId == null) {
+      final doc = await firestore.collection('emprendimientos').doc(serviceId).get();
+      if (doc.exists) {
+        effectiveOwnerId = doc.data()?['ownerId'];
+      }
+    }
+
+    // Ejecutar búsquedas en paralelo para mayor velocidad
+    final results = await Future.wait([
+      firestore.collection('reviews').where('serviceId', isEqualTo: serviceId).get(),
+      firestore.collection('ratings').where('emprendimientoId', isEqualTo: serviceId).get(),
+      // Filtramos pedidos por sellerId si lo tenemos, lo cual es MUCHO más rápido
+      effectiveOwnerId != null 
+        ? firestore.collection('orders').where('sellerId', isEqualTo: effectiveOwnerId).get()
+        : firestore.collection('orders').get(),
+    ]);
+
+    final reviews = results[0];
+    final ratings = results[1];
+    final orders = results[2];
+
+    // 1. Eliminar reseñas asociadas
+    for (var doc in reviews.docs) {
+      batch.delete(doc.reference);
+    }
+
+    // 2. Eliminar calificaciones asociadas
+    for (var doc in ratings.docs) {
+      batch.delete(doc.reference);
+    }
+
+    // 3. Eliminar pedidos que contienen este servicio
+    for (var doc in orders.docs) {
+       final data = doc.data() as Map<String, dynamic>;
+       final items = (data['items'] as List<dynamic>?) ?? [];
+       
+       bool hasService = items.any((item) {
+            final serviceMap = item['service'] as Map<String, dynamic>?;
+            return serviceMap != null && serviceMap['id'] == serviceId;
+       });
+
+       if (hasService) {
+         batch.delete(doc.reference);
+         // Eliminar chats asociados al pedido
+         batch.delete(firestore.collection('chats').doc('order-${doc.id}'));
+       }
+    }
+
+    // 4. Eliminar el emprendimiento
+    batch.delete(firestore.collection('emprendimientos').doc(serviceId));
+
+    await batch.commit();
+  }
+
+  // USUARIOS: LÓGICA DE ELIMINACIÓN MEJORADA
   void _confirmDeleteUser(BuildContext context, String uid, String name) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Eliminar Usuario'),
-        content: Text('¿Seguro que deseas eliminar a $name? Se borrará su perfil de la base de datos.'),
+        title: Text('Eliminar Usuario - CASCADA'),
+        content: Text('¿Seguro que deseas eliminar a $name? Se borrarán todos sus emprendimientos, datos, reseñas y calificaciones asociadas permanentemente.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -455,22 +516,135 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
             onPressed: () async {
               Navigator.pop(context);
+              
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => const Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(color: Colors.red),
+                      SizedBox(height: 15),
+                      Text("Eliminando datos del usuario...", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+              );
+
               try {
-                // 1. Eliminar de Firestore
-                await FirebaseFirestore.instance.collection('users').doc(uid).delete();
+                // 1. Buscar y eliminar todos sus emprendimientos (en cascada)
+                final emps = await FirebaseFirestore.instance
+                    .collection('emprendimientos')
+                    .where('ownerId', isEqualTo: uid)
+                    .get();
                 
-                // Nota: No se puede eliminar de Auth directamente desde el cliente sin Admin SDK/Functions
-                // pero eliminamos su acceso a datos de perfil.
+                for (var doc in emps.docs) {
+                  await _performEmprendimientoDeletion(doc.id, ownerId: uid);
+                }
+
+                final batch = FirebaseFirestore.instance.batch();
+
+                // 2. Eliminar reseñas que el usuario haya hecho (ReviewModel)
+                final userReviews = await FirebaseFirestore.instance
+                    .collection('reviews')
+                    .where('userId', isEqualTo: uid)
+                    .get();
+                for (var doc in userReviews.docs) {
+                   batch.delete(doc.reference);
+                }
+
+                // 3. Eliminar calificaciones hechas por el usuario (RatingModel)
+                final userRatings = await FirebaseFirestore.instance
+                    .collection('ratings')
+                    .where('clienteId', isEqualTo: uid)
+                    .get();
+                for (var doc in userRatings.docs) {
+                   batch.delete(doc.reference);
+                }
+                
+                // 4. Eliminar pedidos donde sea cliente (ya borramos los de seller en el loop de emprendimientos)
+                final clientOrders = await FirebaseFirestore.instance
+                    .collection('orders')
+                    .where('clientId', isEqualTo: uid)
+                    .get();
+                for (var doc in clientOrders.docs) {
+                   batch.delete(doc.reference);
+                   batch.delete(FirebaseFirestore.instance.collection('chats').doc('order-${doc.id}'));
+                }
+
+                // 5. Eliminar perfil de usuario
+                batch.delete(FirebaseFirestore.instance.collection('users').doc(uid));
+                
+                await batch.commit();
 
                 if (context.mounted) {
+                  Navigator.pop(context); // Cierra el indicador de carga
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Usuario $name eliminado de la base de datos'), backgroundColor: Colors.orange),
+                    SnackBar(content: Text('Usuario $name y todos sus datos eliminados'), backgroundColor: Colors.orange),
                   );
                 }
               } catch (e) {
                 if (context.mounted) {
+                  Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Error al eliminar: $e'), backgroundColor: Colors.red),
+                  );
+                }
+              }
+            },
+            child: const Text('Confirmar Eliminación Total'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDeleteEmprendimiento(BuildContext context, String id, String name, String ownerId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Eliminar Emprendimiento'),
+        content: Text('¿Estás seguro de que deseas eliminar "$name"? Se borrarán también sus reseñas y pedidos asociados.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            onPressed: () async {
+              Navigator.pop(context);
+              
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const CircularProgressIndicator(color: Colors.red),
+                      const SizedBox(height: 15),
+                      Text('Eliminando "$name"...', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+              );
+
+              try {
+                await _performEmprendimientoDeletion(id, ownerId: ownerId);
+                
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Emprendimiento eliminado correctamente'), backgroundColor: Colors.orange),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
                   );
                 }
               }
@@ -498,6 +672,7 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
           tabs: const [
             Tab(icon: Icon(Icons.event), text: 'Eventos'),
             Tab(icon: Icon(Icons.people), text: 'Usuarios'),
+            Tab(icon: Icon(Icons.store), text: 'Negocios'),
           ],
         ),
         actions: [
@@ -518,6 +693,9 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
           
           // PANEL DE USUARIOS
           _buildUsersTab(),
+
+          // PANEL DE EMPRENDIMIENTOS
+          _buildEmprendimientosTab(),
         ],
       ),
     );
@@ -570,11 +748,18 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
                         margin: const EdgeInsets.only(bottom: 10),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                         child: ListTile(
-                          leading: event.image != null 
-                            ? (event.image!.startsWith('http') 
-                               ? Image.network(event.image!, width: 50, height: 50, fit: BoxFit.cover, errorBuilder: (c,o,s) => const Icon(Icons.error)) 
-                               : Image.file(File(event.image!), width: 50, height: 50, fit: BoxFit.cover, errorBuilder: (c,o,s) => const Icon(Icons.image)))
-                            : const Icon(Icons.image_not_supported),
+                          leading: Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              image: event.image != null ? DecorationImage(
+                                image: _getUserImage(event.image)!,
+                                fit: BoxFit.cover,
+                              ) : null,
+                            ),
+                            child: event.image == null ? const Icon(Icons.image_not_supported) : null,
+                          ),
                           title: Text(event.title, style: const TextStyle(fontWeight: FontWeight.bold)),
                           subtitle: Text('Inicia: ${_formatDateTime(event.startDateTime)}', style: const TextStyle(fontSize: 12)),
                           trailing: Row(
@@ -623,6 +808,17 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
             final String email = data['email'] ?? 'Sin Email';
             final String rol = data['rol'] ?? 'cliente';
             final String? imagePath = data['imagePath'];
+            final String? imageBase64 = data['imageBase64'];
+            
+            // Lógica robusta para elegir la imagen (igual que en UserProfileProvider)
+            String? effectivePath;
+            if (imagePath != null && imagePath.startsWith('http')) {
+              effectivePath = imagePath;
+            } else if (imageBase64 != null && imageBase64.startsWith('data:image')) {
+              effectivePath = imageBase64;
+            } else {
+              effectivePath = imagePath;
+            }
 
             return Card(
               margin: const EdgeInsets.only(bottom: 10),
@@ -630,8 +826,8 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
               child: ListTile(
                 leading: CircleAvatar(
                    backgroundColor: const Color(0xFF83002A),
-                   backgroundImage: _getUserImage(imagePath),
-                   child: (imagePath == null || imagePath.isEmpty) ? const Icon(Icons.person, color: Colors.white) : null,
+                   backgroundImage: _getUserImage(effectivePath),
+                   child: (effectivePath == null || effectivePath.isEmpty) ? const Icon(Icons.person, color: Colors.white) : null,
                 ),
                 title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Text('$email\nRol: $rol', style: const TextStyle(fontSize: 12)),
@@ -650,6 +846,71 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
     );
   }
 
+  Widget _buildEmprendimientosTab() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection('emprendimientos').snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const Center(child: Text('No hay emprendimientos registrados.'));
+        }
+
+        final emps = snapshot.data!.docs;
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: emps.length,
+          itemBuilder: (context, index) {
+            final doc = emps[index];
+            final data = doc.data() as Map<String, dynamic>;
+            final String name = data['name'] ?? 'Sin Nombre';
+            final String category = data['category'] ?? 'General';
+            final String ownerId = data['ownerId'] ?? 'Desconocido';
+            final String? image = data['imageUrl'] ?? data['image'];
+            final String? serviceBase64 = data['imageBase64'];
+            
+            String? effectiveImg;
+            if (image != null && image.startsWith('http')) {
+              effectiveImg = image;
+            } else if (serviceBase64 != null && serviceBase64.startsWith('data:image')) {
+              effectiveImg = serviceBase64;
+            } else {
+              effectiveImg = image;
+            }
+
+            return Card(
+              margin: const EdgeInsets.only(bottom: 10),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              child: ListTile(
+                leading: Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    image: effectiveImg != null ? DecorationImage(
+                      image: _getUserImage(effectiveImg)!,
+                      fit: BoxFit.cover,
+                    ) : null,
+                  ),
+                  child: effectiveImg == null ? const Icon(Icons.store) : null,
+                ),
+                title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text('$category\nDueño ID: $ownerId', style: const TextStyle(fontSize: 11)),
+                isThreeLine: true,
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete_sweep, color: Colors.red),
+                  onPressed: () => _confirmDeleteEmprendimiento(context, doc.id, name, ownerId),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   ImageProvider? _getUserImage(String? path) {
     if (path == null || path.isEmpty) return null;
     if (path.startsWith('data:image')) {
@@ -657,7 +918,11 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
       return MemoryImage(base64Decode(b64));
     }
     if (path.startsWith('http')) return NetworkImage(path);
-    if (File(path).existsSync()) return FileImage(File(path));
+    try {
+      if (File(path).existsSync()) return FileImage(File(path));
+    } catch (e) {
+      // Ignorar errores de filesystem en web o si el path es inválido
+    }
     return null;
   }
 

@@ -30,8 +30,9 @@ class _SolicitudesScreenState extends State<SolicitudesScreen> {
 
     // List of Orders where I am the seller
     final List<Map<String, dynamic>> listaCombinada = orderProvider.orders.map((order) {
+            String itemDisplayName = order.items.isNotEmpty ? order.items.first.displayName : 'Solicitud';
             return {
-              'title': order.items.any((i) => i.isActualProduct) ? 'Producto de Cliente' : 'Servicio de Cliente',
+              'title': itemDisplayName,
               'orderId': order.id,
               'tag': order.items.any((i) => i.isActualProduct) ? 'Producto' : 'Servicio',
               'description': order.items.map((i) => i.displayName).join(', '),
@@ -137,7 +138,7 @@ class _SolicitudesScreenState extends State<SolicitudesScreen> {
               ],
             ),
           ),
-          const Spacer(),
+          const SizedBox(height: 8),
           // BOTÓN ENVIAR NOTIFICACIÓN
           Padding(
             padding: const EdgeInsets.all(8.0),

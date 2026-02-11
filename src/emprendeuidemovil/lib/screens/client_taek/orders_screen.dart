@@ -82,7 +82,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    'Pedido ${order.id}',
+                    order.items.isNotEmpty ? order.items.first.displayName : 'Pedido ${order.id}',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold, 
                       fontSize: 16
