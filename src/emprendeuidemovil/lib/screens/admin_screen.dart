@@ -337,26 +337,7 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
     
     _formKey.currentState!.save();
     
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(
-        child: Card(
-          margin: EdgeInsets.symmetric(horizontal: 40),
-          child: Padding(
-            padding: EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(color: Color(0xFFC8102E)),
-                SizedBox(height: 20),
-                Text('Publicando evento...', style: TextStyle(fontWeight: FontWeight.bold)),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+      _showLoadingDialog(isDraft ? 'Guardando borrador...' : 'Publicando evento...');
 
     try {
       String? finalImageUrl = existingData?['image'];
@@ -410,27 +391,40 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
     }
   }
 
-  void _confirmDelete(BuildContext context, String docId) {
+  void _confirmDelete(BuildContext itemContext, String docId) {
+    final navigator = Navigator.of(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final eventProvider = Provider.of<EventProvider>(context, listen: false);
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminar Evento'),
-        content: const Text('¿Estás seguro de que deseas eliminar este evento?'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Eliminar Evento', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text('¿Estás seguro de que deseas eliminar este evento permanentemente?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: const Text('Cancelar', style: TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red, 
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+            ),
             onPressed: () async {
-              Navigator.pop(context); // Cerrar diálogo
-              await Provider.of<EventProvider>(context, listen: false).deleteEvent(docId);
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                   const SnackBar(content: Text('Evento eliminado correctamente'), backgroundColor: Colors.orange),
-                );
-              }
+              navigator.pop(); // Cerrar diálogo de confirmación
+              _showLoadingDialog("Eliminando evento...");
+              await eventProvider.deleteEvent(docId);
+              navigator.pop(); // Cierra loading
+              scaffoldMessenger.showSnackBar(
+                 const SnackBar(
+                   content: Text('Evento eliminado correctamente'), 
+                   backgroundColor: Colors.orange,
+                   behavior: SnackBarBehavior.floating,
+                 ),
+              );
             },
             child: const Text('Eliminar'),
           ),
@@ -501,36 +495,31 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
   }
 
   // USUARIOS: LÓGICA DE ELIMINACIÓN MEJORADA
-  void _confirmDeleteUser(BuildContext context, String uid, String name) {
+  void _confirmDeleteUser(BuildContext itemContext, String uid, String name) {
+    final navigator = Navigator.of(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Eliminar Usuario - CASCADA'),
-        content: Text('¿Seguro que deseas eliminar a $name? Se borrarán todos sus emprendimientos, datos, reseñas y calificaciones asociadas permanentemente.'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Eliminar Usuario', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Text('¿Seguro que deseas eliminar a "$name"?\n\nSe borrarán permanentemente sus emprendimientos, pedidos y reseñas asociadas.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: const Text('Cancelar', style: TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red, 
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+            ),
             onPressed: () async {
-              Navigator.pop(context);
+              navigator.pop(); // Cerrar diálogo de confirmación
               
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (context) => const Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircularProgressIndicator(color: Colors.red),
-                      SizedBox(height: 15),
-                      Text("Eliminando datos del usuario...", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ),
-              );
+              _showLoadingDialog("Eliminando datos del usuario...");
 
               try {
                 // 1. Buscar y eliminar todos sus emprendimientos (en cascada)
@@ -578,75 +567,102 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
                 
                 await batch.commit();
 
-                if (context.mounted) {
-                  Navigator.pop(context); // Cierra el indicador de carga
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Usuario $name y todos sus datos eliminados'), backgroundColor: Colors.orange),
-                  );
-                }
+                navigator.pop(); // Cierra el loading
+                
+                scaffoldMessenger.showSnackBar(
+                  SnackBar(
+                    content: Text('Usuario "$name" eliminado correctamente'), 
+                    backgroundColor: Colors.orange,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
               } catch (e) {
-                if (context.mounted) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error al eliminar: $e'), backgroundColor: Colors.red),
-                  );
-                }
+                navigator.pop(); // Cierra el loading
+                scaffoldMessenger.showSnackBar(
+                  SnackBar(content: Text('Error al eliminar: $e'), backgroundColor: Colors.red),
+                );
               }
             },
-            child: const Text('Confirmar Eliminación Total'),
+            child: const Text('Confirmar Eliminación'),
           ),
         ],
       ),
     );
   }
 
-  void _confirmDeleteEmprendimiento(BuildContext context, String id, String name, String ownerId) {
+  void _showLoadingDialog(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(
+        child: Card(
+          margin: const EdgeInsets.symmetric(horizontal: 40),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          elevation: 10,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(color: Color(0xFFC8102E), strokeWidth: 3),
+                const SizedBox(height: 25),
+                Text(
+                  message, 
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16, 
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _confirmDeleteEmprendimiento(BuildContext itemContext, String id, String name, String ownerId) {
+    final navigator = Navigator.of(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminar Emprendimiento'),
-        content: Text('¿Estás seguro de que deseas eliminar "$name"? Se borrarán también sus reseñas y pedidos asociados.'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Eliminar Negocio', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Text('¿Deseas eliminar "$name"?\n\nSe borrarán permanentemente sus reseñas y pedidos asociados.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: const Text('Cancelar', style: TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red, 
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+            ),
             onPressed: () async {
-              Navigator.pop(context);
+              navigator.pop(); // Cerrar diálogo de confirmación
               
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (context) => Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const CircularProgressIndicator(color: Colors.red),
-                      const SizedBox(height: 15),
-                      Text('Eliminando "$name"...', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ),
-              );
+              _showLoadingDialog('Eliminando "$name"...');
 
               try {
                 await _performEmprendimientoDeletion(id, ownerId: ownerId);
                 
-                if (context.mounted) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Emprendimiento eliminado correctamente'), backgroundColor: Colors.orange),
-                  );
-                }
+                // Cerramos el loading usando el navigator capturado
+                navigator.pop();
+                
+                scaffoldMessenger.showSnackBar(
+                  const SnackBar(content: Text('Emprendimiento eliminado correctamente'), backgroundColor: Colors.orange),
+                );
               } catch (e) {
-                if (context.mounted) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-                  );
-                }
+                navigator.pop(); // Cierra el loading en caso de error
+                scaffoldMessenger.showSnackBar(
+                  SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+                );
               }
             },
             child: const Text('Eliminar'),
@@ -865,45 +881,95 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
           itemBuilder: (context, index) {
             final doc = emps[index];
             final data = doc.data() as Map<String, dynamic>;
-            final String name = data['name'] ?? 'Sin Nombre';
+            
+            // Buscar nombre en 'name' o 'title' (el form usa 'title')
+            final String name = data['name'] ?? data['title'] ?? 'Sin Nombre';
             final String category = data['category'] ?? 'General';
             final String ownerId = data['ownerId'] ?? 'Desconocido';
-            final String? image = data['imageUrl'] ?? data['image'];
+            
+            // Buscar imagen en múltiples campos posibles
+            final String? image = data['imageUrl'] ?? data['image'] ?? data['imagePath'];
             final String? serviceBase64 = data['imageBase64'];
             
             String? effectiveImg;
-            if (image != null && image.startsWith('http')) {
+            if (image != null && (image.startsWith('http') || image.startsWith('data:image'))) {
               effectiveImg = image;
             } else if (serviceBase64 != null && serviceBase64.startsWith('data:image')) {
               effectiveImg = serviceBase64;
+            } else if (image != null && image.length > 200) {
+              // Probablemente es base64 sin el prefijo data:image
+              effectiveImg = image.startsWith('data:image') ? image : 'data:image/jpeg;base64,$image';
             } else {
               effectiveImg = image;
             }
 
-            return Card(
-              margin: const EdgeInsets.only(bottom: 10),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-              child: ListTile(
-                leading: Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    image: effectiveImg != null ? DecorationImage(
-                      image: _getUserImage(effectiveImg)!,
-                      fit: BoxFit.cover,
-                    ) : null,
+            return FutureBuilder<DocumentSnapshot>(
+              future: FirebaseFirestore.instance.collection('users').doc(ownerId).get(),
+              builder: (context, userSnapshot) {
+                String ownerDisplay = "ID: $ownerId";
+                if (userSnapshot.hasData && userSnapshot.data!.exists) {
+                   final userData = userSnapshot.data!.data() as Map<String, dynamic>;
+                   final String oName = userData['nombre'] ?? userData['name'] ?? "Buscando...";
+                   ownerDisplay = oName;
+                }
+
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 15),
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    leading: Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.grey.shade200,
+                        image: effectiveImg != null ? DecorationImage(
+                          image: _getUserImage(effectiveImg)!,
+                          fit: BoxFit.cover,
+                        ) : null,
+                      ),
+                      child: effectiveImg == null ? const Icon(Icons.store, size: 30, color: Color(0xFF83002A)) : null,
+                    ),
+                    title: Text(
+                      name, 
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(Icons.category, size: 14, color: Colors.blue),
+                            const SizedBox(width: 4),
+                            Text(category, style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 13)),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(Icons.person, size: 14, color: Colors.grey),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                'Dueño: $ownerDisplay', 
+                                style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete_sweep, color: Colors.red, size: 28),
+                      onPressed: () => _confirmDeleteEmprendimiento(context, doc.id, name, ownerId),
+                    ),
                   ),
-                  child: effectiveImg == null ? const Icon(Icons.store) : null,
-                ),
-                title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text('$category\nDueño ID: $ownerId', style: const TextStyle(fontSize: 11)),
-                isThreeLine: true,
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete_sweep, color: Colors.red),
-                  onPressed: () => _confirmDeleteEmprendimiento(context, doc.id, name, ownerId),
-                ),
-              ),
+                );
+              },
             );
           },
         );
