@@ -17,6 +17,8 @@ class DetalleSolicitudScreen extends StatefulWidget {
   final String? transferReceiptPath;
   final bool isProduct;
   final String? orderId;
+  final DateTime? deliveryDate;
+  final String? clientId;
  
    const DetalleSolicitudScreen({
      super.key,
@@ -29,6 +31,8 @@ class DetalleSolicitudScreen extends StatefulWidget {
      this.isProduct = false,
      this.transferReceiptPath,
      this.orderId,
+     this.deliveryDate,
+     this.clientId,
    });
 
   // Helper to generate a consistent chat ID. 
@@ -49,6 +53,15 @@ class DetalleSolicitudScreen extends StatefulWidget {
 class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.deliveryDate != null) {
+      _selectedDate = widget.deliveryDate;
+      _selectedTime = TimeOfDay.fromDateTime(widget.deliveryDate!);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -488,10 +501,14 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
                    // Enviar notificación al cliente de que el emprendedor está escribiendo
                    try {
                      final notiProvider = Provider.of<NotificationProvider>(context, listen: false);
-                     notiProvider.addNotification(
-                       "Chat Iniciado", 
-                       "El emprendedor de '${widget.title}' te ha contactado y está escribiendo..."
-                     );
+                     final clientId = widget.clientId;
+                     if (clientId != null && clientId.isNotEmpty) {
+                        notiProvider.addNotification(
+                          "Chat Iniciado", 
+                          "El emprendedor de '${widget.title}' te ha contactado y está escribiendo...",
+                          recipientId: clientId,
+                        );
+                     }
                    } catch (e) {
                      debugPrint("Error al enviar notificación de chat: $e");
                    }
@@ -503,6 +520,7 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
                         chatId: widget._chatId, 
                         title: 'Chat con Cliente',
                         isEntrepreneurView: true,
+                        recipientId: widget.clientId,
                       ),
                     ),
                   );
@@ -631,13 +649,11 @@ class _DetalleSolicitudScreenState extends State<DetalleSolicitudScreen> {
                              
                              if (orderId.isNotEmpty) {
                                 // Actualizar en Provider
-                                if (widget.isProduct) {
-                                   try {
-                                      Provider.of<OrderProvider>(context, listen: false)
-                                        .updateOrderDeliveryDate(orderId, fullDate);
-                                   } catch (e) {
-                                     debugPrint("Error updating delivery date: $e");
-                                   }
+                                try {
+                                   Provider.of<OrderProvider>(context, listen: false)
+                                     .updateOrderDeliveryDate(orderId, fullDate);
+                                } catch (e) {
+                                  debugPrint("Error updating delivery date: $e");
                                 }
                              }
                          }

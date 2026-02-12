@@ -161,7 +161,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           MaterialPageRoute(
                             builder: (_) => ChatScreen(
                               chatId: 'order-${order.id}', 
-                              title: 'Chat Pedido ${order.id}',
+                              title: 'Chat con el Emprendedor',
+                              recipientId: order.sellerId,
                             ),
                           ),
                         );

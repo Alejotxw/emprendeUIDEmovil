@@ -49,7 +49,7 @@ class ChatProvider with ChangeNotifier {
         .collection('chats')
         .doc(chatId)
         .collection('messages')
-        .orderBy('timestamp', descending: false) // Oldest first
+        .orderBy('timestamp', descending: true) // Newest first for WhatsApp style reverse list
         .snapshots()
         .listen((snapshot) {
       
@@ -100,16 +100,33 @@ class ChatProvider with ChangeNotifier {
           .collection('messages')
           .add(newMessage.toMap());
 
-      // 2. Update parent chat document metadata (optional but good for 'last message' lists)
+      // 2. Update parent chat document metadata
       await _firestore.collection('chats').doc(chatId).set({
         'lastMessage': text,
         'lastMessageTime': DateTime.now().toIso8601String(),
-        'participants': FieldValue.arrayUnion([senderRole]), // basic tagging
+        'participants': FieldValue.arrayUnion([senderRole]), 
       }, SetOptions(merge: true));
+
+      // 3. Trigger notification logic if entrepreneur is writing to client
+      if (senderRole == 'entrepreneur' && chatId.startsWith('order-')) {
+        final orderId = chatId.replaceFirst('order-', '');
+        final orderDoc = await _firestore.collection('orders').doc(orderId).get();
+        if (orderDoc.exists) {
+          final clientId = orderDoc.data()?['clientId'];
+          if (clientId != null) {
+            await _firestore.collection('notifications').add({
+              'title': 'Nuevo mensaje del Emprendedor',
+              'message': text,
+              'timestamp': FieldValue.serverTimestamp(),
+              'recipientId': clientId,
+            });
+          }
+        }
+      }
 
     } catch (e) {
       print("Error sending message to Firestore: $e");
-      // Fallback: add locally if offline (though Firestore handles offline mostly)
+      // Fallback: add locally if offline
       if (!_chats.containsKey(chatId)) _chats[chatId] = [];
       _chats[chatId]!.add(newMessage);
       notifyListeners();

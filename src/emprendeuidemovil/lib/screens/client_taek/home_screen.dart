@@ -22,35 +22,112 @@ class HomeScreen extends StatefulWidget {
   void _showNotificationsDialog(BuildContext context, NotificationProvider provider) {
   showDialog(
     context: context,
-    builder: (context) => AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      title: const Text('Notificaciones'),
-      content: SizedBox(
-        width: double.maxFinite,
-        child: provider.notifications.isEmpty
-            ? const Text('No hay mensajes nuevos')
-            : // Busca esta parte en tu home_screen.dart
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: provider.notifications.length,
-                itemBuilder: (context, index) {
-                  final noti = provider.notifications[index];
-
-                  return ListTile(
-                    leading: const Icon(Icons.info_outline, color: Color(0xFFC8102E)),
-                    title: Text(noti.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text(noti.message),
-                    trailing: Text(
-                      "${noti.timestamp.hour}:${noti.timestamp.minute.toString().padLeft(2, '0')}",
-                      style: const TextStyle(fontSize: 10, color: Colors.grey),
-                    ),
-                  );
-                },
+    builder: (context) => Consumer<NotificationProvider>(
+      builder: (context, notiProvider, child) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        titlePadding: EdgeInsets.zero,
+        title: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: const BoxDecoration(
+            color: Color(0xFFC8102E),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: const Row(
+            children: [
+              Icon(Icons.notifications_active, color: Colors.white),
+              SizedBox(width: 10),
+              Text(
+                'Notificaciones',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
+            ],
+          ),
+        ),
+        content: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.9,
+          child: notiProvider.notifications.isEmpty
+              ? const Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: Text(
+                    'No hay mensajes nuevos', 
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                  ),
+                )
+              : ListView.separated(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  itemCount: notiProvider.notifications.length,
+                  separatorBuilder: (context, index) => const Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    final noti = notiProvider.notifications[index];
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      leading: CircleAvatar(
+                        backgroundColor: const Color(0xFFC8102E).withOpacity(0.1),
+                        child: const Icon(Icons.info_outline, color: Color(0xFFC8102E)),
+                      ),
+                      title: Text(
+                        noti.title,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                      ),
+                      subtitle: Text(
+                        noti.message,
+                        style: const TextStyle(fontSize: 13, color: Colors.black87),
+                      ),
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "${noti.timestamp.hour}:${noti.timestamp.minute.toString().padLeft(2, '0')}",
+                            style: const TextStyle(fontSize: 10, color: Colors.grey),
+                          ),
+                          const SizedBox(height: 4),
+                          InkWell(
+                            onTap: () {
+                              if (noti.id != null) {
+                                provider.deleteNotification(noti.id!);
+                              }
+                            },
+                            child: const Icon(Icons.delete_outline, size: 20, color: Color(0xFFC8102E)),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+        ),
+        actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (notiProvider.notifications.isNotEmpty)
+                TextButton.icon(
+                  onPressed: () async {
+                    await provider.clearNotifications();
+                    if (context.mounted) Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.clear_all, size: 18, color: Colors.blueGrey),
+                  label: const Text(
+                    'Limpiar Todo', 
+                    style: TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text(
+                  'Cerrar',
+                  style: TextStyle(color: Color(0xFFC8102E), fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cerrar')),
-      ],
     ),
   );
 }

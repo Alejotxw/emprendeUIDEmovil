@@ -47,6 +47,8 @@ class _SolicitudesScreenState extends State<SolicitudesScreen> {
               'deliveryTime': order.deliveryDate != null 
                   ? "${order.deliveryDate!.day}/${order.deliveryDate!.month} ${order.deliveryDate!.hour}:${order.deliveryDate!.minute}" 
                   : 'Pendiente',
+              'deliveryDate': order.deliveryDate,
+              'clientId': order.clientId,
               'isOrder': true,
               'isProduct': order.items.any((i) => i.isActualProduct),
             };
@@ -152,11 +154,17 @@ class _SolicitudesScreenState extends State<SolicitudesScreen> {
                 ),
                 onPressed: () {
                   final notiProvider = Provider.of<NotificationProvider>(context, listen: false);
-                  notiProvider.addNotification(
-                    "Actualización de Pedido", 
-                    "Tu pedido '${solicitud['title']}' está siendo procesado."
-                  );
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Notificación enviada al cliente')));
+                  final clientId = solicitud['clientId'];
+                  if (clientId != null && clientId.isNotEmpty) {
+                    notiProvider.addNotification(
+                      "Actualización de Pedido", 
+                      "Tu pedido '${solicitud['title']}' está siendo procesado.",
+                      recipientId: clientId
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Notificación enviada al cliente')));
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error: No se encontró el ID del cliente'), backgroundColor: Colors.red));
+                  }
                 },
                 child: const Text('Enviar Noti', style: TextStyle(fontSize: 11, color: Colors.white)),
               ),
@@ -181,6 +189,8 @@ class _SolicitudesScreenState extends State<SolicitudesScreen> {
           isProduct: solicitud['isProduct'] ?? false,
           transferReceiptPath: solicitud['transferReceiptPath'],
           orderId: solicitud['orderId'],
+          deliveryDate: solicitud['deliveryDate'],
+          clientId: solicitud['clientId'],
         ),
       ),
     );
@@ -196,8 +206,16 @@ class _SolicitudesScreenState extends State<SolicitudesScreen> {
            orderProvider.updateOrderStatus(solicitud['orderId'], 'Aceptado', const Color(0xFF4CAF50)); 
          } else if (result == 'Rechazado') {
            orderProvider.updateOrderStatus(solicitud['orderId'], 'Rechazado', Colors.red);
-         }
+            
+            // Notificación al cliente por rechazo
+            final notiProvider = Provider.of<NotificationProvider>(context, listen: false);
+            notiProvider.addNotification(
+              "Solicitud Rechazada", 
+              "El emprendedor ha rechazado la solicitud del servicio: ${solicitud['title']}",
+              recipientId: solicitud['clientId']
+            );
+          }
+      }
     }
   }
-}
 }
