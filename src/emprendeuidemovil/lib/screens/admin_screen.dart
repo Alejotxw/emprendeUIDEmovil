@@ -5,9 +5,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import '../providers/service_provider.dart';
 import '../providers/user_role_provider.dart';
 import '../providers/event_provider.dart';
+import '../providers/user_profile_provider.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
@@ -33,12 +35,61 @@ class _AdminScreenState extends State<AdminScreen> with SingleTickerProviderStat
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    
+    // Escuchar cambios en el perfil para detectar si la cuenta fue borrada
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userProfile = Provider.of<UserProfileProvider>(context, listen: false);
+      userProfile.addListener(_handleAccountStatus);
+    });
   }
 
   @override
   void dispose() {
+    // Intentar remover el listener al cerrar la pantalla
+    try {
+      final userProfile = Provider.of<UserProfileProvider>(context, listen: false);
+      userProfile.removeListener(_handleAccountStatus);
+    } catch (_) {}
+
     _tabController.dispose();
     super.dispose();
+  }
+
+  void _handleAccountStatus() {
+    if (!mounted) return;
+    final userProfile = Provider.of<UserProfileProvider>(context, listen: false);
+    
+    if (userProfile.accountDeleted) {
+      userProfile.removeListener(_handleAccountStatus);
+      _showAccountDeletedDialog();
+    }
+  }
+
+  void _showAccountDeletedDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Cuenta Eliminada', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text('Tu cuenta ha sido eliminada por el administrador. La sesión se cerrará.'),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFC8102E),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+            ),
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              if (mounted) {
+                Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+              }
+            },
+            child: const Text('Entendido', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
   }
 
   // ... (Keep existing private helper methods like _showEventDialog, _buildInputLabel, etc.)

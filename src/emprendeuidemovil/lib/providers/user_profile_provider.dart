@@ -32,7 +32,11 @@ class UserProfileProvider with ChangeNotifier {
     });
   }
 
+  bool _accountDeleted = false;
+  bool get accountDeleted => _accountDeleted;
+
   void _listenToProfileChanges(String uid) {
+    _accountDeleted = false; // Reset flag
     _firestore.collection('users').doc(uid).snapshots().listen((doc) {
       if (doc.exists) {
         final data = doc.data()!;
@@ -54,6 +58,11 @@ class UserProfileProvider with ChangeNotifier {
         
         _showEmail = data['showEmail'] ?? true;
         _showPhone = data['showPhone'] ?? true;
+        _accountDeleted = false;
+        notifyListeners();
+      } else {
+        // El documento no existe -> El usuario fue eliminado por el administrador
+        _accountDeleted = true;
         notifyListeners();
       }
     }, onError: (e) {
@@ -68,6 +77,7 @@ class UserProfileProvider with ChangeNotifier {
     _imagePath = null;
     _showEmail = true;
     _showPhone = true;
+    _accountDeleted = false;
     notifyListeners();
   }
 

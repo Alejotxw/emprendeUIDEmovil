@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 
 // Providers
@@ -133,6 +134,64 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Escuchar cambios en el perfil para detectar si la cuenta fue borrada
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userProfile = Provider.of<UserProfileProvider>(context, listen: false);
+      userProfile.addListener(_handleAccountStatus);
+    });
+  }
+
+  @override
+  void dispose() {
+    try {
+      final userProfile = Provider.of<UserProfileProvider>(context, listen: false);
+      userProfile.removeListener(_handleAccountStatus);
+    } catch (_) {}
+    super.dispose();
+  }
+
+  void _handleAccountStatus() {
+    if (!mounted) return;
+    final userProfile = Provider.of<UserProfileProvider>(context, listen: false);
+    
+    if (userProfile.accountDeleted) {
+      // Remover listener para que no se dispare multiples veces
+      userProfile.removeListener(_handleAccountStatus);
+      
+      _showAccountDeletedDialog();
+    }
+  }
+
+  void _showAccountDeletedDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Cuenta Eliminada', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text('Tu cuenta ha sido eliminada por el administrador. La sesión se cerrará.'),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFC8102E),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+            ),
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              if (mounted) {
+                Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+              }
+            },
+            child: const Text('Entendido', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

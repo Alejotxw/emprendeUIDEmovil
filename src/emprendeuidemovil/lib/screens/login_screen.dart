@@ -41,6 +41,16 @@ class _LoginScreenState extends State<LoginScreen> {
         
         if (mounted) {
           final roleProvider = Provider.of<UserRoleProvider>(context, listen: false);
+          
+          // Si el documento no existe y no es el administrador root, denegar el acceso
+          if (!doc.exists && userCredential.user!.email != 'admin@uide.edu.ec') {
+            await _auth.signOut();
+            throw FirebaseAuthException(
+              code: 'user-not-found',
+              message: 'Tu cuenta ha sido eliminada por el administrador.',
+            );
+          }
+
           String role = 'cliente'; // Default
           
           if (doc.exists && doc.data() != null) {
