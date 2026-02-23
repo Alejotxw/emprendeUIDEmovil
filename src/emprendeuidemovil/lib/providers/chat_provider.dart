@@ -93,7 +93,7 @@ class ChatProvider with ChangeNotifier {
     // AI chat (default) is memory-only — never touches Firestore
     if (chatId == 'default') {
       if (!_chats.containsKey(chatId)) _chats[chatId] = [];
-      _chats[chatId]!.add(newMessage);
+      _chats[chatId]!.insert(0, newMessage); // insert at 0 so reverse:true shows it at bottom
       notifyListeners();
     } else {
       // P2P chats (order-xxx) → persist in Firestore as before
@@ -154,7 +154,7 @@ class ChatProvider with ChangeNotifier {
         );
 
         if (!_chats.containsKey(chatId)) _chats[chatId] = [];
-        _chats[chatId]!.add(aiMessage);
+        _chats[chatId]!.insert(0, aiMessage); // insert at 0 so reverse:true shows it at bottom
         notifyListeners();
 
       } catch (e) {
