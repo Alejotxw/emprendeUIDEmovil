@@ -25,16 +25,17 @@ class ChatProvider with ChangeNotifier {
   List<ChatMessage> getMessages(String chatId) {
     if (!_chats.containsKey(chatId)) {
       _chats[chatId] = [];
-      // Auto-subscribe if not already subscribed? 
-      // Better to explicit subscribe, but for now let's auto-subscribe to be safe 
-      // if UI calls this without init.
-      subscribeToChat(chatId);
+      // AI chat is memory-only, never subscribe to Firestore
+      if (chatId != 'default') {
+        subscribeToChat(chatId);
+      }
     }
     return List.unmodifiable(_chats[chatId]!);
   }
 
   /// Subscribe to real-time updates for a specific chat
   void subscribeToChat(String chatId) {
+    if (chatId == 'default') return; // AI chat is memory-only, no Firestore
     if (_listeners.containsKey(chatId)) return; // Already listening
 
     _currentChatId = chatId;
@@ -82,9 +83,6 @@ class ChatProvider with ChangeNotifier {
   Future<void> sendMessageToChat(String chatId, String text, {required bool isUser, bool isAI = false, required String senderRole}) async {
     if (text.trim().isEmpty) return;
 
-    // Ensure we are subscribed so we see our own message come back
-    subscribeToChat(chatId);
-
     final newMessage = ChatMessage(
       text: text,
       isUser: isUser,
@@ -92,54 +90,62 @@ class ChatProvider with ChangeNotifier {
       timestamp: DateTime.now(),
     );
 
-    try {
-      // 1. Save to Firestore
-      await _firestore
-          .collection('chats')
-          .doc(chatId)
-          .collection('messages')
-          .add(newMessage.toMap());
-
-      // 2. Update parent chat document metadata
-      await _firestore.collection('chats').doc(chatId).set({
-        'lastMessage': text,
-        'lastMessageTime': DateTime.now().toIso8601String(),
-        'participants': FieldValue.arrayUnion([senderRole]), 
-      }, SetOptions(merge: true));
-
-      // 3. Trigger notification logic if entrepreneur is writing to client
-      if (senderRole == 'entrepreneur' && chatId.startsWith('order-')) {
-        final orderId = chatId.replaceFirst('order-', '');
-        final orderDoc = await _firestore.collection('orders').doc(orderId).get();
-        if (orderDoc.exists) {
-          final clientId = orderDoc.data()?['clientId'];
-          if (clientId != null) {
-            await _firestore.collection('notifications').add({
-              'title': 'Nuevo mensaje del Emprendedor',
-              'message': text,
-              'timestamp': FieldValue.serverTimestamp(),
-              'recipientId': clientId,
-            });
-          }
-        }
-      }
-
-    } catch (e) {
-      print("Error sending message to Firestore: $e");
-      // Fallback: add locally if offline
+    // AI chat (default) is memory-only — never touches Firestore
+    if (chatId == 'default') {
       if (!_chats.containsKey(chatId)) _chats[chatId] = [];
       _chats[chatId]!.add(newMessage);
       notifyListeners();
+    } else {
+      // P2P chats (order-xxx) → persist in Firestore as before
+      subscribeToChat(chatId);
+      try {
+        // 1. Save to Firestore
+        await _firestore
+            .collection('chats')
+            .doc(chatId)
+            .collection('messages')
+            .add(newMessage.toMap());
+
+        // 2. Update parent chat document metadata
+        await _firestore.collection('chats').doc(chatId).set({
+          'lastMessage': text,
+          'lastMessageTime': DateTime.now().toIso8601String(),
+          'participants': FieldValue.arrayUnion([senderRole]),
+        }, SetOptions(merge: true));
+
+        // 3. Trigger notification logic if entrepreneur is writing to client
+        if (senderRole == 'entrepreneur' && chatId.startsWith('order-')) {
+          final orderId = chatId.replaceFirst('order-', '');
+          final orderDoc = await _firestore.collection('orders').doc(orderId).get();
+          if (orderDoc.exists) {
+            final clientId = orderDoc.data()?['clientId'];
+            if (clientId != null) {
+              await _firestore.collection('notifications').add({
+                'title': 'Nuevo mensaje del Emprendedor',
+                'message': text,
+                'timestamp': FieldValue.serverTimestamp(),
+                'recipientId': clientId,
+              });
+            }
+          }
+        }
+      } catch (e) {
+        print("Error sending message to Firestore: $e");
+        // Fallback: add locally if offline
+        if (!_chats.containsKey(chatId)) _chats[chatId] = [];
+        _chats[chatId]!.add(newMessage);
+        notifyListeners();
+      }
     }
     
-    // AI Logic
+    // AI Logic — response is stored only in memory, never in Firestore
     if (isAI) {
       _isTyping = true;
       notifyListeners();
 
       try {
         final responseText = await _chatService.sendMessage(text);
-        
+
         final aiMessage = ChatMessage(
           text: responseText,
           isUser: false,
@@ -147,14 +153,11 @@ class ChatProvider with ChangeNotifier {
           timestamp: DateTime.now(),
         );
 
-        await _firestore
-            .collection('chats')
-            .doc(chatId)
-            .collection('messages')
-            .add(aiMessage.toMap());
+        if (!_chats.containsKey(chatId)) _chats[chatId] = [];
+        _chats[chatId]!.add(aiMessage);
+        notifyListeners();
 
       } catch (e) {
-        // Handle error
         print("AI Error: $e");
       } finally {
         _isTyping = false;
