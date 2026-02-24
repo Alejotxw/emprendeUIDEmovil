@@ -3,6 +3,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 
+import 'widgets/botpress_asistente.dart'; 
+import 'widgets/asistente_flotante.dart'; 
+
+
 // Providers
 import 'providers/service_provider.dart';
 import 'providers/cart_provider.dart';
@@ -87,6 +91,7 @@ class MyApp extends StatelessWidget {
       builder: (context, settings, child) {
         return MaterialApp(
           title: 'EmprendeUIDE',
+          
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             primarySwatch: Colors.red,
@@ -120,6 +125,7 @@ class MyApp extends StatelessWidget {
             '/admin': (context) => const AdminScreen(),
           },
         );
+        
       },
     );
   }
@@ -227,15 +233,18 @@ class _MainScreenState extends State<MainScreen> {
           bottomNavigationBar: isCliente
               ? _buildClienteBottomBar()
               : _buildEmprendedorBottomBar(),
+          
+          // 2. Mantenemos este FloatingActionButton (el rojo con el icono de soporte)
           floatingActionButton: FloatingActionButton(
             heroTag: 'chat_fab',
             onPressed: () {
+              // Navegamos al asistente de Botpress
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ChatScreen()),
+                MaterialPageRoute(builder: (context) => BotpressAsistente()),
               );
             },
-            backgroundColor: const Color.fromARGB(255, 127, 0, 2),
+            backgroundColor: const Color.fromARGB(255, 127, 0, 2), // Tu color rojo oscuro
             child: const Icon(Icons.support_agent, color: Colors.white),
           ),
         );
