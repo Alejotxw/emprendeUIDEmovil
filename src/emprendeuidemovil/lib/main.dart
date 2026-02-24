@@ -34,6 +34,7 @@ import 'screens/profile_screen.dart';
 import 'screens/chat_screen.dart'; // Agregado
 import 'screens/login_screen.dart';
 import 'screens/admin_screen.dart';
+import 'screens/forgot_password_screen.dart';
 
 
 Future<void> main() async {
@@ -121,6 +122,7 @@ class MyApp extends StatelessWidget {
           home: const LoginScreen(),
           routes: {
             '/login': (context) => const LoginScreen(),
+            '/forgot-password': (context) => const ForgotPasswordScreen(),
             '/main': (context) => const MainScreen(),
             '/admin': (context) => const AdminScreen(),
           },

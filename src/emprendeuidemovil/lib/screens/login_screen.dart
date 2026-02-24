@@ -191,6 +191,25 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 30),
 
+
+
+              if (_isLogin) 
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      // Navegamos a la nueva pantalla que crearemos
+                      Navigator.pushNamed(context, '/forgot-password');
+                    },
+                    child: const Text(
+                      '¿Olvidaste tu contraseña?',
+                      style: TextStyle(color: Colors.white70, fontSize: 14),
+                    ),
+                  ),
+                ),
+
+              const SizedBox(height: 30),
+
               // Botón Principal (Ingresar / Registrarse)
               if (_isLoading)
                 const CircularProgressIndicator(color: Colors.white)
